@@ -34,10 +34,6 @@ struct ContentView: View {
         }
         .frame(minWidth: 440, minHeight: 380)
         .task { model.refresh() }
-        .onReceive(NotificationCenter.default.publisher(
-            for: NSWorkspace.didMountNotification)) { _ in model.refresh() }
-        .onReceive(NotificationCenter.default.publisher(
-            for: NSWorkspace.didUnmountNotification)) { _ in model.refresh() }
         .confirmationDialog(
             pendingSwitch.map { Text("Restart from “\($0.name)”?") } ?? Text(""),
             isPresented: Binding(get: { pendingSwitch != nil },
@@ -110,11 +106,28 @@ struct SystemRowView: View {
     let row: SystemRow
     let onSwitch: (BootSystem) -> Void
 
+    @State private var pickingColour = false
+
     var body: some View {
         HStack(spacing: 10) {
-            Image(systemName: icon)
-                .foregroundStyle(row.isAvailable ? .primary : .tertiary)
-                .frame(width: 20)
+            Button {
+                pickingColour = true
+            } label: {
+                Image(systemName: icon)
+                    // Odpięty dysk zachowuje swój kolor, tylko przygaszony — inaczej
+                    // wszystkie nieobecne wyglądałyby jednakowo.
+                    .foregroundStyle(row.entry.color.color.opacity(row.isAvailable ? 1 : 0.35))
+                    .frame(width: 22)
+            }
+            .buttonStyle(.plain)
+            .help(Text("Change colour"))
+            .accessibilityLabel(Text("Colour: \(Text(row.entry.color.label))"))
+            .popover(isPresented: $pickingColour, arrowEdge: .bottom) {
+                ColorPickerPopover(current: row.entry.color) { picked in
+                    model.configuration.setColor(picked, for: row.entry)
+                    pickingColour = false
+                }
+            }
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(row.name)
@@ -136,10 +149,10 @@ struct SystemRowView: View {
                     Button {
                         model.eject(system)
                     } label: {
-                        Image(systemName: "eject")
+                        Label("Eject", systemImage: "eject.fill")
                     }
-                    .buttonStyle(.borderless)
-                    .help(Text("Eject the whole disk safely"))
+                    .help(Text("Unmount the whole disk so it can be unplugged safely"))
+                    .disabled(model.busy)
                 }
                 Button("Switch") { onSwitch(system) }
                     .disabled(model.busy)
@@ -147,15 +160,26 @@ struct SystemRowView: View {
         }
         .padding(.vertical, 3)
         .contextMenu {
+            Menu("Colour") {
+                ForEach(SystemColor.allCases) { option in
+                    Button {
+                        model.configuration.setColor(option, for: row.entry)
+                    } label: {
+                        Label { Text(option.label) } icon: { ColorDot(color: option) }
+                    }
+                }
+            }
+            Divider()
             Button("Remove from list", role: .destructive) {
                 model.configuration.remove(row.entry)
             }
+            .disabled(model.isCurrent(row.system))
         }
     }
 
     private var icon: String {
         guard let system = row.system else { return "questionmark.circle" }
-        return system.isInternal ? "internaldrive" : "externaldrive"
+        return system.isInternal ? "internaldrive.fill" : "externaldrive.fill"
     }
 
     private var subtitle: String {

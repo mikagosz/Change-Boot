@@ -21,7 +21,12 @@ final class Configuration {
         let volumeUUID: String
         /// Ostatnia znana nazwa — tylko do pokazania, gdy dysku nie ma w pobliżu.
         var lastKnownName: String
+        /// Kolor wybrany przez użytkownika. Opcjonalny, żeby konfiguracja zapisana
+        /// przed wprowadzeniem kolorów nadal się wczytywała.
+        var colorName: String?
+
         var id: String { volumeUUID }
+        var color: SystemColor { SystemColor(rawValue: colorName ?? "") ?? .blue }
     }
 
     private let defaults: UserDefaults
@@ -57,7 +62,22 @@ final class Configuration {
             refreshName(for: system)
             return
         }
-        entries.append(Entry(volumeUUID: system.volumeUUID, lastKnownName: system.name))
+        entries.append(Entry(volumeUUID: system.volumeUUID,
+                             lastKnownName: system.name,
+                             colorName: nextFreeColor().rawValue))
+        save()
+    }
+
+    /// Pierwszy kolor palety nieużywany na liście, żeby dwa dyski nie startowały
+    /// z tym samym. Gdy paleta się wyczerpie, kolory zaczynają się powtarzać.
+    private func nextFreeColor() -> SystemColor {
+        let used = Set(entries.compactMap(\.colorName))
+        return SystemColor.allCases.first { !used.contains($0.rawValue) } ?? .blue
+    }
+
+    func setColor(_ color: SystemColor, for entry: Entry) {
+        guard let index = entries.firstIndex(where: { $0.volumeUUID == entry.volumeUUID }) else { return }
+        entries[index].colorName = color.rawValue
         save()
     }
 

@@ -46,13 +46,24 @@ struct SetupView: View {
             } else {
                 List(model.unconfigured) { system in
                     HStack(spacing: 10) {
-                        Image(systemName: system.isInternal ? "internaldrive" : "externaldrive")
+                        Image(systemName: system.isInternal ? "internaldrive.fill" : "externaldrive.fill")
+                            .foregroundStyle(.secondary)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(system.name)
                             Text("macOS \(system.productVersion) · \(system.deviceIdentifier)")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         Spacer()
+                        // Dysk zewnętrzny można odpiąć już tutaj, bez przechodzenia dalej.
+                        if !system.isInternal {
+                            Button {
+                                model.eject(system)
+                            } label: {
+                                Label("Eject", systemImage: "eject.fill")
+                            }
+                            .help(Text("Unmount the whole disk so it can be unplugged safely"))
+                            .disabled(model.busy)
+                        }
                         Button("Add") { model.configuration.add(system) }
                     }
                 }
@@ -61,21 +72,33 @@ struct SetupView: View {
             }
 
             if !model.configuration.entries.isEmpty {
-                Text("On the list: \(model.configuration.entries.map(\.lastKnownName).joined(separator: ", "))")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("On the list").font(.callout).foregroundStyle(.secondary)
+                    // Kolory przydzielają się same, po jednym z palety — tutaj widać,
+                    // który system dostał który.
+                    ForEach(model.configuration.entries) { entry in
+                        HStack(spacing: 7) {
+                            ColorDot(color: entry.color)
+                            Text(entry.lastKnownName).font(.callout)
+                            Spacer()
+                            if !model.isCurrent(model.detected.first { $0.volumeUUID == entry.volumeUUID }) {
+                                Button("Remove") { model.configuration.remove(entry) }
+                                    .buttonStyle(.link)
+                                    .font(.caption)
+                            }
+                        }
+                    }
+                }
             }
 
             HStack {
                 Button("Rescan") { model.refresh() }
                 Spacer()
-                Button("Done") {
-                    if let current = model.current { model.configuration.add(current) }
-                    model.configuration.setupCompleted = true
-                }
-                .keyboardShortcut(.defaultAction)
-                .disabled(model.configuration.entries.isEmpty && model.current == nil)
+                // Bieżący system trafia na listę już przy skanowaniu, więc tutaj
+                // zostaje samo domknięcie kreatora.
+                Button("Done") { model.configuration.setupCompleted = true }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(model.configuration.entries.isEmpty)
             }
         }
         .padding(18)
