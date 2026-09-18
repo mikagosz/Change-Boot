@@ -20,7 +20,7 @@ struct ChangeBootApp: App {
             MenuBarContent()
                 .environment(model)
         } label: {
-            MenuBarIcon()
+            MenuBarIconView()
         }
     }
 }
