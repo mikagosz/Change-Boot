@@ -25,7 +25,11 @@ final class Configuration {
     }
 
     private let defaults: UserDefaults
-    private enum Key {
+
+    /// Nazwy kluczy są widoczne na zewnątrz, bo `AppDelegate` musi odczytać
+    /// ustawienie paska menu, zanim powstanie model — decyduje o tym, czy
+    /// zamknięcie okna ma zakończyć program.
+    enum Key {
         static let entries = "entries"
         static let menuBar = "showsMenuBarIcon"
         static let cleanStart = "cleanStartByDefault"

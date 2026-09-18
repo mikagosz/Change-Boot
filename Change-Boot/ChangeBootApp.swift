@@ -79,8 +79,21 @@ final class AppModel {
     }
 }
 
+/// Decyduje, czy zamknięcie okna kończy program.
+///
+/// SwiftUI domyślnie kończy aplikację po zamknięciu ostatniego okna, także wtedy,
+/// gdy `MenuBarExtra` jest widoczne — czerwony przycisk ubijał wtedy program mimo
+/// ikony w pasku. Z ikoną w pasku program ma zostać; bez niej musi się zakończyć,
+/// bo inaczej zostałby bez okna i bez ikony, czyli nie do odzyskania.
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        !UserDefaults.standard.bool(forKey: Configuration.Key.menuBar)
+    }
+}
+
 @main
 struct ChangeBootApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @State private var model = AppModel()
 
     var body: some Scene {

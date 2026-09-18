@@ -86,6 +86,7 @@ struct SetupView: View {
 
 struct MenuBarContent: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         if let current = model.current {
@@ -102,9 +103,11 @@ struct MenuBarContent: View {
         }
 
         Divider()
+        // Po zamknięciu okna scena przestaje istnieć, więc szukanie go w
+        // NSApp.windows nic nie da — okno trzeba otworzyć na nowo po identyfikatorze.
         Button("Open Change-Boot") {
             NSApp.activate(ignoringOtherApps: true)
-            NSApp.windows.first?.makeKeyAndOrderFront(nil)
+            openWindow(id: "main")
         }
         Button("Quit") { NSApp.terminate(nil) }
     }
