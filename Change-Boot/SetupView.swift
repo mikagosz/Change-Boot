@@ -9,6 +9,14 @@ import SwiftUI
 struct SetupView: View {
     @Environment(AppModel.self) private var model
 
+    /// Ten sam symbol co na liście głównej, żeby kolor od razu było z czym skojarzyć.
+    private func ikonaDysku(_ entry: Configuration.Entry) -> String {
+        guard let system = model.detected.first(where: { $0.volumeUUID == entry.volumeUUID }) else {
+            return "externaldrive.fill"
+        }
+        return system.isInternal ? "internaldrive.fill" : "externaldrive.fill"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
@@ -78,7 +86,9 @@ struct SetupView: View {
                     // który system dostał który.
                     ForEach(model.configuration.entries) { entry in
                         HStack(spacing: 7) {
-                            ColorDot(color: entry.color)
+                            Image(systemName: ikonaDysku(entry))
+                                .foregroundStyle(entry.color.color)
+                                .frame(width: 18)
                             Text(entry.lastKnownName).font(.callout)
                             Spacer()
                             if !model.isCurrent(model.detected.first { $0.volumeUUID == entry.volumeUUID }) {

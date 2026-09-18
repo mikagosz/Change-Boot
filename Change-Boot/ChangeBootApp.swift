@@ -14,12 +14,13 @@ struct ChangeBootApp: App {
         .windowResizability(.contentSize)
         .defaultSize(width: 460, height: 420)
 
-        MenuBarExtra("Change-Boot", systemImage: "internaldrive",
-                     isInserted: Binding(
+        MenuBarExtra(isInserted: Binding(
                         get: { model.configuration.showsMenuBarIcon },
                         set: { model.configuration.showsMenuBarIcon = $0 })) {
             MenuBarContent()
                 .environment(model)
+        } label: {
+            MenuBarIcon()
         }
     }
 }
