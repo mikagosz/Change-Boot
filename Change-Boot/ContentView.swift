@@ -62,6 +62,13 @@ struct ContentView: View {
         .sheet(isPresented: $adding) { AddSystemSheet() }
     }
 
+    /// Numer wersji z bundla — jedno źródło, to samo co w Informacjach o programie.
+    private var wersjaProgramu: String {
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+        let b = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"
+        return "\(v) (\(b))"
+    }
+
     private var header: some View {
         HStack(spacing: 10) {
             Image(systemName: "checkmark.seal.fill")
@@ -95,6 +102,9 @@ struct ContentView: View {
                 }
                 Spacer()
                 if model.busy { ProgressView().controlSize(.small) }
+                Text(wersjaProgramu)
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
             }
         }
         .padding(12)

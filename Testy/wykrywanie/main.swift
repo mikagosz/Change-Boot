@@ -49,6 +49,17 @@ sprawdz("wolumin główny ma SystemVersion.plist",
 sprawdz("katalog bez systemu nie jest brany za system",
         SystemScanner.system(atVolume: "/tmp") == nil)
 
+// USTERKA 2026-09-19: Cryptex Apple ma SystemVersion.plist z PUSTYM ProductVersion
+// i trafił na listę systemów startowych jako „macOS" bez numeru.
+sprawdz("wolumin niebootowalny nie jest systemem",
+        SystemScanner.system(atVolume: "/System/Volumes/Preboot") == nil)
+sprawdz("wolumin spoza / i /Volumes nie jest systemem",
+        SystemScanner.system(atVolume: "/System/Volumes/Data") == nil)
+sprawdz("każdy znaleziony system ma niepustą wersję",
+        systemy.allSatisfy { !$0.productVersion.trimmingCharacters(in: .whitespaces).isEmpty })
+sprawdz("każdy znaleziony system leży w / albo /Volumes",
+        systemy.allSatisfy { $0.mountPoint == "/" || $0.mountPoint.hasPrefix("/Volumes/") })
+
 print("\nTożsamość nie opiera się na nazwie")
 sprawdz("UUID-y są unikalne",
         Set(systemy.map(\.volumeUUID)).count == systemy.count)

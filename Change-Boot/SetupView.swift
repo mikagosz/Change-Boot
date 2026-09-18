@@ -103,6 +103,8 @@ struct SetupView: View {
 
             HStack {
                 Button("Rescan") { model.refresh() }
+                Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
+                    .font(.caption).foregroundStyle(.tertiary)
                 Spacer()
                 // Bieżący system trafia na listę już przy skanowaniu, więc tutaj
                 // zostaje samo domknięcie kreatora.

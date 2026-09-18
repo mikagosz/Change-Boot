@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 enum BootError: LocalizedError {
@@ -81,6 +82,39 @@ enum BootActions {
                               kCFPreferencesCurrentUser,
                               kCFPreferencesAnyHost)
         CFPreferencesAppSynchronize("com.apple.loginwindow" as CFString)
+    }
+
+    // MARK: - Zamykanie programów
+
+    /// Zamyka programy użytkownika i zwraca nazwy tych, które się nie poddały.
+    ///
+    /// 🔴 To jest **jedyna** rzecz, która naprawdę daje czysty start. Sama preferencja
+    /// `TALLogoutSavesState` nie wystarcza — zmierzone 2026-09-19: po powrocie z `Mac Lab`
+    /// flaga stała na `0`, a okna i tak wróciły. loginwindow wznawia to, co działało
+    /// w chwili wylogowania, więc program zamknięty **przed** restartem nie ma jak wrócić.
+    ///
+    /// Finder zostaje — jego „zamknięcie" to i tak ponowne uruchomienie, a bez niego
+    /// pulpit znika na chwilę bez żadnego zysku.
+    static func closeUserApps(waitingUpTo limit: TimeInterval = 6) -> [String] {
+        let wlasny = NSRunningApplication.current.processIdentifier
+
+        func doZamkniecia() -> [NSRunningApplication] {
+            NSWorkspace.shared.runningApplications.filter {
+                $0.activationPolicy == .regular
+                    && $0.processIdentifier != wlasny
+                    && $0.bundleIdentifier != "com.apple.finder"
+                    && !$0.isTerminated
+            }
+        }
+
+        for app in doZamkniecia() { app.terminate() }
+
+        let koniec = Date().addingTimeInterval(limit)
+        while Date() < koniec, !doZamkniecia().isEmpty {
+            RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.2))
+        }
+
+        return doZamkniecia().compactMap { $0.localizedName }
     }
 
     // MARK: - Restart

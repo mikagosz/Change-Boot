@@ -91,7 +91,20 @@ final class AppModel {
         failure = nil
         do {
             BootActions.setWindowRestore(!cleanStart)
+
+            // Dysk startowy ustawiamy PRZED zamykaniem programów: gdyby bless się nie
+            // udał albo użytkownik cofnął hasło, nikt nie traci otwartej pracy.
             try BootActions.setStartupDisk(to: system)
+
+            if cleanStart {
+                let oporne = BootActions.closeUserApps()
+                if !oporne.isEmpty {
+                    failure = String(localized: "These apps did not close: \(oporne.joined(separator: ", ")).\n\nThey probably have unsaved work. Deal with them and switch again — the startup disk is already set.")
+                    busy = false
+                    return
+                }
+            }
+
             try BootActions.restart()
         } catch BootError.cancelled {
             // Użytkownik zamknął okno hasła — nic się nie stało.

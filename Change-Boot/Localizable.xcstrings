@@ -110,13 +110,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apps and windows from this session will not come back."
+            "value": "Open apps will be closed first, so nothing comes back after the restart."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Programy i okna z tej sesji nie wrócą."
+            "value": "Otwarte programy zostaną najpierw zamknięte, więc po restarcie nic nie wróci."
           }
         }
       }
@@ -865,6 +865,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Morski"
+          }
+        }
+      }
+    },
+    "These apps did not close: %@.\n\nThey probably have unsaved work. Deal with them and switch again — the startup disk is already set.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These apps did not close: %@.\n\nThey probably have unsaved work. Deal with them and switch again — the startup disk is already set."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te programy się nie zamknęły: %@.\n\nPrawdopodobnie mają niezapisaną pracę. Zajmij się nimi i przełącz ponownie — dysk startowy jest już ustawiony."
           }
         }
       }

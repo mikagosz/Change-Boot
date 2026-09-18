@@ -51,8 +51,21 @@ enum SystemScanner {
     static func current() -> BootSystem? { system(atVolume: "/") }
 
     /// Opisuje wolumin, jeśli leży na nim instalacja macOS. W przeciwnym razie `nil`.
+    ///
+    /// 🔴 Sam `SystemVersion.plist` NIE wystarcza. Cryptexy Apple — podpisane woluminy
+    /// z zasobami systemowymi — też go mają, tylko z **pustym** `ProductVersion`.
+    /// Zmierzone 2026-09-19 na `Mac Lab`: program pokazał
+    /// `RevivalB13M…_Cryptex` jako system startowy, opisany jako „macOS" bez numeru.
+    /// Dlatego trzy warunki naraz: niepusta wersja, wolumin bootowalny i montowanie
+    /// w `/` albo `/Volumes` (Cryptexy siedzą poza tymi miejscami).
     static func system(atVolume path: String) -> BootSystem? {
-        guard let version = productVersion(atVolume: path) else { return nil }
+        guard path == "/" || path.hasPrefix("/Volumes/") else { return nil }
+
+        guard let version = productVersion(atVolume: path),
+              !version.trimmingCharacters(in: .whitespaces).isEmpty else { return nil }
+
+        guard DiskUtility.bool(path, "Bootable") == true else { return nil }
+
         guard let info = DiskUtility.info(path),
               let uuid = info["VolumeUUID"] as? String,
               let device = info["DeviceIdentifier"] as? String else { return nil }
