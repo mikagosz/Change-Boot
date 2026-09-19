@@ -116,6 +116,11 @@ struct HelpView: View {
 
                     Divider()
 
+                    section("terminal", "Command line",
+                            "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options and type change-boot help to see everything.")
+
+                    Divider()
+
                     section("gearshape", "Options",
                             "Every setting lives behind the Options button at the bottom of the window — the window turns around to show them. Command-comma does the same. That is also where you install the helper that stops macOS asking for your password on every switch.")
                 }

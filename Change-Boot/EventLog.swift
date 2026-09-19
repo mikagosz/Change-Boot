@@ -38,6 +38,8 @@ enum EventLog {
         case wysuniecie
         case instalacjaPomocnika
         case usunieciePomocnika
+        case instalacjaPolecenia
+        case usunieciePolecenia
     }
 
     enum Skutek: String, Codable {

@@ -206,6 +206,23 @@
         }
       }
     },
+    "Change-Boot can also be driven from Terminal: list the systems, switch, eject, read the log. Useful when the switch has to happen from a script or on a schedule.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot can also be driven from Terminal: list the systems, switch, eject, read the log. Useful when the switch has to happen from a script or on a schedule."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Bootem da się sterować także z terminala: wypisać systemy, przełączyć, wysunąć, przeczytać dziennik. Przydaje się, gdy przełączenie ma iść ze skryptu albo z harmonogramu."
+          }
+        }
+      }
+    },
     "Change-Boot has to restart to load the other language.": {
       "extractionState": "manual",
       "localizations": {
@@ -321,6 +338,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kolor: %@"
+          }
+        }
+      }
+    },
+    "Command line": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command line"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiersz poleceń"
           }
         }
       }
@@ -716,6 +750,23 @@
         }
       }
     },
+    "Install the command": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install the command"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zainstaluj polecenie"
+          }
+        }
+      }
+    },
     "Installed — no password needed to switch": {
       "extractionState": "manual",
       "localizations": {
@@ -729,6 +780,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zainstalowany — przełączanie bez hasła"
+          }
+        }
+      }
+    },
+    "Installed — type change-boot in Terminal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed — type change-boot in Terminal"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zainstalowane — wpisz change-boot w terminalu"
           }
         }
       }
@@ -899,6 +967,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Niezainstalowany — macOS pyta o hasło przy każdym przełączeniu"
+          }
+        }
+      }
+    },
+    "Not installed — the command has to be typed with its full path": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not installed — the command has to be typed with its full path"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niezainstalowane — polecenie trzeba wpisywać pełną ścieżką"
           }
         }
       }
@@ -1141,6 +1226,23 @@
         }
       }
     },
+    "Points at another copy of the app: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Points at another copy of the app: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wskazuje na inną kopię programu: %@"
+          }
+        }
+      }
+    },
     "Purple": {
       "extractionState": "manual",
       "localizations": {
@@ -1239,6 +1341,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Usuń pomocnika"
+          }
+        }
+      }
+    },
+    "Remove the command": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the command"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usuń polecenie"
           }
         }
       }
@@ -1532,6 +1651,23 @@
         }
       }
     },
+    "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options and type change-boot help to see everything.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options and type change-boot help to see everything."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten sam program odpowiada w terminalu: list, current, switch, eject i log. Kończy się kodem wyjścia, więc skrypt wie, czy przełączenie się udało. Zainstaluj polecenie w Opcjach i wpisz change-boot help, żeby zobaczyć całość."
+          }
+        }
+      }
+    },
     "These apps did not close: %@.\n\nThey probably have unsaved work. Deal with them and switch again — the startup disk is already set.": {
       "extractionState": "manual",
       "localizations": {
@@ -1664,6 +1800,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Co który element robi"
+          }
+        }
+      }
+    },
+    "Without the command, the full path works too:": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without the command, the full path works too:"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bez dowiązania działa też pełna ścieżka:"
           }
         }
       }

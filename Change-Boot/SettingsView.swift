@@ -25,6 +25,8 @@ struct SettingsView: View {
     @State private var helperFailure: String?
     @State private var busy = false
     @State private var zdarzenia: [EventLog.Entry] = []
+    @State private var stanPolecenia = CommandLineInstall.opisStanu
+    @State private var poleceniZainstalowane = CommandLineInstall.stan == .zainstalowane
 
     private var formater: DateFormatter {
         let f = DateFormatter()
@@ -63,6 +65,10 @@ struct SettingsView: View {
             return "Instalacja pomocnika\(zrodlo)"
         case .usunieciePomocnika:
             return "Usunięcie pomocnika\(zrodlo)"
+        case .instalacjaPolecenia:
+            return "Instalacja polecenia w terminalu\(zrodlo)"
+        case .usunieciePolecenia:
+            return "Usunięcie polecenia z terminala\(zrodlo)"
         }
     }
 
@@ -140,6 +146,42 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Command line") {
+                Text("Change-Boot can also be driven from Terminal: list the systems, switch, eject, read the log. Useful when the switch has to happen from a script or on a schedule.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: 6) {
+                    Image(systemName: poleceniZainstalowane ? "terminal.fill" : "terminal")
+                        .foregroundStyle(poleceniZainstalowane ? .green : .secondary)
+                    Text(stanPolecenia)
+                        .textSelection(.enabled)
+                    Spacer()
+                    if busy { ProgressView().controlSize(.small) }
+                    if poleceniZainstalowane {
+                        Button("Remove the command") { uruchom(CommandLineInstall.usun,
+                                                              czynnosc: .usunieciePolecenia) }
+                    } else {
+                        Button("Install the command") { uruchom(CommandLineInstall.zainstaluj,
+                                                                czynnosc: .instalacjaPolecenia) }
+                    }
+                }
+                .disabled(busy)
+
+                // Ścieżka do skopiowania — działa nawet bez dowiązania, więc nikt
+                // nie zostaje z niczym, gdy nie chce wpuszczać programu do /usr/local/bin.
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Without the command, the full path works too:")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(CommandLineInstall.cel)
+                        .font(.system(.caption, design: .monospaced))
+                        .textSelection(.enabled)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             Section("History") {
                 if zdarzenia.isEmpty {
                     Text("Nothing has happened yet. Switching a disk, ejecting one or installing the helper all leave a note here.")
@@ -179,6 +221,28 @@ struct SettingsView: View {
             Button("OK", role: .cancel) { helperFailure = nil }
         } message: {
             Text(helperFailure ?? "")
+        }
+    }
+
+    /// To samo co `run`, ale odświeża stan polecenia w terminalu i dziennik.
+    private func uruchom(_ action: @escaping () throws -> Void,
+                         czynnosc: EventLog.Czynnosc) {
+        busy = true
+        do {
+            try action()
+            EventLog.zapisz(czynnosc, skutek: .udane, zrodlo: .okno)
+        } catch BootError.cancelled {
+            EventLog.zapisz(czynnosc, skutek: .anulowane, zrodlo: .okno)
+        } catch {
+            helperFailure = error.localizedDescription
+            EventLog.zapisz(czynnosc, skutek: .nieudane, zrodlo: .okno,
+                            szczegol: error.localizedDescription)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            stanPolecenia = CommandLineInstall.opisStanu
+            poleceniZainstalowane = CommandLineInstall.stan == .zainstalowane
+            zdarzenia = EventLog.ostatnie(6)
+            busy = false
         }
     }
 
