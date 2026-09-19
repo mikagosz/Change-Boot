@@ -28,7 +28,41 @@ enum MenuBarIcon {
     private static let przesuniecieX: CGFloat = 6
     private static let przesuniecieY: CGFloat = 5
 
+    /// Obie wersje liczone raz i trzymane: pasek menu odpytuje etykietę często,
+    /// a rysowanie symboli z obrysem nie jest darmowe.
     static let obraz: NSImage = zbuduj()
+    static let obrazMono: NSImage = zbudujMono()
+
+    static func obraz(monochromatyczna: Bool) -> NSImage {
+        monochromatyczna ? obrazMono : obraz
+    }
+
+    /// Wariant bez kolorów: jeden dysk, rysowany jako **szablon**.
+    ///
+    /// `isTemplate = true` oddaje barwienie systemowi — ikona sama trzyma się
+    /// trybu jasnego i ciemnego, podświetlenia po kliknięciu i ograniczonej
+    /// przezroczystości. Dokładnie to, czego wersja kolorowa zrobić nie może.
+    ///
+    /// Jeden dysk, nie dwa: w szablonie nie ma jak rozdzielić zachodzących
+    /// kształtów obrysem w kolorze tła — tło jest wtedy nieznane, bo maluje je
+    /// system. Dwa nakładające się dyski zlałyby się w jedną plamę.
+    private static func zbudujMono() -> NSImage {
+        let rozmiar = NSSize(width: szerokosc, height: wysokosc)
+        let img = NSImage(size: rozmiar, flipped: false) { _ in
+            guard let symbolImg = NSImage(systemSymbolName: "externaldrive.fill",
+                                          accessibilityDescription: nil)?
+                .withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: 16,
+                                                                     weight: .semibold))
+            else { return true }
+            let ramka = NSRect(x: (szerokosc - dyskW) / 2,
+                               y: (wysokosc - dyskH) / 2 - 1,
+                               width: dyskW, height: dyskH)
+            symbolImg.draw(in: ramka, from: .zero, operation: .sourceOver, fraction: 1)
+            return true
+        }
+        img.isTemplate = true
+        return img
+    }
 
     private static func zbuduj() -> NSImage {
         let rozmiar = NSSize(width: szerokosc, height: wysokosc)
@@ -76,9 +110,13 @@ enum MenuBarIcon {
 }
 
 struct MenuBarIconView: View {
+    let monochromatyczna: Bool
+
     var body: some View {
-        Image(nsImage: MenuBarIcon.obraz)
-            .renderingMode(.original)
+        // `.original` tylko dla wersji kolorowej. Szablon ma zostać szablonem,
+        // inaczej system nie przemaluje go pod tryb jasny i podświetlenie.
+        Image(nsImage: MenuBarIcon.obraz(monochromatyczna: monochromatyczna))
+            .renderingMode(monochromatyczna ? .template : .original)
             .accessibilityLabel(Text("Change-Boot"))
     }
 }

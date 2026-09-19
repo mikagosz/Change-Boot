@@ -13,7 +13,7 @@ struct ChangeBootApp: App {
                 .environment(model)
         }
         .windowResizability(.contentSize)
-        .defaultSize(width: 460, height: 420)
+        .defaultSize(width: 460, height: 444)
         .commands {
             // Zaraz za „O programie Change-Boot", czyli tam, gdzie macOS trzyma
             // rzeczy dotyczące samego programu.
@@ -29,7 +29,7 @@ struct ChangeBootApp: App {
             MenuBarContent()
                 .environment(model)
         } label: {
-            MenuBarIconView()
+            MenuBarIconView(monochromatyczna: model.configuration.monochromeMenuBarIcon)
         }
     }
 }

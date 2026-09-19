@@ -699,6 +699,23 @@
         }
       }
     },
+    "Menu bar icon without colours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menu bar icon without colours"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ikona w pasku bez kolorów"
+          }
+        }
+      }
+    },
     "Move Change-Boot to the Applications folder first. The helper remembers where the app was when you installed it, so registering it from a build folder stops working after the next build.": {
       "extractionState": "manual",
       "localizations": {
@@ -835,19 +852,19 @@
         }
       }
     },
-    "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar and takes it out of the Dock.": {
+    "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar and takes it out of the Dock. You can also strip its colours, so it looks like the rest of the menu bar and follows light and dark mode on its own.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar and takes it out of the Dock."
+            "value": "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar and takes it out of the Dock. You can also strip its colours, so it looks like the rest of the menu bar and follows light and dark mode on its own."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Domyślnie wyłączona, bo przeszkadza przy nagrywaniu ekranu. Włączona sprawia, że zamknięcie okna zostawia program w pasku menu i zdejmuje go z Docka."
+            "value": "Domyślnie wyłączona, bo przeszkadza przy nagrywaniu ekranu. Włączona sprawia, że zamknięcie okna zostawia program w pasku menu i zdejmuje go z Docka. Można jej też odebrać kolory — wygląda wtedy jak reszta paska i sama trzyma się trybu jasnego i ciemnego."
           }
         }
       }

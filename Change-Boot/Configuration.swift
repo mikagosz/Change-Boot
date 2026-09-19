@@ -14,6 +14,7 @@ final class Configuration {
     private(set) var entries: [Entry] = []
 
     var showsMenuBarIcon: Bool { didSet { save() } }
+    var monochromeMenuBarIcon: Bool { didSet { save() } }
     var cleanStartByDefault: Bool { didSet { save() } }
     var setupCompleted: Bool { didSet { save() } }
 
@@ -37,6 +38,7 @@ final class Configuration {
     enum Key {
         static let entries = "entries"
         static let menuBar = "showsMenuBarIcon"
+        static let monoMenuBar = "monochromeMenuBarIcon"
         static let cleanStart = "cleanStartByDefault"
         static let setupDone = "setupCompleted"
     }
@@ -46,6 +48,8 @@ final class Configuration {
         // Ikona w pasku menu domyślnie WYŁĄCZONA: program bywa używany przy
         // nagrywaniu ekranu, gdzie każdy dodatkowy element paska przeszkadza.
         self.showsMenuBarIcon = defaults.bool(forKey: Key.menuBar)
+        // Domyślnie kolorowa: tak wygląda od 0.1.5 i tak została przyjęta.
+        self.monochromeMenuBarIcon = defaults.bool(forKey: Key.monoMenuBar)
         self.cleanStartByDefault = defaults.object(forKey: Key.cleanStart) as? Bool ?? true
         self.setupCompleted = defaults.bool(forKey: Key.setupDone)
 
@@ -106,6 +110,7 @@ final class Configuration {
     private func save() {
         defaults.set(try? JSONEncoder().encode(entries), forKey: Key.entries)
         defaults.set(showsMenuBarIcon, forKey: Key.menuBar)
+        defaults.set(monochromeMenuBarIcon, forKey: Key.monoMenuBar)
         defaults.set(cleanStartByDefault, forKey: Key.cleanStart)
         defaults.set(setupCompleted, forKey: Key.setupDone)
     }
