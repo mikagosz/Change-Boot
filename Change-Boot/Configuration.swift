@@ -15,6 +15,7 @@ final class Configuration {
 
     var showsMenuBarIcon: Bool { didSet { save() } }
     var monochromeMenuBarIcon: Bool { didSet { save() } }
+    var hidesDockIcon: Bool { didSet { save() } }
     var cleanStartByDefault: Bool { didSet { save() } }
     var setupCompleted: Bool { didSet { save() } }
 
@@ -39,6 +40,7 @@ final class Configuration {
         static let entries = "entries"
         static let menuBar = "showsMenuBarIcon"
         static let monoMenuBar = "monochromeMenuBarIcon"
+        static let hideDock = "hidesDockIcon"
         static let cleanStart = "cleanStartByDefault"
         static let setupDone = "setupCompleted"
     }
@@ -50,6 +52,9 @@ final class Configuration {
         self.showsMenuBarIcon = defaults.bool(forKey: Key.menuBar)
         // Domyślnie kolorowa: tak wygląda od 0.1.5 i tak została przyjęta.
         self.monochromeMenuBarIcon = defaults.bool(forKey: Key.monoMenuBar)
+        // Domyślnie WYŁĄCZONE: zdjęcie programu z Docka to zmiana, której nikt się
+        // nie spodziewa po instalacji. Włącza ją użytkownik świadomie.
+        self.hidesDockIcon = defaults.bool(forKey: Key.hideDock)
         self.cleanStartByDefault = defaults.object(forKey: Key.cleanStart) as? Bool ?? true
         self.setupCompleted = defaults.bool(forKey: Key.setupDone)
 
@@ -111,6 +116,7 @@ final class Configuration {
         defaults.set(try? JSONEncoder().encode(entries), forKey: Key.entries)
         defaults.set(showsMenuBarIcon, forKey: Key.menuBar)
         defaults.set(monochromeMenuBarIcon, forKey: Key.monoMenuBar)
+        defaults.set(hidesDockIcon, forKey: Key.hideDock)
         defaults.set(cleanStartByDefault, forKey: Key.cleanStart)
         defaults.set(setupCompleted, forKey: Key.setupDone)
     }

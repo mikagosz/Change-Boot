@@ -110,7 +110,7 @@ struct HelpView: View {
                             "Ejects the whole physical disk, not just the volume you see in Finder. Finder leaves the hidden data volume mounted, which is why unplugging after a Finder eject makes macOS complain that the disk was not ejected properly.")
 
                     section("menubar.arrow.up.rectangle", "Menu bar icon",
-                            "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar and takes it out of the Dock. You can also strip its colours, so it looks like the rest of the menu bar and follows light and dark mode on its own.")
+                            "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar instead of quitting, and you can have it leave the Dock as well. Its colours can be stripped too, from the icon's own menu, so it looks like the rest of the menu bar and follows light and dark mode on its own.")
 
                     Divider()
 

@@ -143,10 +143,12 @@ struct MenuBarContent: View {
         // Po zamknięciu okna scena przestaje istnieć, więc szukanie go w
         // NSApp.windows nic nie da — okno trzeba otworzyć na nowo po identyfikatorze.
         Button("Open Change-Boot") {
+            AppDelegate.przygotujNaOkno()
             NSApp.activate(ignoringOtherApps: true)
             openWindow(id: "main")
         }
         Button("Help") {
+            AppDelegate.przygotujNaOkno()
             NSApp.activate(ignoringOtherApps: true)
             openWindow(id: "main")
             NotificationCenter.default.post(name: .changeBootShowHelp, object: nil)

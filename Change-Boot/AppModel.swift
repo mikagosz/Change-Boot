@@ -144,5 +144,52 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         !UserDefaults.standard.bool(forKey: Configuration.Key.menuBar)
     }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        for nazwa in [NSWindow.willCloseNotification, NSWindow.didBecomeMainNotification] {
+            NotificationCenter.default.addObserver(forName: nazwa, object: nil, queue: .main) { _ in
+                // `willClose` leci ZANIM okno zniknie z `NSApp.windows`, więc licząc
+                // okna w tej samej turze naliczylibyśmy je jeszcze raz.
+                DispatchQueue.main.async { AppDelegate.aktualizujObecnoscWDocku() }
+            }
+        }
+        AppDelegate.aktualizujObecnoscWDocku()
+    }
+
+    /// Zdejmuje program z Docka albo go tam przywraca.
+    ///
+    /// Trzy warunki naraz, bo każdy inaczej kończy się programem nie do odzyskania:
+    /// ustawienie włączone, ikona w pasku menu obecna (inaczej nie ma jak wrócić)
+    /// i żadnego otwartego okna (z otwartym oknem `.accessory` zabrałoby menu górne).
+    ///
+    /// 🔴 Do 0.1.16 tego **w ogóle nie było**. Notatka projektu twierdziła, że
+    /// `setActivationPolicy(.accessory)` wszedł w 0.1.7 — `git log -S` nie pokazuje
+    /// ani jednego commita z tym wywołaniem. Ikona w Docku nigdy nie znikała.
+    static func aktualizujObecnoscWDocku() {
+        let chowamy = UserDefaults.standard.bool(forKey: Configuration.Key.hideDock)
+        let pasek = UserDefaults.standard.bool(forKey: Configuration.Key.menuBar)
+        let celPolityki: NSApplication.ActivationPolicy =
+            (chowamy && pasek && !maOtwarteOkno()) ? .accessory : .regular
+        guard NSApp.activationPolicy() != celPolityki else { return }
+        NSApp.setActivationPolicy(celPolityki)
+    }
+
+    /// Czy program ma otwarte zwykłe okno.
+    ///
+    /// Sam `NSApp.windows` nie wystarcza: siedzi tam okno pozycji paska menu,
+    /// a także okna pomocnicze bez ramki. Liczą się tylko okna z paskiem tytułu.
+    private static func maOtwarteOkno() -> Bool {
+        NSApp.windows.contains { okno in
+            okno.isVisible && okno.styleMask.contains(.titled) && !(okno is NSPanel)
+        }
+    }
+
+    /// Wywoływane, zanim program otworzy okno z menu paska — bez powrotu do
+    /// `.regular` okno programu bez ikony w Docku nie wychodzi na wierzch.
+    static func przygotujNaOkno() {
+        if NSApp.activationPolicy() != .regular {
+            NSApp.setActivationPolicy(.regular)
+        }
+    }
 }
 

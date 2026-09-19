@@ -614,6 +614,23 @@
         }
       }
     },
+    "Hide the Dock icon when the window is closed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide the Dock icon when the window is closed"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schowaj ikonę Docka po zamknięciu okna"
+          }
+        }
+      }
+    },
     "How Change-Boot works": {
       "extractionState": "manual",
       "localizations": {
@@ -852,19 +869,19 @@
         }
       }
     },
-    "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar and takes it out of the Dock. You can also strip its colours, so it looks like the rest of the menu bar and follows light and dark mode on its own.": {
+    "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar instead of quitting, and you can have it leave the Dock as well. Its colours can be stripped too, from the icon's own menu, so it looks like the rest of the menu bar and follows light and dark mode on its own.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar and takes it out of the Dock. You can also strip its colours, so it looks like the rest of the menu bar and follows light and dark mode on its own."
+            "value": "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar instead of quitting, and you can have it leave the Dock as well. Its colours can be stripped too, from the icon's own menu, so it looks like the rest of the menu bar and follows light and dark mode on its own."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Domyślnie wyłączona, bo przeszkadza przy nagrywaniu ekranu. Włączona sprawia, że zamknięcie okna zostawia program w pasku menu i zdejmuje go z Docka. Można jej też odebrać kolory — wygląda wtedy jak reszta paska i sama trzyma się trybu jasnego i ciemnego."
+            "value": "Domyślnie wyłączona, bo przeszkadza przy nagrywaniu ekranu. Włączona sprawia, że zamknięcie okna zostawia program w pasku menu zamiast go kończyć — i można wtedy zdjąć go także z Docka. Kolory odbiera się jej w menu samej ikony; wygląda wtedy jak reszta paska i sama trzyma się trybu jasnego i ciemnego."
           }
         }
       }

@@ -39,7 +39,7 @@ struct ContentView: View {
             Divider()
             footer
         }
-        .frame(minWidth: 440, minHeight: 380)
+        .frame(minWidth: 440, minHeight: 404)
         .task { model.refresh() }
         .confirmationDialog(
             pendingSwitch.map { Text("Restart from “\($0.name)”?") } ?? Text(""),
@@ -98,6 +98,16 @@ struct ContentView: View {
                    isOn: $configuration.cleanStartByDefault)
             Toggle("Show icon in the menu bar",
                    isOn: $configuration.showsMenuBarIcon)
+            // Stoi w oknie, a nie w menu ikony paska, bo to jedyne miejsce, z którego
+            // da się to **wyłączyć z powrotem**: przy zgaszonej ikonie paska jej menu
+            // nie istnieje, a program bez Docka i bez ikony byłby nie do odzyskania.
+            Toggle("Hide the Dock icon when the window is closed",
+                   isOn: $configuration.hidesDockIcon)
+                .padding(.leading, 18)
+                .disabled(!configuration.showsMenuBarIcon)
+                .onChange(of: configuration.hidesDockIcon) { _, _ in
+                    AppDelegate.aktualizujObecnoscWDocku()
+                }
 
             HStack {
                 Button {
