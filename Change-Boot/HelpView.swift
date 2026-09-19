@@ -180,6 +180,14 @@ struct HelpView: View {
                 }
             }
 
+            if HelperClient.isInTemporaryLocation && !HelperClient.isReady {
+                Label("Move Change-Boot to the Applications folder first. The helper remembers where the app was when you installed it, so registering it from a build folder stops working after the next build.",
+                      systemImage: "exclamationmark.triangle")
+                    .font(.callout)
+                    .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             HStack {
                 Spacer()
                 if busy { ProgressView().controlSize(.small) }

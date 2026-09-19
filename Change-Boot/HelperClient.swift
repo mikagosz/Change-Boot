@@ -51,6 +51,17 @@ enum HelperClient {
         }
     }
 
+    /// Czy program stoi w miejscu, z którego nie warto rejestrować demona.
+    ///
+    /// `BundleProgram` w pliście jest ścieżką **względem bundla**, a launchd
+    /// zapamiętuje położenie bundla z chwili rejestracji. Program zarejestrowany
+    /// z `DerivedData` przestaje działać po pierwszym przebudowaniu — i wygląda
+    /// to wtedy na usterkę pomocnika, a nie na przeniesiony plik.
+    static var isInTemporaryLocation: Bool {
+        let path = Bundle.main.bundleURL.path
+        return path.contains("/DerivedData/") || path.contains("/Volumes/")
+    }
+
     // MARK: - Instalacja
 
     /// Rejestruje demona. Przy pierwszym razie macOS pyta o zgodę administratora.
