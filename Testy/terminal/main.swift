@@ -198,6 +198,16 @@ sprawdz("kontrola ujemna — pełna klatka jest wyższa niż 8 wierszy",
 sprawdz("okno o zerowej wysokości nie wywraca składania",
         adresyWierszy(TUI.klatka(wysokosc: 0)).isEmpty)
 
+// Pasek klawiszy ma wymieniać wysuwanie. Do 0.2.14 widok pełnoekranowy jako
+// jedyna z trzech dróg programu nie umiał odpiąć dysku — okno i wiersz poleceń
+// umiały. Sprawdzamy na złożonej klatce, bo pasek składa się z katalogu ciągów
+// i literówka w kluczu daje pusty napis, nie błąd kompilacji.
+sprawdz("pasek klawiszy wymienia wysuwanie",
+        klatka.contains(CommandLineTool.t("Eject")))
+sprawdz("kontrola dodatnia — wymienia też klawisze, które były wcześniej",
+        klatka.contains(CommandLineTool.t("Refresh"))
+            && klatka.contains(CommandLineTool.t("Quit")))
+
 print("\nZmiana rozmiaru okna")
 sprawdz("bez sygnału nie ma zgłoszonej zmiany rozmiaru",
         Terminal.czyZmienionoRozmiar() == false)

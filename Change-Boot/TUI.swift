@@ -12,12 +12,30 @@ enum TUI {
 
     // MARK: - Stan
 
+    /// Czynność czekająca na `ENTER`. Ekran zadaje w danej chwili **jedno**
+    /// pytanie, więc to jest jedno pole, a nie dwa niezależne.
+    ///
+    /// 🔴 Niesie czynność, nie sam wolumin. Do 0.2.14 stał tu `BootSystem?`
+    /// i wystarczał, bo potwierdzać dało się tylko przełączenie. Przy drugiej
+    /// czynności takie pole odpowiada na pytanie „czego dotyczy", ale nie na
+    /// „co ma się stać" — a od tego zależy, co zrobi `ENTER`.
+    enum DoPotwierdzenia {
+        case przelaczenie(BootSystem)
+        case wysuniecie(BootSystem)
+
+        var system: BootSystem {
+            switch self {
+            case .przelaczenie(let s), .wysuniecie(let s): return s
+            }
+        }
+    }
+
     private struct Stan {
         var systemy: [BootSystem] = []
         var biezacy: BootSystem?
         var zaznaczony = 0
         var komunikat: (tekst: String, barwa: Int)?
-        var potwierdzenie: BootSystem?
+        var potwierdzenie: DoPotwierdzenia?
         var pracuje = false
     }
 
@@ -49,11 +67,16 @@ enum TUI {
                     stan.komunikat = nil
                 }
             case .enter:
-                if let cel = stan.potwierdzenie {
+                if let czynnosc = stan.potwierdzenie {
                     stan.potwierdzenie = nil
-                    if przelacz(na: cel) { break petla }   // maszyna się restartuje
+                    switch czynnosc {
+                    case .przelaczenie(let cel):
+                        if przelacz(na: cel) { break petla }   // maszyna się restartuje
+                    case .wysuniecie(let cel):
+                        wysun(cel)
+                    }
                 } else if let cel = wybrany, !czyBiezacy(cel) {
-                    stan.potwierdzenie = cel
+                    stan.potwierdzenie = .przelaczenie(cel)
                 }
             case .escape:
                 if stan.potwierdzenie != nil { stan.potwierdzenie = nil } else { break petla }
@@ -61,6 +84,7 @@ enum TUI {
                 switch z.lowercased().first {
                 case "q": break petla
                 case "r": stan.potwierdzenie = nil; stan.komunikat = nil; odswiez()
+                case "e": poprosOWysuniecie()
                 default:  break
                 }
             case .inne:
@@ -84,6 +108,22 @@ enum TUI {
 
     private static func czyBiezacy(_ s: BootSystem) -> Bool {
         s.volumeUUID == stan.biezacy?.volumeUUID
+    }
+
+    /// Klawisz `E`. Odmowa dla systemu, z którego maszyna właśnie pracuje, pada
+    /// **tutaj**, a nie dopiero przy wykonaniu: pytanie „na pewno wysunąć?",
+    /// po którym i tak przychodzi odmowa, jest pytaniem o nic.
+    /// Ta sama odmowa stoi drugi raz w `BootActions.eject` i tak ma zostać —
+    /// wiersz poleceń i okno wchodzą tam własną drogą.
+    private static func poprosOWysuniecie() {
+        guard stan.potwierdzenie == nil, let cel = wybrany else { return }
+        guard !czyBiezacy(cel) else {
+            stan.komunikat = (BootError.refusedRunningSystem(cel.name).localizedDescription,
+                              Paleta.ostrzezenie)
+            return
+        }
+        stan.komunikat = nil
+        stan.potwierdzenie = .wysuniecie(cel)
     }
 
     // MARK: - Dane
@@ -153,6 +193,28 @@ enum TUI {
         }
         stan.pracuje = false
         return false
+    }
+
+    /// Wysuwa **cały nośnik**, tak samo jak okno i `change-boot eject`.
+    ///
+    /// Na końcu odświeżenie listy, a nie samo przerysowanie: wysunięty dysk
+    /// znika z `/Volumes` i zostawiony na ekranie kłamałby aż do `R`.
+    private static func wysun(_ system: BootSystem) {
+        stan.pracuje = true
+        rysuj()
+        do {
+            try BootActions.eject(system)
+            EventLog.zapisz(.wysuniecie, skutek: .udane, na: system,
+                            zrodlo: .wierszPolecen, szczegol: "TUI")
+            stan.komunikat = (CommandLineTool.t("Ejected the whole disk holding “\(system.name)”."),
+                              Paleta.sukces)
+        } catch {
+            EventLog.zapisz(.wysuniecie, skutek: .nieudane, na: system,
+                            zrodlo: .wierszPolecen, szczegol: error.localizedDescription)
+            stan.komunikat = (error.localizedDescription, Paleta.blad)
+        }
+        stan.pracuje = false
+        odswiez()
     }
 }
 
@@ -349,10 +411,17 @@ extension TUI {
                  + Paleta.pedzel(Paleta.tlo) + Paleta.pisak(Paleta.ostrzezenie)
                  + CommandLineTool.t("WORKING")
         }
-        if let cel = stan.potwierdzenie {
+        if let czynnosc = stan.potwierdzenie {
+            let nazwa = czynnosc.system.name
+            let pytanie: String
+            switch czynnosc {
+            case .przelaczenie:
+                pytanie = CommandLineTool.t("RESTART FROM “\(nazwa)”? ENTER to confirm, ESC to cancel")
+            case .wysuniecie:
+                pytanie = CommandLineTool.t("EJECT THE WHOLE DISK HOLDING “\(nazwa)”? ENTER to confirm, ESC to cancel")
+            }
             return Paleta.pisak(Paleta.ostrzezenie) + "● " + Paleta.zeruj
-                 + Paleta.pedzel(Paleta.tlo) + Paleta.pisak(Paleta.ostrzezenie)
-                 + CommandLineTool.t("RESTART FROM “\(cel.name)”? ENTER to confirm, ESC to cancel")
+                 + Paleta.pedzel(Paleta.tlo) + Paleta.pisak(Paleta.ostrzezenie) + pytanie
         }
         if let (tekst, barwa) = stan.komunikat {
             return Paleta.pisak(barwa) + "● " + Paleta.zeruj + Paleta.pedzel(Paleta.tlo)
@@ -380,6 +449,7 @@ extension TUI {
         }
         return klawisz("↑↓", CommandLineTool.t("Navigate"))
              + klawisz("ENTER", CommandLineTool.t("Boot"))
+             + klawisz("E", CommandLineTool.t("Eject"))
              + klawisz("R", CommandLineTool.t("Refresh"))
              + klawisz("Q", CommandLineTool.t("Quit"))
     }

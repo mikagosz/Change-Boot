@@ -852,6 +852,23 @@
         }
       }
     },
+    "EJECT THE WHOLE DISK HOLDING “%@”? ENTER to confirm, ESC to cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EJECT THE WHOLE DISK HOLDING “%@”? ENTER to confirm, ESC to cancel"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WYSUNĄĆ CAŁY NOŚNIK Z „%@”? ENTER potwierdza, ESC anuluje"
+          }
+        }
+      }
+    },
     "EXIT CODES": {
       "extractionState": "manual",
       "localizations": {
