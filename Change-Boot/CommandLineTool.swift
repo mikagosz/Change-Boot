@@ -86,7 +86,7 @@ enum CommandLineTool {
     }
 
     private static let czasowniki: Set<String> = [
-        "list", "current", "switch", "eject", "log", "uninstall",
+        "list", "current", "switch", "eject", "volumes", "log", "uninstall",
         "help", "--help", "-h", "--version", "--plain",
     ]
 
@@ -114,6 +114,7 @@ enum CommandLineTool {
         case "current":                zakoncz(biezacy(opcje))
         case "switch":                 zakoncz(przelacz(opcje))
         case "eject":                  zakoncz(wysun(opcje))
+        case "volumes":                zakoncz(woluminy(opcje))
         case "log":                    zakoncz(dziennik(opcje))
         case "uninstall":              zakoncz(odinstaluj(opcje))
         case "--version":              print(AppVersion.short); zakoncz(.ok)
@@ -136,6 +137,11 @@ enum CommandLineTool {
     struct Opcje {
         // Pola jawne, bo czyta je sprawdzian headless.
         let json: Bool
+        /// Wyjście jako CSV. Osobno od `--json`, bo to dwa różne formaty dla
+        /// dwóch różnych odbiorców: JSON dla skryptu, CSV dla arkusza.
+        let csv: Bool
+        /// Także woluminy systemowej hydrauliki APFS-a.
+        let wszystkie: Bool
         let czystyStart: Bool?
         let zRestartem: Bool
         let limit: Int
@@ -156,6 +162,8 @@ enum CommandLineTool {
             var limit = 20
             var czysty: Bool?
             var json = false
+            var csv = false
+            var wszystkie = false
             var restart = false
             var zwykly = false
             var proba = false
@@ -166,6 +174,8 @@ enum CommandLineTool {
                 let a = argumenty[i]
                 switch a {
                 case "--json":      json = true
+                case "--csv":       csv = true
+                case "--all":       wszystkie = true
                 case "--plain":     zwykly = true
                 case "--clean":     czysty = true
                 case "--no-clean":  czysty = false
@@ -188,6 +198,8 @@ enum CommandLineTool {
                 i += 1
             }
             self.json = json
+            self.csv = csv
+            self.wszystkie = wszystkie
             self.czystyStart = czysty
             self.zRestartem = restart
             self.limit = limit
@@ -359,6 +371,59 @@ enum CommandLineTool {
         }
     }
 
+    /// Przegląd woluminów: co jest podpięte, na czym leży i co warto wiedzieć.
+    ///
+    /// Trzy wyjścia, bo trzech różnych odbiorców: człowiek przy terminalu czyta
+    /// tekst, skrypt czyta JSON, a dział IT wkleja CSV do arkusza i rozsyła.
+    /// Polecenie jest **wyłącznie odczytem** — nie dotyka dziennika, nie zmienia
+    /// niczego, wolno je puścić z harmonogramu na całą flotę.
+    private static func woluminy(_ opcje: Opcje) -> Kod {
+        let przeglad = Kondycja.przeglad(wszystkie: opcje.wszystkie)
+
+        if opcje.csv { print(Kondycja.csv(przeglad)); return .ok }
+        if opcje.json { return wypiszJSON(przeglad) }
+
+        guard !przeglad.isEmpty else {
+            print(t("No mounted volume found."))
+            return .ok
+        }
+
+        let formater = ByteCountFormatter()
+        formater.countStyle = .file
+
+        for w in przeglad {
+            let miejsce = w.pojemnosc.map { pojemnosc -> String in
+                let wolne = w.wolne.map { formater.string(fromByteCount: $0) } ?? "?"
+                return "\(wolne) / \(formater.string(fromByteCount: pojemnosc))"
+            } ?? "?"
+
+            var cechy: [String] = []
+            if let f = w.systemPlikow { cechy.append(f) }
+            if w.sieciowy {
+                cechy.append(t("network share"))
+            } else {
+                cechy.append(w.wewnetrzny == true ? t("internal") : t("external"))
+            }
+            if w.szyfrowany == true { cechy.append(t("encrypted")) }
+            if w.startowy == true { cechy.append(t("bootable")) }
+
+            // Udział sieciowy nie ma identyfikatora urządzenia i „(?)" obok
+            // nazwy wygląda, jakby programowi coś nie wyszło.
+            let gdzie = w.urzadzenie.map { "  (\($0))" } ?? ""
+            print("\(w.nazwa)\(gdzie)")
+            print("    \(cechy.joined(separator: " · "))  ·  \(miejsce) " + t("free"))
+            if let n = w.nosnik {
+                let opis = [n.nazwa, n.magistrala, n.ssd == true ? "SSD" : nil,
+                            n.smart.map { "SMART: \($0)" }]
+                    .compactMap { $0 }
+                    .joined(separator: " · ")
+                print("    \(n.urzadzenie)  \(opis)")
+            }
+            for uwaga in w.uwagi { print("    ⚠︎ \(uwaga)") }
+        }
+        return .ok
+    }
+
     private static func dziennik(_ opcje: Opcje) -> Kod {
         // Trzy przypadki, nie dwa: nieczytelny dziennik ma się różnić od pustego
         // także tutaj, i to kodem wyjścia — skrypt ma jak zauważyć (P1-04).
@@ -506,6 +571,7 @@ enum CommandLineTool {
         wiersz("current",               t("the system you are running from, and the firmware target"))
         wiersz("switch <" + t("name|UUID") + ">", t("sets the startup disk"))
         wiersz("eject <" + t("name|UUID") + ">",  t("ejects the WHOLE disk, not just the volume"))
+        wiersz("volumes",               t("every mounted volume, its media and what is worth knowing"))
         wiersz("log",                   t("recent events"))
         wiersz("uninstall",             t("removes the helper, the command and the login item"))
         wiersz("help",                  t("this description"))
@@ -513,6 +579,8 @@ enum CommandLineTool {
         print("")
         print(t("OPTIONS"))
         wiersz("--json",                t("machine-readable output"))
+        wiersz("--csv",                 t("spreadsheet output — volumes only"))
+        wiersz("--all",                 t("with volumes — also the APFS system plumbing"))
         wiersz("--plain",               t("plain text instead of the full-screen view"))
         wiersz("--restart",             t("restart once the startup disk is set"))
         wiersz("--clean / --no-clean",  t("clean start; without it the app setting decides"))

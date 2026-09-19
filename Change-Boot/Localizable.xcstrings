@@ -1362,6 +1362,23 @@
         }
       }
     },
+    "Less than %lld%% free": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Less than %lld%% free"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mniej niż %lld%% wolnego"
+          }
+        }
+      }
+    },
     "Menu bar icon": {
       "extractionState": "manual",
       "localizations": {
@@ -1460,6 +1477,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nie znaleziono podłączonego systemu: %@"
+          }
+        }
+      }
+    },
+    "No mounted volume found.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No mounted volume found."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie znalazłem żadnego zamontowanego woluminu."
           }
         }
       }
@@ -1787,6 +1821,23 @@
         }
       }
     },
+    "Only %lld%% free": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only %lld%% free"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wolnego miejsca: %lld%%"
+          }
+        }
+      }
+    },
     "Only part of the entry was written.": {
       "extractionState": "manual",
       "localizations": {
@@ -2110,6 +2161,23 @@
         }
       }
     },
+    "Read-only": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read-only"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko do odczytu"
+          }
+        }
+      }
+    },
     "Red": {
       "extractionState": "manual",
       "localizations": {
@@ -2429,6 +2497,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pracujesz na: %@  (macOS %@)"
+          }
+        }
+      }
+    },
+    "SMART reports: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMART reports: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMART zgłasza: %@"
           }
         }
       }
@@ -3504,6 +3589,23 @@
         }
       }
     },
+    "bootable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bootable"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "startowy"
+          }
+        }
+      }
+    },
     "clean start; without it the app setting decides": {
       "extractionState": "manual",
       "localizations": {
@@ -3572,6 +3674,74 @@
         }
       }
     },
+    "encrypted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "encrypted"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "szyfrowany"
+          }
+        }
+      }
+    },
+    "every mounted volume, its media and what is worth knowing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "every mounted volume, its media and what is worth knowing"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "każdy zamontowany wolumin, jego nośnik i to, co warto wiedzieć"
+          }
+        }
+      }
+    },
+    "external": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "external"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zewnętrzny"
+          }
+        }
+      }
+    },
+    "free": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "free"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wolne"
+          }
+        }
+      }
+    },
     "how many events to print (default 20)": {
       "extractionState": "manual",
       "localizations": {
@@ -3585,6 +3755,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "ile zdarzeń wypisać (domyślnie 20)"
+          }
+        }
+      }
+    },
+    "internal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "internal"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wewnętrzny"
           }
         }
       }
@@ -3687,6 +3874,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "nazwa|UUID"
+          }
+        }
+      }
+    },
+    "network share": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "network share"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "udział sieciowy"
           }
         }
       }
@@ -3878,6 +4082,23 @@
         }
       }
     },
+    "spreadsheet output — volumes only": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "spreadsheet output — volumes only"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wyjście do arkusza — tylko dla `volumes`"
+          }
+        }
+      }
+    },
     "startup system switcher": {
       "extractionState": "manual",
       "localizations": {
@@ -3976,6 +4197,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "nie było zainstalowane"
+          }
+        }
+      }
+    },
+    "with volumes — also the APFS system plumbing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "with volumes — also the APFS system plumbing"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "przy `volumes` — także systemowa hydraulika APFS-a"
           }
         }
       }
