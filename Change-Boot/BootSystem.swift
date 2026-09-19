@@ -64,9 +64,11 @@ enum SystemScanner {
         guard let version = productVersion(atVolume: path),
               !version.trimmingCharacters(in: .whitespaces).isEmpty else { return nil }
 
-        guard DiskUtility.bool(path, "Bootable") == true else { return nil }
-
+        // Jeden odczyt `diskutil`, nie dwa. Do 0.2.4 stało tu `DiskUtility.bool(path,
+        // "Bootable")`, a linijkę niżej `DiskUtility.info(path)` — każde z nich
+        // uruchamiało własny proces na ten sam wolumin (P2-12 z audytu).
         guard let info = DiskUtility.info(path),
+              info["Bootable"] as? Bool == true,
               let uuid = info["VolumeUUID"] as? String,
               let device = info["DeviceIdentifier"] as? String else { return nil }
 

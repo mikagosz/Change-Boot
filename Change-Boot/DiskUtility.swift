@@ -8,11 +8,54 @@ import Foundation
 /// stoi za komunikatem „dysk został źle odmontowany".
 enum DiskUtility {
 
+    // MARK: - Pamięć podręczna
+
+    /// Jedno `diskutil info` kosztuje **224 ms** — zmierzone 2026-09-19.
+    ///
+    /// 🔴 Bez pamięci podręcznej jedno odświeżenie listy kosztowało sześć takich
+    /// uruchomień i **1 308 ms**, bo `system(atVolume:)` pytało o ten sam wolumin
+    /// dwa razy (raz o `Bootable`, raz o resztę), a `current()` leciało jeszcze
+    /// dwa razy osobno. Znalezisko P1-02 i P2-12 z audytu 2026-09-19.
+    ///
+    /// Pamięć ma **termin ważności**, a nie ręczne kasowanie, i to jest świadome:
+    /// `diskutil` opisuje stan sprzętu, więc zapamiętany odczyt musi się sam
+    /// przeterminować. Ręczne unieważnianie znaczyłoby, że każde nowe miejsce
+    /// wywołania musi pamiętać o wyczyszczeniu — a to jest dokładnie ten rodzaj
+    /// umowy, o którym się zapomina. Pół sekundy starczy na jedno przejście
+    /// skanowania (≈250 ms) i jest krótsze niż jakakolwiek reakcja człowieka.
+    private static let terminWaznosci: TimeInterval = 0.5
+    private static let zamek = NSLock()
+    private static var pamiec: [String: (czas: Date, dane: [String: Any]?)] = [:]
+
+    /// Kasuje zapamiętane odczyty. Wołane tam, gdzie świeżość jest ważniejsza
+    /// niż czas — przed wysuwaniem nośnika.
+    static func zapomnij() {
+        zamek.lock(); defer { zamek.unlock() }
+        pamiec.removeAll()
+    }
+
     /// Słownik `diskutil info` dla ścieżki woluminu albo identyfikatora (`disk5s2`).
+    ///
+    /// Odczyt nieudany jest zapamiętywany tak samo jak udany: wolumin, który nie
+    /// jest woluminem, nie ma się o to pytać sześć razy pod rząd.
     static func info(_ target: String) -> [String: Any]? {
-        guard let data = run("/usr/sbin/diskutil", ["info", "-plist", target]) else { return nil }
-        return try? PropertyListSerialization.propertyList(
-            from: data, options: [], format: nil) as? [String: Any]
+        zamek.lock()
+        if let wpis = pamiec[target], Date().timeIntervalSince(wpis.czas) < terminWaznosci {
+            zamek.unlock()
+            return wpis.dane
+        }
+        zamek.unlock()
+
+        var wynik: [String: Any]?
+        if let data = run("/usr/sbin/diskutil", ["info", "-plist", target]) {
+            wynik = try? PropertyListSerialization.propertyList(
+                from: data, options: [], format: nil) as? [String: Any]
+        }
+
+        zamek.lock()
+        pamiec[target] = (Date(), wynik)
+        zamek.unlock()
+        return wynik
     }
 
     static func string(_ target: String, _ key: String) -> String? {

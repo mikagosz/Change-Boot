@@ -27,9 +27,26 @@ guard let defaults = UserDefaults(suiteName: suite) else {
     print("✗ nie udało się otworzyć przegródki ustawień"); exit(1)
 }
 
+/// Czeka, aż `AppModel` skończy odczytywać dyski.
+///
+/// 🔴 Od 0.2.5 `refresh()` idzie **w tle** i wynik wraca na wątek główny
+/// (znalezisko P1-02 z audytu: przedtem blokowało okno na 1,3 s). Sprawdzian musi
+/// więc przepuścić pętlę główną, zamiast pytać o wynik od razu — inaczej mierzy
+/// stan sprzed odczytu i wygląda to na usterkę modelu.
+func poczekajNaSkan(_ model: AppModel, doSekund limit: TimeInterval = 15) -> Bool {
+    let koniec = Date().addingTimeInterval(limit)
+    while Date() < koniec {
+        RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+        if !model.skanowanie && !model.detected.isEmpty { return true }
+    }
+    return false
+}
+
 print("Lista systemów")
 
 let model = AppModel(configuration: Configuration(defaults: defaults))
+sprawdz("odczyt dysków kończy się w rozsądnym czasie (idzie w tle od 0.2.5)",
+        poczekajNaSkan(model))
 
 // USTERKA 2026-09-18: bieżący system pokazywał się dwa razy — u góry jako „ten
 // system" i niżej, w „Inne znalezione systemy", z przyciskiem „Dodaj".
@@ -78,6 +95,7 @@ let widmo = BootSystem(volumeUUID: "00000000-0000-0000-0000-00000000FFFF",
                        deviceIdentifier: "disk99s1", isInternal: false)
 model.configuration.add(widmo)
 let poDodaniu = model.configuration.entries.count
+_ = poczekajNaSkan(model)
 let odswiezony = Configuration(defaults: defaults)
 sprawdz("wpis niepodłączonego dysku przetrwał zapis i odczyt",
         odswiezony.entries.count == poDodaniu &&

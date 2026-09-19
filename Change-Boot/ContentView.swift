@@ -147,7 +147,9 @@ struct ContentView: View {
             Spacer()
             // Tylko wtedy, gdy robota nie dotyczy konkretnego dysku — inaczej
             // śmigło stoi w wierszu tego dysku i tu byłoby drugie, przy wersji.
-            if model.busy && model.busyVolumeUUID == nil {
+            // Skanowanie też tu należy: od 0.2.5 idzie w tle, więc bez tego
+            // odczyt dysków byłby niewidoczny.
+            if (model.busy || model.skanowanie) && model.busyVolumeUUID == nil {
                 ProgressView().controlSize(.small)
             }
             Button {

@@ -176,6 +176,10 @@ enum BootActions {
     /// (`nobrowse`), przez co po wyjęciu wtyczki macOS zgłasza złe odmontowanie
     /// i zawiesza wejście-wyjście. Tutaj schodzimy do nośnika i wyrzucamy wszystko.
     static func eject(_ system: BootSystem) throws {
+        // Świeżość przed czasem: wysuwanie schodzi do nośnika po trzech szczeblach
+        // APFS-a i pół sekundy starego odczytu mogłoby wskazać nie ten dysk.
+        DiskUtility.zapomnij()
+
         if let current = SystemScanner.current(), current.volumeUUID == system.volumeUUID {
             throw BootError.refusedRunningSystem(system.name)
         }

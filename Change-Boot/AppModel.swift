@@ -26,9 +26,22 @@ final class AppModel {
     /// *„jak mamy ten dysk koloru zielonego, to on wtedy w momencie wypinania znika
     /// i włącza się to śmigło wirujące"*.
     private(set) var busyVolumeUUID: String?
+    /// Trwa odczytywanie dysków. Osobne od `busy`: skanowanie nie jest czynnością
+    /// użytkownika i nie ma wyłączać przycisków, ma tylko pokazać, że lista żyje.
+    private(set) var skanowanie = false
     var failure: String?
 
     private var diskObservers: [NSObjectProtocol] = []
+    /// Dławik powiadomień o dyskach — patrz `odswiezZeZwloka`.
+    private var dlawik: DispatchWorkItem?
+    /// Zgłoszenie odświeżenia, które przyszło w trakcie poprzedniego.
+    private var odswiezycPonownie = false
+    /// Domknięcia czekające na koniec odświeżania.
+    ///
+    /// 🔴 Lista, nie jedno pole, i nie wolno ich gubić. `eject` oddaje tędy
+    /// zgaszenie śmigła i zdjęcie blokady `busy` — domknięcie zgubione przy
+    /// zbiegu z dławionym odświeżeniem zostawiłoby program zablokowany na stałe.
+    private var poOdswiezeniu: [() -> Void] = []
 
     /// `configuration` da się podstawić, żeby sprawdziany nie pisały po ustawieniach
     /// programu.
@@ -39,6 +52,7 @@ final class AppModel {
     }
 
     deinit {
+        dlawik?.cancel()
         let center = NSWorkspace.shared.notificationCenter
         for observer in diskObservers { center.removeObserver(observer) }
     }
@@ -65,13 +79,46 @@ final class AppModel {
         return system.volumeUUID == current.volumeUUID
     }
 
-    func refresh() {
-        detected = SystemScanner.scan()
-        current = SystemScanner.current()
-        // Dysk mógł zostać przemianowany — konfiguracja nadąża sama, bo trzyma UUID.
-        for system in detected { configuration.refreshName(for: system) }
-        // System, z którego maszyna pracuje, jest na liście zawsze i bez pytania.
-        if let current { configuration.add(current) }
+    /// Odczytuje dyski **w tle** i dopiero wynik wstawia na wątek główny.
+    ///
+    /// 🔴 Do 0.2.4 leciało to wprost na wątku głównym i kosztowało **1 308 ms** —
+    /// zmierzone 2026-09-19. Okno zamierało przy każdym wpięciu i wypięciu
+    /// dowolnego dysku, także takiego, który z programem nie ma nic wspólnego.
+    /// Zjadało też śmigło z 0.2.3: wysuwanie chodziło już w tle, ale powiadomienia
+    /// o odmontowaniu wracały tutaj i zatrzymywały animację (P1-02 z audytu).
+    ///
+    /// Zgłoszenie, które przyjdzie w trakcie trwającego odczytu, nie ustawia się
+    /// w kolejce po raz drugi — zapamiętuje się jako jedno „jeszcze raz na koniec".
+    func refresh(potem: (() -> Void)? = nil) {
+        if let potem { poOdswiezeniu.append(potem) }
+        guard !skanowanie else {
+            odswiezycPonownie = true
+            return
+        }
+        skanowanie = true
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let znalezione = SystemScanner.scan()
+            let biezacy = SystemScanner.current()
+
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.detected = znalezione
+                self.current = biezacy
+                // Dysk mógł zostać przemianowany — konfiguracja nadąża sama, bo trzyma UUID.
+                for system in znalezione { self.configuration.refreshName(for: system) }
+                // System, z którego maszyna pracuje, jest na liście zawsze i bez pytania.
+                if let biezacy { self.configuration.add(biezacy) }
+                self.skanowanie = false
+                let doWykonania = self.poOdswiezeniu
+                self.poOdswiezeniu.removeAll()
+                for blok in doWykonania { blok() }
+                if self.odswiezycPonownie {
+                    self.odswiezycPonownie = false
+                    self.refresh()
+                }
+            }
+        }
     }
 
     /// Nasłuch podłączania i odłączania dysków.
@@ -86,9 +133,22 @@ final class AppModel {
                      NSWorkspace.didRenameVolumeNotification] {
             diskObservers.append(
                 center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                    self?.refresh()
+                    self?.odswiezZeZwloka()
                 })
         }
+    }
+
+    /// Odświeżenie po chwili ciszy, nie po każdym powiadomieniu.
+    ///
+    /// Wysunięcie jednego nośnika wysyła **po jednym powiadomieniu na wolumin**,
+    /// a kontener APFS instalacji macOS niesie ich kilka — system, dane, Preboot,
+    /// Recovery. Bez dławienia jedno wyciągnięcie dysku znaczyło kilka pełnych
+    /// przejazdów po `diskutil` pod rząd.
+    private func odswiezZeZwloka() {
+        dlawik?.cancel()
+        let zadanie = DispatchWorkItem { [weak self] in self?.refresh() }
+        dlawik = zadanie
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: zadanie)
     }
 
     // MARK: - Działania
@@ -169,9 +229,13 @@ final class AppModel {
                 } else {
                     EventLog.zapisz(.wysuniecie, skutek: .udane, na: system, zrodlo: .okno)
                 }
-                self.refresh()
-                self.busyVolumeUUID = nil
-                self.busy = false
+                // Śmigło gaśnie dopiero, gdy lista zna już nowy stan — inaczej
+                // wiersz wraca na moment do wyglądu „dysk dostępny" i dopiero
+                // potem znika.
+                self.refresh {
+                    self.busyVolumeUUID = nil
+                    self.busy = false
+                }
             }
         }
     }
