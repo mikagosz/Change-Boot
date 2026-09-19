@@ -60,6 +60,38 @@ enum EventLog {
         case wierszPolecen
     }
 
+    /// Dlaczego zapis się nie udał.
+    ///
+    /// 🔴 Istnieje, bo do 0.2.5 `zapisz` zwracał `Void`, a każdą awarię połykało
+    /// `try?` — trzynaście sztuk w jednym pliku. Przy katalogu bez prawa zapisu
+    /// program nie mówił nic, a Opcje pokazywały „Nic się jeszcze nie wydarzyło".
+    /// Znalezisko P1-04 z audytu 2026-09-19.
+    enum Awaria: LocalizedError {
+        case katalog(String)
+        case zapis(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .katalog(let powod):
+                return String(localized: "Could not create the log folder.\n\n\(powod)")
+            case .zapis(let powod):
+                return String(localized: "Could not write to the event log.\n\n\(powod)")
+            }
+        }
+    }
+
+    /// Co naprawdę zastano w dzienniku.
+    ///
+    /// Trzy przypadki, nie dwa — bo „pusto" i „nie dało się przeczytać" wyglądały
+    /// do 0.2.5 identycznie i okno mówiło o obu to samo nieprawdziwe zdanie.
+    enum Odczyt {
+        case wpisy([Entry])
+        /// Dziennika jeszcze nie ma — nic się nie wydarzyło. To jedyny przypadek,
+        /// w którym wolno powiedzieć użytkownikowi „nic się nie wydarzyło".
+        case pusty
+        case nieczytelny(String)
+    }
+
     // MARK: - Miejsce
 
     /// Podstawiany przez sprawdziany, żeby nie pisały po prawdziwym dzienniku
@@ -97,6 +129,39 @@ enum EventLog {
         return d
     }()
 
+    /// Ostatnia awaria zapisu, jeśli była.
+    ///
+    /// Czytana przez okno, żeby powiedzieć o niej **spokojnie, w sekcji Historia** —
+    /// a nie oknem dialogowym. Zapis dziennika leci między innymi tuż przed
+    /// restartem maszyny i nowa droga błędu nie ma prawa tam niczego zatrzymać.
+    private(set) static var ostatniaAwaria: Awaria?
+
+    /// Plik blokady. Osobny od dziennika, żeby blokada trzymała także przewijanie,
+    /// czyli chwilę, w której dziennik zmienia i-węzeł.
+    private static var zamek: URL { katalog.appendingPathComponent(".zamek") }
+
+    /// Wykonuje `blok` pod wyłączną blokadą międzyprocesową.
+    ///
+    /// Gdy blokady nie da się założyć, robota idzie mimo to: dziennik bez blokady
+    /// jest gorszy niż z blokadą, ale wciąż lepszy niż brak dziennika.
+    private static func zBlokada<T>(_ blok: () -> T) -> T {
+        let fd = open(zamek.path, O_WRONLY | O_CREAT, 0o600)
+        guard fd >= 0 else { return blok() }
+        defer { flock(fd, LOCK_UN); close(fd) }
+        flock(fd, LOCK_EX)
+        return blok()
+    }
+
+    /// Dopisuje zdarzenie. Zwraca `nil`, gdy poszło, albo powód niepowodzenia.
+    ///
+    /// 🔴 Zapis idzie przez `O_APPEND`, nie przez `seekToEnd()` + `write()`.
+    /// Do 0.2.5 stał tu `FileHandle(forWritingTo:)` z komentarzem twierdzącym,
+    /// że niesie `O_APPEND` — nie niósł. Bez tego znacznika przesunięcie i zapis
+    /// to dwa osobne kroki: dwóch piszących odczytuje ten sam koniec pliku i obaj
+    /// piszą pod to samo miejsce. Zmierzone 2026-09-19: osiem piszących naraz,
+    /// **ginęło 137 z 480 wpisów**. Z `O_APPEND` jądro robi jedno i drugie
+    /// niepodzielnie. Znalezisko P1-03 z audytu.
+    @discardableResult
     static func zapisz(_ czynnosc: Czynnosc,
                        skutek: Skutek,
                        z: BootSystem? = nil,
@@ -105,7 +170,7 @@ enum EventLog {
                        naUUID: String? = nil,
                        czystyStart: Bool? = nil,
                        zrodlo: Zrodlo,
-                       szczegol: String? = nil) {
+                       szczegol: String? = nil) -> Awaria? {
         let wpis = Entry(
             czas: Date(),
             czynnosc: czynnosc,
@@ -120,22 +185,39 @@ enum EventLog {
             wersja: AppBundle.wersja ?? "?",
             szczegol: szczegol)
 
-        guard var dane = try? koder.encode(wpis) else { return }
+        func zapamietaj(_ awaria: Awaria?) -> Awaria? {
+            ostatniaAwaria = awaria
+            return awaria
+        }
+
+        guard var dane = try? koder.encode(wpis) else {
+            return zapamietaj(.zapis(String(localized: "The event could not be encoded.")))
+        }
         dane.append(0x0A)   // znak nowej linii
 
-        let menedzer = FileManager.default
-        try? menedzer.createDirectory(at: katalog, withIntermediateDirectories: true)
-        przewinJesliTrzeba()
-
-        if let uchwyt = try? FileHandle(forWritingTo: plik) {
-            // `O_APPEND` na uchwycie otwartym do zapisu: `seekToEnd` plus `write`
-            // wystarcza, bo wpisy są małe i idą jednym wywołaniem.
-            defer { try? uchwyt.close() }
-            _ = try? uchwyt.seekToEnd()
-            try? uchwyt.write(contentsOf: dane)
-        } else {
-            try? dane.write(to: plik, options: .atomic)
+        do {
+            try FileManager.default.createDirectory(at: katalog, withIntermediateDirectories: true)
+        } catch {
+            return zapamietaj(.katalog(error.localizedDescription))
         }
+
+        return zapamietaj(zBlokada {
+            przewinJesliTrzeba()
+
+            let fd = open(plik.path, O_WRONLY | O_APPEND | O_CREAT, 0o600)
+            guard fd >= 0 else { return Awaria.zapis(String(cString: strerror(errno))) }
+            defer { close(fd) }
+
+            let zapisane = dane.withUnsafeBytes { bufor -> Int in
+                write(fd, bufor.baseAddress, bufor.count)
+            }
+            guard zapisane == dane.count else {
+                return Awaria.zapis(zapisane < 0
+                    ? String(cString: strerror(errno))
+                    : String(localized: "Only part of the entry was written."))
+            }
+            return nil
+        })
     }
 
     private static func przewinJesliTrzeba() {
@@ -148,12 +230,21 @@ enum EventLog {
 
     // MARK: - Odczyt
 
-    /// Najnowsze zdarzenia, od najświeższego. Linie nie do odczytania są pomijane,
-    /// a nie przerywają wczytywania — jedno uszkodzone zdarzenie nie może zabrać
-    /// dostępu do reszty dziennika.
-    static func ostatnie(_ ile: Int = 50) -> [Entry] {
-        guard let tekst = try? String(contentsOf: plik, encoding: .utf8) else { return [] }
-        return tekst
+    /// Najnowsze zdarzenia z rozróżnieniem „pusto" od „nie dało się przeczytać".
+    ///
+    /// Linie nie do odczytania są pomijane, a nie przerywają wczytywania — jedno
+    /// uszkodzone zdarzenie nie może zabrać dostępu do reszty dziennika. Ale brak
+    /// prawa odczytu do **pliku** to co innego niż pusty dziennik i program ma
+    /// o tym powiedzieć, zamiast twierdzić, że nic się nie wydarzyło (P1-04).
+    static func przeczytaj(_ ile: Int = 50) -> Odczyt {
+        guard FileManager.default.fileExists(atPath: plik.path) else { return .pusty }
+        let tekst: String
+        do {
+            tekst = try String(contentsOf: plik, encoding: .utf8)
+        } catch {
+            return .nieczytelny(error.localizedDescription)
+        }
+        let wpisy = tekst
             .split(separator: "\n")
             .reversed()
             .prefix(ile * 2)
@@ -163,5 +254,14 @@ enum EventLog {
             }
             .prefix(ile)
             .map { $0 }
+        return wpisy.isEmpty ? .pusty : .wpisy(wpisy)
+    }
+
+    /// Wygodny skrót dla miejsc, którym wystarczy lista — sprawdziany i `log`
+    /// w wierszu poleceń. Nie odróżnia pustego dziennika od nieczytelnego;
+    /// tam, gdzie to rozróżnienie ma znaczenie, woła się `przeczytaj`.
+    static func ostatnie(_ ile: Int = 50) -> [Entry] {
+        if case .wpisy(let w) = przeczytaj(ile) { return w }
+        return []
     }
 }

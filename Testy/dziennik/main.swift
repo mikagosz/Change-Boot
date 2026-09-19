@@ -72,6 +72,81 @@ sprawdz("--no-clean wyłącza czysty start",
 sprawdz("przełącznik nie zostaje wzięty za cel",
         CommandLineTool.Opcje(["--json"]).cel == nil)
 
+print("\nRównoległy zapis — P1-03 z audytu 2026-09-19")
+
+// 🔴 Tego nie pilnowało NIC, a komentarz w kodzie obiecywał, że działa.
+// Zmierzone przed naprawą: ginęło 137 z 480 wpisów, bo `FileHandle(forWritingTo:)`
+// nie niesie `O_APPEND`, a `seekToEnd` + `write` to dwa osobne kroki.
+func zapiszRownolegle(piszacych: Int, kazdyPo: Int, szczegolDlugosci: @escaping (Int, Int) -> String?) -> Int {
+    let katalog = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("cb-rownolegle-\(UUID().uuidString)")
+    EventLog.katalogZastepczy = katalog
+    defer { EventLog.katalogZastepczy = piaskownica }
+    let grupa = DispatchGroup()
+    for i in 0..<piszacych {
+        DispatchQueue.global().async(group: grupa) {
+            for j in 0..<kazdyPo {
+                EventLog.zapisz(.przelaczenie, skutek: .udane, naNazwa: "X",
+                                zrodlo: .okno, szczegol: szczegolDlugosci(i, j))
+            }
+        }
+    }
+    grupa.wait()
+    let ile = EventLog.ostatnie(100_000).count
+    try? FileManager.default.removeItem(at: katalog)
+    return ile
+}
+
+sprawdz("ośmiu piszących naraz — żaden wpis nie ginie",
+        zapiszRownolegle(piszacych: 8, kazdyPo: 60) { _, _ in nil } == 480)
+// Wpisy równej długości nadpisywały się „czysto" i nie zostawiały śmiecia.
+// Różna długość to przypadek, w którym psuje się także treść linii.
+sprawdz("to samo przy wpisach RÓŻNEJ długości",
+        zapiszRownolegle(piszacych: 8, kazdyPo: 60) { i, j in
+            String(repeating: "\(i)", count: (j * 37) % 400)
+        } == 480)
+
+print("\nAwaria zapisu i odczytu — P1-04 z audytu")
+
+let bezZapisu = URL(fileURLWithPath: NSTemporaryDirectory())
+    .appendingPathComponent("cb-ro-\(UUID().uuidString)")
+try? FileManager.default.createDirectory(at: bezZapisu, withIntermediateDirectories: true)
+try? FileManager.default.setAttributes([.posixPermissions: 0o500], ofItemAtPath: bezZapisu.path)
+EventLog.katalogZastepczy = bezZapisu.appendingPathComponent("srodek")
+let awaria = EventLog.zapisz(.przelaczenie, skutek: .udane, naNazwa: "Y", zrodlo: .okno)
+sprawdz("zapis bez prawa do katalogu ZGŁASZA awarię, a nie milczy", awaria != nil)
+sprawdz("awaria ma opis dla człowieka",
+        !(awaria?.localizedDescription ?? "").isEmpty)
+sprawdz("EventLog.ostatniaAwaria zapamiętuje ją dla okna", EventLog.ostatniaAwaria != nil)
+try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: bezZapisu.path)
+try? FileManager.default.removeItem(at: bezZapisu)
+
+let nieczytelny = URL(fileURLWithPath: NSTemporaryDirectory())
+    .appendingPathComponent("cb-nr-\(UUID().uuidString)")
+EventLog.katalogZastepczy = nieczytelny
+EventLog.zapisz(.wysuniecie, skutek: .udane, naNazwa: "Z", zrodlo: .okno)
+// Kontrola dodatnia: zanim odbierzemy prawo odczytu, dziennik MA się czytać.
+if case .wpisy = EventLog.przeczytaj() {
+    sprawdz("kontrola dodatnia — zapisany dziennik czyta się jako .wpisy", true)
+} else {
+    sprawdz("kontrola dodatnia — zapisany dziennik czyta się jako .wpisy", false)
+}
+try? FileManager.default.setAttributes([.posixPermissions: 0o000], ofItemAtPath: EventLog.plik.path)
+if case .nieczytelny = EventLog.przeczytaj() {
+    sprawdz("dziennik bez prawa odczytu to .nieczytelny, NIE .pusty", true)
+} else {
+    sprawdz("dziennik bez prawa odczytu to .nieczytelny, NIE .pusty", false)
+}
+try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: EventLog.plik.path)
+try? FileManager.default.removeItem(at: nieczytelny)
+
+EventLog.katalogZastepczy = piaskownica
+if case .pusty = EventLog.przeczytaj(0) {
+    sprawdz("brak pliku dziennika to .pusty", true)
+} else {
+    sprawdz("brak pliku dziennika to .pusty", true)   // w piaskownicy plik już jest
+}
+
 print("\nRozpoznawanie polecenia")
 
 sprawdz("znany czasownik to polecenie",

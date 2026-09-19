@@ -261,12 +261,22 @@ enum CommandLineTool {
     }
 
     private static func dziennik(_ opcje: Opcje) -> Kod {
-        let wpisy = EventLog.ostatnie(opcje.limit)
-        if opcje.json { return wypiszJSON(wpisy) }
-        guard !wpisy.isEmpty else {
+        // Trzy przypadki, nie dwa: nieczytelny dziennik ma się różnić od pustego
+        // także tutaj, i to kodem wyjścia — skrypt ma jak zauważyć (P1-04).
+        let wpisy: [EventLog.Entry]
+        switch EventLog.przeczytaj(opcje.limit) {
+        case .wpisy(let w):
+            wpisy = w
+        case .pusty:
+            if opcje.json { return wypiszJSON([EventLog.Entry]()) }
             print("Dziennik jest pusty: \(EventLog.plik.path)")
             return .ok
+        case .nieczytelny(let powod):
+            FileHandle.standardError.write(Data(
+                "Nie da się odczytać dziennika \(EventLog.plik.path): \(powod)\n".utf8))
+            return .blad
         }
+        if opcje.json { return wypiszJSON(wpisy) }
         let formater = DateFormatter()
         formater.dateFormat = "yyyy-MM-dd HH:mm"
         for w in wpisy {

@@ -24,7 +24,7 @@ struct SettingsView: View {
     @State private var helperStatus = HelperClient.statusDescription
     @State private var helperFailure: String?
     @State private var busy = false
-    @State private var zdarzenia: [EventLog.Entry] = []
+    @State private var historia: EventLog.Odczyt = .pusty
     @State private var stanPolecenia = CommandLineInstall.opisStanu
     @State private var poleceniZainstalowane = CommandLineInstall.stan == .zainstalowane
 
@@ -237,13 +237,25 @@ struct SettingsView: View {
             }
 
             Section("History") {
-                if zdarzenia.isEmpty {
+                switch historia {
+                case .pusty:
                     Text("Nothing has happened yet. Switching a disk, ejecting one or installing the helper all leave a note here.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    ForEach(Array(zdarzenia.enumerated()), id: \.offset) { _, wpis in
+
+                // 🔴 Trzeci przypadek istnieje od 0.2.6. Do 0.2.5 nieczytelny
+                // dziennik wyglądał dokładnie tak samo jak pusty i program mówił
+                // o obu „nic się nie wydarzyło" — czyli kłamał (P1-04 z audytu).
+                case .nieczytelny(let powod):
+                    Label("The event log is there, but could not be read. What the app did is not lost — it just cannot be shown here.\n\n\(powod)",
+                          systemImage: "exclamationmark.triangle")
+                        .font(.callout)
+                        .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                case .wpisy(let wpisy):
+                    ForEach(Array(wpisy.enumerated()), id: \.offset) { _, wpis in
                         HStack(alignment: .firstTextBaseline, spacing: 8) {
                             Image(systemName: ikona(wpis.skutek))
                                 .foregroundStyle(kolor(wpis.skutek))
@@ -258,17 +270,32 @@ struct SettingsView: View {
                     }
                 }
 
+                // Awaria zapisu mówi się tutaj, spokojnie — nie oknem dialogowym.
+                // Dziennik pisze się między innymi tuż przed restartem maszyny.
+                if let awaria = EventLog.ostatniaAwaria {
+                    Label("The last event could not be saved, so this list is incomplete.\n\n\(awaria.localizedDescription)",
+                          systemImage: "exclamationmark.triangle")
+                        .font(.callout)
+                        .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 HStack {
+                    Text(EventLog.plik.path)
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundStyle(.tertiary)
+                        .textSelection(.enabled)
+                        .lineLimit(1)
+                        .truncationMode(.head)
                     Spacer()
                     Button("Show the log file") {
                         NSWorkspace.shared.activateFileViewerSelecting([EventLog.plik])
                     }
-                    .disabled(zdarzenia.isEmpty)
                 }
             }
         }
         .formStyle(.grouped)
-        .task { zdarzenia = EventLog.ostatnie(6) }
+        .task { historia = EventLog.przeczytaj(6) }
         .alert("Change-Boot", isPresented: Binding(
             get: { helperFailure != nil },
             set: { if !$0 { helperFailure = nil } })) {
@@ -295,7 +322,7 @@ struct SettingsView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             stanPolecenia = CommandLineInstall.opisStanu
             poleceniZainstalowane = CommandLineInstall.stan == .zainstalowane
-            zdarzenia = EventLog.ostatnie(6)
+            historia = EventLog.przeczytaj(6)
             busy = false
         }
     }
@@ -323,7 +350,7 @@ struct SettingsView: View {
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             helperStatus = HelperClient.statusDescription
-            zdarzenia = EventLog.ostatnie(6)
+            historia = EventLog.przeczytaj(6)
             busy = false
         }
     }
