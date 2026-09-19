@@ -189,6 +189,57 @@
         }
       }
     },
+    "Change-Boot has to restart to load the other language.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot has to restart to load the other language."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot musi się uruchomić ponownie, żeby wczytać drugi język."
+          }
+        }
+      }
+    },
+    "Changing the startup disk needs administrator rights. Install the helper once and Change-Boot stops asking for your password on every switch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changing the startup disk needs administrator rights. Install the helper once and Change-Boot stops asking for your password on every switch."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmiana dysku startowego wymaga uprawnień administratora. Zainstaluj pomocnika raz, a Change-Boot przestanie pytać o hasło przy każdym przełączeniu."
+          }
+        }
+      }
+    },
+    "Clean start": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean start"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Czysty start"
+          }
+        }
+      }
+    },
     "Clean start — do not reopen apps and windows": {
       "extractionState": "manual",
       "localizations": {
@@ -325,6 +376,23 @@
         }
       }
     },
+    "Could not talk to the privileged helper.\n\n%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not talk to the privileged helper.\n\n%@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się porozumieć z pomocnikiem.\n\n%@"
+          }
+        }
+      }
+    },
     "Current": {
       "extractionState": "manual",
       "localizations": {
@@ -355,6 +423,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gotowe"
+          }
+        }
+      }
+    },
+    "Each system gets its own colour so you can tell them apart at a glance. Click the disk icon in a row to change it. The colour is stored with the entry, so an unplugged disk keeps it, only dimmed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each system gets its own colour so you can tell them apart at a glance. Click the disk icon in a row to change it. The colour is stored with the entry, so an unplugged disk keeps it, only dimmed."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Każdy system ma własny kolor, żeby dało się je rozróżnić jednym spojrzeniem. Kliknij ikonę dysku w wierszu, żeby go zmienić. Kolor siedzi w konfiguracji, więc odpięty dysk zachowuje swój — tylko przygaszony."
           }
         }
       }
@@ -393,6 +478,23 @@
         }
       }
     },
+    "Ejects the whole physical disk, not just the volume you see in Finder. Finder leaves the hidden data volume mounted, which is why unplugging after a Finder eject makes macOS complain that the disk was not ejected properly.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejects the whole physical disk, not just the volume you see in Finder. Finder leaves the hidden data volume mounted, which is why unplugging after a Finder eject makes macOS complain that the disk was not ejected properly."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysuwa cały dysk fizyczny, nie tylko wolumin widoczny w Finderze. Finder zostawia zamontowany ukryty wolumin danych i dlatego po jego wysunięciu macOS zgłasza, że dysk nie został wysunięty poprawnie."
+          }
+        }
+      }
+    },
     "Every macOS installation found right now is already on the list. Connect another disk and it will show up here.": {
       "extractionState": "manual",
       "localizations": {
@@ -406,6 +508,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Każda znaleziona teraz instalacja macOS jest już na liście. Podłącz kolejny dysk, a pojawi się tutaj."
+          }
+        }
+      }
+    },
+    "Every macOS installation you added sits here, remembered by the volume's UUID — not by its name. Rename the disk and the entry follows. Unplug it and the entry stays, greyed out, because an unplugged disk is no reason to forget your settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every macOS installation you added sits here, remembered by the volume's UUID — not by its name. Rename the disk and the entry follows. Unplug it and the entry stays, greyed out, because an unplugged disk is no reason to forget your settings."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Każda dodana instalacja macOS siedzi tutaj, zapamiętana przez UUID woluminu, a nie przez nazwę. Zmienisz nazwę dysku — wpis nadąży. Odepniesz dysk — wpis zostanie, tylko przygaszony, bo odpięty dysk to nie powód, żeby zapomnieć ustawienia."
+          }
+        }
+      }
+    },
+    "Follow system": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow system"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jak w systemie"
           }
         }
       }
@@ -444,6 +580,108 @@
         }
       }
     },
+    "Help": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Help"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomoc"
+          }
+        }
+      }
+    },
+    "How Change-Boot works": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How Change-Boot works"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jak działa Change-Boot"
+          }
+        }
+      }
+    },
+    "Install helper": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install helper"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zainstaluj pomocnika"
+          }
+        }
+      }
+    },
+    "Installed — no password needed to switch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed — no password needed to switch"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zainstalowany — przełączanie bez hasła"
+          }
+        }
+      }
+    },
+    "Language": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Język"
+          }
+        }
+      }
+    },
+    "Menu bar icon": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menu bar icon"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ikona w pasku menu"
+          }
+        }
+      }
+    },
     "No other macOS installation is connected right now.": {
       "extractionState": "manual",
       "localizations": {
@@ -457,6 +695,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "W tej chwili nie jest podłączona żadna inna instalacja macOS."
+          }
+        }
+      }
+    },
+    "No proxy object.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No proxy object."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak obiektu pośredniczącego."
           }
         }
       }
@@ -495,6 +750,40 @@
         }
       }
     },
+    "Not found in the app bundle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not found in the app bundle"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie znaleziono go w pakiecie programu"
+          }
+        }
+      }
+    },
+    "Not installed — macOS asks for your password on every switch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not installed — macOS asks for your password on every switch"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niezainstalowany — macOS pyta o hasło przy każdym przełączeniu"
+          }
+        }
+      }
+    },
     "OK": {
       "extractionState": "manual",
       "localizations": {
@@ -508,6 +797,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "OK"
+          }
+        }
+      }
+    },
+    "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar and takes it out of the Dock.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar and takes it out of the Dock."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domyślnie wyłączona, bo przeszkadza przy nagrywaniu ekranu. Włączona sprawia, że zamknięcie okna zostawia program w pasku menu i zdejmuje go z Docka."
           }
         }
       }
@@ -546,6 +852,23 @@
         }
       }
     },
+    "On: your apps and windows do not come back after the restart. Off: macOS reopens them, the same as the “Reopen windows when logging back in” checkbox in the system restart dialog.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On: your apps and windows do not come back after the restart. Off: macOS reopens them, the same as the “Reopen windows when logging back in” checkbox in the system restart dialog."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Włączony: programy i okna nie wracają po restarcie. Wyłączony: macOS otwiera je z powrotem, tak samo jak pole „Otwórz ponownie okna przy następnym logowaniu” w systemowym oknie restartu."
+          }
+        }
+      }
+    },
     "Open Change-Boot": {
       "extractionState": "manual",
       "localizations": {
@@ -559,6 +882,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Otwórz Change-Boot"
+          }
+        }
+      }
+    },
+    "Open System Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz Ustawienia systemowe"
           }
         }
       }
@@ -593,6 +933,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inne znalezione systemy"
+          }
+        }
+      }
+    },
+    "Password": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hasło"
           }
         }
       }
@@ -716,6 +1073,23 @@
         }
       }
     },
+    "Remove helper": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove helper"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usuń pomocnika"
+          }
+        }
+      }
+    },
     "Rescan": {
       "extractionState": "manual",
       "localizations": {
@@ -746,6 +1120,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uruchom ponownie"
+          }
+        }
+      }
+    },
+    "Restart Change-Boot": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart Change-Boot"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom ponownie Change-Boot"
           }
         }
       }
@@ -818,6 +1209,23 @@
         }
       }
     },
+    "Sets the startup disk, checks that the firmware really accepted it, and only then restarts. If the check fails, nothing restarts — the Mac would have booted the wrong system.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sets the startup disk, checks that the firmware really accepted it, and only then restarts. If the check fails, nothing restarts — the Mac would have booted the wrong system."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustawia dysk startowy, sprawdza, czy firmware naprawdę go przyjął, i dopiero potem restartuje. Gdy sprawdzenie wypadnie źle, restartu nie ma — Mac wystartowałby z niewłaściwego systemu."
+          }
+        }
+      }
+    },
     "Show icon in the menu bar": {
       "extractionState": "manual",
       "localizations": {
@@ -869,6 +1277,74 @@
         }
       }
     },
+    "The colours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The colours"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolory"
+          }
+        }
+      }
+    },
+    "The helper is waiting for your approval in System Settings → General → Login Items.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The helper is waiting for your approval in System Settings → General → Login Items."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomocnik czeka na zgodę w Ustawieniach → Ogólne → Obiekty logowania."
+          }
+        }
+      }
+    },
+    "The list": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The list"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista"
+          }
+        }
+      }
+    },
+    "The privileged helper is not installed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The privileged helper is not installed."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomocnik nie jest zainstalowany."
+          }
+        }
+      }
+    },
     "These apps did not close: %@.\n\nThey probably have unsaved work. Deal with them and switch again — the startup disk is already set.": {
       "extractionState": "manual",
       "localizations": {
@@ -882,6 +1358,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Te programy się nie zamknęły: %@.\n\nPrawdopodobnie mają niezapisaną pracę. Zajmij się nimi i przełącz ponownie — dysk startowy jest już ustawiony."
+          }
+        }
+      }
+    },
+    "Unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieznany"
           }
         }
       }
@@ -937,6 +1430,23 @@
         }
       }
     },
+    "Waiting for approval in System Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for approval in System Settings"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Czeka na zgodę w Ustawieniach systemowych"
+          }
+        }
+      }
+    },
     "Welcome to Change-Boot": {
       "extractionState": "manual",
       "localizations": {
@@ -954,6 +1464,23 @@
         }
       }
     },
+    "What each thing does": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What each thing does"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Co który element robi"
+          }
+        }
+      }
+    },
     "Yellow": {
       "extractionState": "manual",
       "localizations": {
@@ -967,6 +1494,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Żółty"
+          }
+        }
+      }
+    },
+    "bless failed (%d).\n\n%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bless failed (%d).\n\n%@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bless zawiódł (%d).\n\n%@"
           }
         }
       }

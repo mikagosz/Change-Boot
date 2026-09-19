@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Etykieta musi być równa nazwie tego pliku: SMAppService szuka plistu po
+	     nazwie, a launchd sprawdza zgodność z kluczem Label. Rozjazd kończy się
+	     błędem rejestracji, nie ostrzeżeniem przy budowaniu. -->
+	<key>Label</key>
+	<string>com.mikagosz.ChangeBoot.Helper</string>
+
+	<!-- Ścieżka WZGLĘDEM bundla programu. Demonem jest ta sama binarka co program;
+	     argument --helper przełącza ją w tryb nasłuchu XPC (patrz main.swift). -->
+	<key>BundleProgram</key>
+	<string>Contents/MacOS/Change-Boot</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>Contents/MacOS/Change-Boot</string>
+		<string>--helper</string>
+	</array>
+
+	<!-- Bez KeepAlive: usługa Macha znaczy „na żądanie". launchd budzi demona,
+	     gdy program się łączy, i zwija go, gdy nie ma z kim rozmawiać. -->
+	<key>MachServices</key>
+	<dict>
+		<key>com.mikagosz.ChangeBoot.Helper</key>
+		<true/>
+	</dict>
+
+	<!-- Dzięki temu pozycja w Ustawieniach → Ogólne → Obiekty logowania nosi nazwę
+	     programu, a nie samą etykietę demona. -->
+	<key>AssociatedBundleIdentifiers</key>
+	<array>
+		<string>com.mikagosz.ChangeBoot</string>
+	</array>
+</dict>
+</plist>

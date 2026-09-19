@@ -1,10 +1,17 @@
 import AppKit
 import SwiftUI
 
+extension Notification.Name {
+    /// Pozycja „Pomoc" w pasku menu otwiera okno i dopiero wtedy prosi je o arkusz —
+    /// arkusza nie da się pokazać ze sceny `MenuBarExtra`, bo ta nie ma okna.
+    static let changeBootShowHelp = Notification.Name("ChangeBootShowHelp")
+}
+
 struct ContentView: View {
     @Environment(AppModel.self) private var model
     @State private var pendingSwitch: BootSystem?
     @State private var adding = false
+    @State private var showingHelp = false
 
     var body: some View {
         @Bindable var configuration = model.configuration
@@ -60,6 +67,10 @@ struct ContentView: View {
             Text(model.failure ?? "")
         }
         .sheet(isPresented: $adding) { AddSystemSheet() }
+        .sheet(isPresented: $showingHelp) { HelpView() }
+        .onReceive(NotificationCenter.default.publisher(for: .changeBootShowHelp)) { _ in
+            showingHelp = true
+        }
     }
 
     /// Numer wersji z bundla — jedno źródło, to samo co w Informacjach o programie.
@@ -100,6 +111,12 @@ struct ContentView: View {
                 } label: {
                     Label("Add system", systemImage: "plus")
                 }
+                Button {
+                    showingHelp = true
+                } label: {
+                    Label("Help", systemImage: "questionmark.circle")
+                }
+                .help(Text("What each thing does"))
                 Spacer()
                 if model.busy { ProgressView().controlSize(.small) }
                 Text(wersjaProgramu)

@@ -5,7 +5,8 @@
 //          Change-Boot/DiskUtility.swift Change-Boot/BootSystem.swift \
 //          Change-Boot/Configuration.swift Change-Boot/SystemColor.swift \
 //          Change-Boot/AppModel.swift Change-Boot/BootActions.swift \
-//          Change-Boot/PrivilegedShell.swift && /tmp/test-konfiguracja
+//          Change-Boot/PrivilegedShell.swift Change-Boot/HelperClient.swift \
+//          Change-Boot/HelperProtocol.swift && /tmp/test-konfiguracja
 //
 // Pilnuje reguł, które już raz zostały złamane — patrz komentarze przy sprawdzianach.
 

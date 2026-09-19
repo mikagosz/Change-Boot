@@ -1,7 +1,8 @@
 import AppKit
 import SwiftUI
 
-@main
+/// Bez `@main` — punkt wejścia siedzi w `main.swift`, bo ta sama binarka bywa
+/// uruchamiana przez launchd jako demon roota.
 struct ChangeBootApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @State private var model = AppModel()

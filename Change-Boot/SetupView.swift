@@ -144,6 +144,11 @@ struct MenuBarContent: View {
             NSApp.activate(ignoringOtherApps: true)
             openWindow(id: "main")
         }
+        Button("Help") {
+            NSApp.activate(ignoringOtherApps: true)
+            openWindow(id: "main")
+            NotificationCenter.default.post(name: .changeBootShowHelp, object: nil)
+        }
         Button("Quit") { NSApp.terminate(nil) }
     }
 }

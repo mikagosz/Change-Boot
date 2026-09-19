@@ -47,8 +47,18 @@ enum BootActions {
             throw BootError.volumeUnavailable(system.name)
         }
 
-        let quoted = system.mountPoint.replacingOccurrences(of: "'", with: "'\\''")
-        let output = try PrivilegedShell.run("/usr/sbin/bless --mount '\(quoted)' --setBoot 2>&1")
+        // Najpierw pomocnik: zarejestrowany demon robi to bez pytania o hasło.
+        // Dopiero gdy go nie ma albo milczy, zostaje systemowe okno hasła.
+        do {
+            try HelperClient.setStartupDisk(mountPoint: system.mountPoint)
+        } catch let HelperClient.Failure.bless(code, output) {
+            // Pomocnik odpowiedział, ale `bless` odmówił — to nie jest powód, żeby
+            // pytać o hasło i próbować drugi raz tego samego.
+            throw BootError.blessFailed("bless (\(code))\n\(output)")
+        } catch {
+            let quoted = system.mountPoint.replacingOccurrences(of: "'", with: "'\\''")
+            _ = try PrivilegedShell.run("/usr/sbin/bless --mount '\(quoted)' --setBoot 2>&1")
+        }
 
         // Sukces bless-a to za mało: sprawdzamy, na co naprawdę wskazuje firmware.
         let actual = currentStartupDevice()
@@ -56,7 +66,6 @@ enum BootActions {
         if let actual, actual != expected {
             throw BootError.verificationFailed(expected: expected, actual: actual)
         }
-        _ = output
     }
 
     /// Urządzenie, z którego maszyna wystartuje (`disk5s2`), albo `nil`, gdy nie da się ustalić.
@@ -150,9 +159,13 @@ enum BootActions {
     /// `TALLogoutSavesState`, więc do 0.1.7 czysty start nie miał prawa działać —
     /// i nie działał. Z parametrem loginwindow pyta o preferencję użytkownika,
     /// czyli o tę, którą program przed chwilą ustawił.
+    /// Polecenie restartu wystawione osobno, żeby sprawdzian headless mógł je
+    /// przeczytać bez restartowania maszyny.
+    static let restartScript =
+        "tell application \"System Events\" to restart with state saving preference"
+
     static func restart() throws {
-        _ = try AppleScript.run(
-            "tell application \"System Events\" to restart with state saving preference")
+        _ = try AppleScript.run(restartScript)
     }
 
     // MARK: - Wysuwanie
