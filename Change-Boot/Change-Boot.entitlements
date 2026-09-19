@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Jedyne uprawnienie programu. Dochodzi razem z Hardened Runtime (0.2.4),
+	     bo Apple wymienia je jako warunek wysyłania Apple Events z programu
+	     z włączonym Hardened Runtime. Na Apple Events stoją DWIE rzeczy, bez
+	     których program nie ma sensu:
+	       • restart przez System Events z „state saving preference" (usterka 8b),
+	       • droga zastępcza `do shell script … with administrator privileges`,
+	         używana, gdy pomocnik nie jest zainstalowany.
+
+	     🔴 UCZCIWIE: kontroli ujemnej NIE udało się przeprowadzić. Binarka
+	     podpisana z Hardened Runtime i BEZ tego uprawnienia wykonała
+	     `tell application "System Events"` bez błędu — dwa razy, raz goła,
+	     raz jako pakiet. Oba przebiegi szły z sesji agenta, więc procesem
+	     odpowiedzialnym przed TCC był program agenta i to on niósł zgodę.
+	     Czysty pomiar wymaga uruchomienia z Findera na koncie bez tej zgody.
+	     Uprawnienie zostaje na podstawie dokumentacji Apple, nie na podstawie
+	     własnego pomiaru — i tak ma być tu napisane, dopóki pomiaru nie ma. -->
+	<key>com.apple.security.automation.apple-events</key>
+	<true/>
+</dict>
+</plist>
