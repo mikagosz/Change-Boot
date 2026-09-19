@@ -43,6 +43,9 @@ struct SettingsView: View {
         case .nieudane:  return "xmark.circle.fill"
         case .anulowane: return "minus.circle.fill"
         case .oczekuje:  return "clock.fill"
+        // Skutek z nowszej wersji programu. Znak zapytania, nie milczenie —
+        // wpis ma być widoczny nawet wtedy, gdy nie wiadomo, co znaczy.
+        case .inny:      return "questionmark.circle.fill"
         }
     }
 
@@ -52,6 +55,7 @@ struct SettingsView: View {
         case .nieudane:  return .red
         case .anulowane: return .secondary
         case .oczekuje:  return .orange
+        case .inny:      return .secondary
         }
     }
 
@@ -86,6 +90,10 @@ struct SettingsView: View {
             return String(localized: "Terminal command removed") + zrodlo
         case .uzbrojenieNaPowrot:
             return String(localized: "Set to open when you come back to this system") + zrodlo
+        case .inna(let surowa):
+            // Czynność zapisana przez nowszą wersję. Pokazujemy surową nazwę
+            // zamiast chować wpis — patrz `TekstoweWyliczenie`.
+            return String(localized: "Unknown event: \(surowa)") + zrodlo
         }
     }
 

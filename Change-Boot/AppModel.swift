@@ -257,6 +257,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // właśnie wstał. Zdejmujemy go, żeby nie został na zawsze.
         LoginItem.rozbrojPoStarcie()
 
+        // Śmieć po wpadce 0.2.2 — przegródka nazwana po procesie, nie po pakiecie.
+        // Kasujemy przy starcie, bo inaczej u każdego, kto już ją ma, zostanie
+        // na zawsze: przyczyny nie ma od 0.2.3, ale plik sam nie zniknie.
+        Odinstalowanie.sprzatnijOsieroconaPrzegrodke()
+
         for nazwa in [NSWindow.willCloseNotification, NSWindow.didBecomeMainNotification] {
             NotificationCenter.default.addObserver(forName: nazwa, object: nil, queue: .main) { _ in
                 // `willClose` leci ZANIM okno zniknie z `NSApp.windows`, więc licząc

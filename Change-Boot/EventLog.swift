@@ -12,6 +12,36 @@ import Foundation
 /// dużego JSON-a: dopisanie linii nie wymaga wczytania i przepisania całości, więc
 /// wiersz poleceń i okno programu mogą pisać jednocześnie, nie kasując sobie wzajem
 /// zapisów. Uszkodzenie ogona pliku kosztuje jedno zdarzenie, nie cały dziennik.
+/// Wyliczenie zapisywane w dzienniku tekstem, które **nie gubi** wartości,
+/// której nie zna.
+///
+/// 🔴 Po co osobny protokół zamiast `enum X: String, Codable`. Wyliczenie z surową
+/// wartością odrzuca nieznany tekst rzuconym błędem, a odczyt dziennika łapie ten
+/// błąd przez `try?` i **po cichu pomija całą linię**. Skutek: starsza wersja
+/// programu czytająca dziennik zapisany nowszą nie mówi „nie znam tego zdarzenia",
+/// tylko udaje, że zdarzenia nie było. Dziennik ma jedno zadanie — być świadkiem —
+/// i akurat tego zadania by wtedy nie wykonał.
+///
+/// Zdarzyło się to już raz w drugą stronę: `0.2.3` dołożyła `uzbrojenieNaPowrot`
+/// i `oczekuje` (znalezisko P3-18 z audytu 2026-09-19). Nieznana wartość wchodzi
+/// teraz w przypadek `inna/inny/inne` i **zachowuje swój tekst**, więc wpis da się
+/// pokazać i wypisać, nawet jeśli program nie wie, co on znaczy.
+protocol TekstoweWyliczenie: Codable, Equatable {
+    init(tekst: String)
+    var tekst: String { get }
+}
+
+extension TekstoweWyliczenie {
+    init(from dekoder: Decoder) throws {
+        self.init(tekst: try dekoder.singleValueContainer().decode(String.self))
+    }
+
+    func encode(to koder: Encoder) throws {
+        var pojemnik = koder.singleValueContainer()
+        try pojemnik.encode(tekst)
+    }
+}
+
 enum EventLog {
 
     struct Entry: Codable {
@@ -33,7 +63,7 @@ enum EventLog {
         let szczegol: String?
     }
 
-    enum Czynnosc: String, Codable {
+    enum Czynnosc: TekstoweWyliczenie {
         case przelaczenie
         case wysuniecie
         case instalacjaPomocnika
@@ -43,9 +73,37 @@ enum EventLog {
         /// Wpis logowania założony przed przełączeniem, żeby program otworzył się
         /// sam po powrocie na ten system.
         case uzbrojenieNaPowrot
+        /// Czynność, której ta wersja programu nie zna — z nowszej wersji.
+        case inna(String)
+
+        init(tekst: String) {
+            switch tekst {
+            case "przelaczenie":        self = .przelaczenie
+            case "wysuniecie":          self = .wysuniecie
+            case "instalacjaPomocnika": self = .instalacjaPomocnika
+            case "usunieciePomocnika":  self = .usunieciePomocnika
+            case "instalacjaPolecenia": self = .instalacjaPolecenia
+            case "usunieciePolecenia":  self = .usunieciePolecenia
+            case "uzbrojenieNaPowrot":  self = .uzbrojenieNaPowrot
+            default:                    self = .inna(tekst)
+            }
+        }
+
+        var tekst: String {
+            switch self {
+            case .przelaczenie:        return "przelaczenie"
+            case .wysuniecie:          return "wysuniecie"
+            case .instalacjaPomocnika: return "instalacjaPomocnika"
+            case .usunieciePomocnika:  return "usunieciePomocnika"
+            case .instalacjaPolecenia: return "instalacjaPolecenia"
+            case .usunieciePolecenia:  return "usunieciePolecenia"
+            case .uzbrojenieNaPowrot:  return "uzbrojenieNaPowrot"
+            case .inna(let surowy):    return surowy
+            }
+        }
     }
 
-    enum Skutek: String, Codable {
+    enum Skutek: TekstoweWyliczenie {
         case udane
         case nieudane
         case anulowane
@@ -53,11 +111,51 @@ enum EventLog {
         /// Dziś jeden przypadek: pomocnik zarejestrowany i czekający na zgodę
         /// w Ustawieniach systemowych. Do 0.2.2 zapisywał się jako `nieudane`.
         case oczekuje
+        /// Skutek, którego ta wersja programu nie zna — z nowszej wersji.
+        case inny(String)
+
+        init(tekst: String) {
+            switch tekst {
+            case "udane":     self = .udane
+            case "nieudane":  self = .nieudane
+            case "anulowane": self = .anulowane
+            case "oczekuje":  self = .oczekuje
+            default:          self = .inny(tekst)
+            }
+        }
+
+        var tekst: String {
+            switch self {
+            case .udane:            return "udane"
+            case .nieudane:         return "nieudane"
+            case .anulowane:        return "anulowane"
+            case .oczekuje:         return "oczekuje"
+            case .inny(let surowy): return surowy
+            }
+        }
     }
 
-    enum Zrodlo: String, Codable {
+    enum Zrodlo: TekstoweWyliczenie {
         case okno
         case wierszPolecen
+        /// Źródło, którego ta wersja programu nie zna — z nowszej wersji.
+        case inne(String)
+
+        init(tekst: String) {
+            switch tekst {
+            case "okno":         self = .okno
+            case "wierszPolecen": self = .wierszPolecen
+            default:             self = .inne(tekst)
+            }
+        }
+
+        var tekst: String {
+            switch self {
+            case .okno:             return "okno"
+            case .wierszPolecen:    return "wierszPolecen"
+            case .inne(let surowy): return surowy
+            }
+        }
     }
 
     /// Dlaczego zapis się nie udał.

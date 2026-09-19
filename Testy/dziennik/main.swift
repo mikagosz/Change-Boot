@@ -10,6 +10,7 @@
 //          Change-Boot/AppVersion.swift Change-Boot/AppBundle.swift \
 //          Change-Boot/LoginItem.swift Change-Boot/HelpView.swift \
 //          Change-Boot/Odinstalowanie.swift Change-Boot/CommandLineInstall.swift \
+//          Change-Boot/TUI.swift Change-Boot/TUIPaleta.swift Change-Boot/Terminal.swift \
 //          && /tmp/test-dziennik
 //
 // Dziennik pisze do WŁASNEGO katalogu tymczasowego, nie do Application Support
@@ -56,6 +57,35 @@ sprawdz("uszkodzona linia jest pomijana, reszta zostaje", EventLog.ostatnie().co
 
 sprawdz("limit ogranicza liczbę zwróconych wpisów", EventLog.ostatnie(1).count == 1)
 
+// 🔴 P3-18 z audytu. Wpis zapisany NOWSZĄ wersją programu — z czynnością
+// i skutkiem, których ta wersja nie zna — ma przetrwać odczyt i zachować swój
+// tekst. Do 0.2.13 wyliczenie z surową wartością rzucało błąd, a odczyt łapał
+// go przez `try?` i pomijał CAŁĄ linię: starsza binarka nie mówiła „nie znam
+// tego zdarzenia", tylko udawała, że zdarzenia nie było.
+let zPrzyszlosci = #"{"czas":"2026-09-19T20:00:00Z","czynnosc":"teleportacja","#
+    + #""skutek":"polowicznie","zrodlo":"wrozka","uzytkownik":"maczek","wersja":"9.9.9"}"#
+if let uchwyt = try? FileHandle(forWritingTo: EventLog.plik) {
+    _ = try? uchwyt.seekToEnd()
+    try? uchwyt.write(contentsOf: Data((zPrzyszlosci + "\n").utf8))
+    try? uchwyt.close()
+}
+
+let poPrzyszlosci = EventLog.ostatnie()
+sprawdz("wpis z nieznaną czynnością NIE ginie przy odczycie",
+        poPrzyszlosci.count == 3)
+sprawdz("nieznana czynność zachowuje swój tekst",
+        poPrzyszlosci.first?.czynnosc == .inna("teleportacja"))
+sprawdz("nieznany skutek zachowuje swój tekst",
+        poPrzyszlosci.first?.skutek == .inny("polowicznie"))
+sprawdz("nieznane źródło zachowuje swój tekst",
+        poPrzyszlosci.first?.zrodlo == .inne("wrozka"))
+// Kontrola ujemna: znane wartości nadal trafiają w swoje przypadki, a nie
+// w worek „inne" — inaczej powyższe zera znaczyłyby „wszystko jest nieznane".
+sprawdz("kontrola ujemna — znana czynność NIE wpada w przypadek nieznany",
+        EventLog.Czynnosc(tekst: "wysuniecie") == .wysuniecie)
+sprawdz("tekst znanej wartości nie zmienia się przy zapisie",
+        EventLog.Skutek.oczekuje.tekst == "oczekuje")
+
 print("\nRozbiór argumentów wiersza poleceń")
 
 let domyslne = CommandLineTool.Opcje([])
@@ -73,6 +103,24 @@ sprawdz("--no-clean wyłącza czysty start",
         CommandLineTool.Opcje(["--no-clean"]).czystyStart == false)
 sprawdz("przełącznik nie zostaje wzięty za cel",
         CommandLineTool.Opcje(["--json"]).cel == nil)
+
+// 🔴 P3-15 z audytu. `--limit abc` brało po cichu 20 i kończyło się kodem 0:
+// skrypt dostawał inne zachowanie, niż prosił, i nie miał jak tego zauważyć.
+sprawdz("--limit z nieliczbą jest zgłoszone jako błąd",
+        CommandLineTool.Opcje(["--limit", "abc"]).bledny != nil)
+sprawdz("--limit z zerem też — zero zdarzeń to nie jest odpowiedź",
+        CommandLineTool.Opcje(["--limit", "0"]).bledny != nil)
+sprawdz("--limit bez wartości też",
+        CommandLineTool.Opcje(["--limit"]).bledny != nil)
+sprawdz("kontrola ujemna — poprawne --limit NIE jest błędem",
+        CommandLineTool.Opcje(["--limit", "5"]).bledny == nil)
+sprawdz("błędny przełącznik niesie swoją treść, nie samo „coś nie tak\"",
+        CommandLineTool.Opcje(["--limit", "abc"]).bledny?.contains("abc") == true)
+
+// P3-19: tryb próbny.
+sprawdz("--dry-run rozpoznane", CommandLineTool.Opcje(["--dry-run"]).proba)
+sprawdz("kontrola ujemna — bez przełącznika trybu próbnego nie ma",
+        !CommandLineTool.Opcje(["Mac Lab"]).proba)
 
 print("\nRównoległy zapis — P1-03 z audytu 2026-09-19")
 

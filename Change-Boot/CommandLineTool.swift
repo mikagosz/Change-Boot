@@ -101,6 +101,14 @@ enum CommandLineTool {
         let czasownik = reszta.isEmpty ? "powitanie" : reszta.removeFirst()
         let opcje = Opcje(reszta)
 
+        // 🔴 Zły przełącznik kończy sprawę TUTAJ, kodem 2, zanim cokolwiek się
+        // wydarzy. Przyjęcie wartości domyślnej w zastępstwie błędnej to cicha
+        // zmiana zachowania — najgorszy rodzaj odpowiedzi dla skryptu.
+        if let bledny = opcje.bledny {
+            blad(t("Bad value for option: \(bledny)"))
+            zakoncz(.zleUzycie)
+        }
+
         switch czasownik {
         case "list":                   zakoncz(lista(opcje))
         case "current":                zakoncz(biezacy(opcje))
@@ -134,6 +142,14 @@ enum CommandLineTool {
         let cel: String?
         /// Bez interfejsu pełnoekranowego — sam tekst.
         let zwykly: Bool
+        /// Tryb próbny: powiedz, co by się stało, i nie rób nic.
+        let proba: Bool
+        /// 🔴 Przełącznik, którego nie dało się przyjąć — razem z powodem.
+        ///
+        /// Do 0.2.13 `--limit abc` po cichu brało 20 i kończyło się kodem `0`.
+        /// Skrypt dostawał inne zachowanie, niż prosił, i **nie miał jak tego
+        /// zauważyć**. Znalezisko P3-15 z audytu 2026-09-19.
+        let bledny: String?
 
         init(_ argumenty: [String]) {
             var cel: String?
@@ -142,6 +158,8 @@ enum CommandLineTool {
             var json = false
             var restart = false
             var zwykly = false
+            var proba = false
+            var bledny: String?
 
             var i = 0
             while i < argumenty.count {
@@ -152,9 +170,18 @@ enum CommandLineTool {
                 case "--clean":     czysty = true
                 case "--no-clean":  czysty = false
                 case "--restart":   restart = true
+                case "--dry-run":   proba = true
                 case "--limit":
                     i += 1
-                    if i < argumenty.count { limit = Int(argumenty[i]) ?? limit }
+                    guard i < argumenty.count else {
+                        bledny = bledny ?? "--limit"
+                        break
+                    }
+                    guard let liczba = Int(argumenty[i]), liczba > 0 else {
+                        bledny = bledny ?? "--limit \(argumenty[i])"
+                        break
+                    }
+                    limit = liczba
                 default:
                     if !a.hasPrefix("-") && cel == nil { cel = a }
                 }
@@ -166,6 +193,8 @@ enum CommandLineTool {
             self.limit = limit
             self.cel = cel
             self.zwykly = zwykly
+            self.proba = proba
+            self.bledny = bledny
         }
     }
 
@@ -229,14 +258,29 @@ enum CommandLineTool {
         }
         guard let system = znajdz(cel) else {
             blad(t("No connected system found: \(cel)"))
-            EventLog.zapisz(.przelaczenie, skutek: .nieudane, naNazwa: cel,
-                            zrodlo: .wierszPolecen, szczegol: "nie znaleziono woluminu")
+            // 🔴 W trybie próbnym dziennik zostaje nietknięty także wtedy, gdy
+            // woluminu nie ma. Sprawdzenie, czy polecenie w ogóle zadziała, nie
+            // jest zdarzeniem i nie ma prawa zostawiać śladu (P3-19).
+            if !opcje.proba {
+                EventLog.zapisz(.przelaczenie, skutek: .nieudane, naNazwa: cel,
+                                zrodlo: .wierszPolecen, szczegol: "nie znaleziono woluminu")
+            }
             return .brakWoluminu
         }
 
         let konfiguracja = Configuration()
         let czysty = opcje.czystyStart ?? konfiguracja.cleanStartByDefault
         let skad = SystemScanner.current()
+
+        if opcje.proba {
+            print(t("Dry run — nothing was changed."))
+            print(t("Would set the startup disk to “\(system.name)” (\(system.mountPoint))."))
+            print(czysty ? t("Clean start: yes — open windows would not come back.")
+                         : t("Clean start: no — open windows would come back."))
+            print(opcje.zRestartem ? t("Would restart right after.")
+                                   : t("Would not restart — add --restart."))
+            return .ok
+        }
 
         do {
             let preferencjaPrzyjeta = BootActions.setWindowRestore(!czysty)
@@ -289,6 +333,11 @@ enum CommandLineTool {
             blad(t("No connected system found: \(cel)"))
             return .brakWoluminu
         }
+        if opcje.proba {
+            print(t("Dry run — nothing was changed."))
+            print(t("Would eject the whole disk holding “\(system.name)” (\(system.deviceIdentifier))."))
+            return .ok
+        }
         do {
             try BootActions.eject(system)
             EventLog.zapisz(.wysuniecie, skutek: .udane, na: system, zrodlo: .wierszPolecen)
@@ -323,7 +372,7 @@ enum CommandLineTool {
         for w in wpisy {
             let cel = w.naSystem.map { " → \($0)" } ?? ""
             let skad = w.zSystemu.map { " z \($0)" } ?? ""
-            print("\(formater.string(from: w.czas))  \(w.czynnosc.rawValue)\(skad)\(cel)  [\(w.skutek.rawValue), \(w.zrodlo.rawValue)]")
+            print("\(formater.string(from: w.czas))  \(w.czynnosc.tekst)\(skad)\(cel)  [\(w.skutek.tekst), \(w.zrodlo.tekst)]")
             if let szczegol = w.szczegol { print("    \(szczegol)") }
         }
         return .ok
@@ -460,6 +509,7 @@ enum CommandLineTool {
         wiersz("--restart",             t("restart once the startup disk is set"))
         wiersz("--clean / --no-clean",  t("clean start; without it the app setting decides"))
         wiersz("--limit <n>",           t("how many events to print (default 20)"))
+        wiersz("--dry-run",             t("say what would happen and change nothing"))
         print("")
         print(t("EXIT CODES"))
         print("  " + t("0 ok · 1 error · 2 bad usage · 3 no such volume"))

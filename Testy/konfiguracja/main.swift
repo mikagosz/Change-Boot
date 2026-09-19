@@ -8,7 +8,10 @@
 //          Change-Boot/PrivilegedShell.swift Change-Boot/HelperClient.swift \
 //          Change-Boot/HelperProtocol.swift Change-Boot/AppBundle.swift \
 //          Change-Boot/LoginItem.swift Change-Boot/EventLog.swift \
-//          Change-Boot/AppVersion.swift && /tmp/test-konfiguracja
+//          Change-Boot/AppVersion.swift Change-Boot/Odinstalowanie.swift \
+//          Change-Boot/CommandLineInstall.swift Change-Boot/HelpView.swift \
+//          Change-Boot/CommandLineTool.swift Change-Boot/TUI.swift \
+//          Change-Boot/TUIPaleta.swift Change-Boot/Terminal.swift && /tmp/test-konfiguracja
 //
 // Pilnuje reguł, które już raz zostały złamane — patrz komentarze przy sprawdzianach.
 
@@ -104,6 +107,25 @@ sprawdz("niepodłączony dysk nie udaje wykrytego",
         !model.detected.contains { $0.volumeUUID == widmo.volumeUUID })
 
 UserDefaults.standard.removePersistentDomain(forName: suite)
+
+print("\nSprzątanie osieroconej przegródki — P3-17 z audytu")
+
+// 🔴 Sprawdzane na PRAWDZIWEJ osieroconej domenie i tylko na niej, bo funkcja
+// żadnej innej nie umie ruszyć — i to jest jej najważniejsza cecha. Wcześniejsza
+// wersja tego sprawdzianu podawała nazwę domeny parametrem i skasowała nią
+// prawdziwe ustawienia programu. Domena `change-boot` to śmieć po wpadce 0.2.2,
+// więc jej założenie i skasowanie tutaj nie niszczy niczyich danych.
+UserDefaults.standard.setPersistentDomain(["NSWindow Frame main": "1 2 3 4"],
+                                          forName: Odinstalowanie.osieroconaDomena)
+sprawdz("kontrola dodatnia — osierocona przegródka istnieje przed sprzątaniem",
+        UserDefaults.standard.persistentDomain(forName: Odinstalowanie.osieroconaDomena) != nil)
+sprawdz("sprzątanie zgłasza, że miało co sprzątać",
+        Odinstalowanie.sprzatnijOsieroconaPrzegrodke())
+sprawdz("drugie wywołanie jest obojętne i nic nie zgłasza",
+        !Odinstalowanie.sprzatnijOsieroconaPrzegrodke())
+sprawdz("sprzątana domena to ta z wpadki 0.2.2, nie domena programu",
+        Odinstalowanie.osieroconaDomena == "change-boot"
+            && Odinstalowanie.osieroconaDomena != "com.mikagosz.ChangeBoot")
 
 print("\nAwarie: \(awarie)")
 exit(awarie == 0 ? 0 : 1)

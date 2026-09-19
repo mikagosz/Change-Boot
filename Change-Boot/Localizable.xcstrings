@@ -274,6 +274,23 @@
         }
       }
     },
+    "Bad value for option: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bad value for option: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zła wartość przełącznika: %@"
+          }
+        }
+      }
+    },
     "Blue": {
       "extractionState": "manual",
       "localizations": {
@@ -529,6 +546,40 @@
         }
       }
     },
+    "Clean start: no — open windows would come back.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean start: no — open windows would come back."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Czysty start: nie — otwarte okna by wróciły."
+          }
+        }
+      }
+    },
+    "Clean start: yes — open windows would not come back.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean start: yes — open windows would not come back."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Czysty start: tak — otwarte okna by nie wróciły."
+          }
+        }
+      }
+    },
     "Colour": {
       "extractionState": "manual",
       "localizations": {
@@ -780,6 +831,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gotowe. Możesz przenieść Change-Boota do Kosza — ustawienia i dziennik zdarzeń zostają tam, gdzie były."
+          }
+        }
+      }
+    },
+    "Dry run — nothing was changed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dry run — nothing was changed."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próba — nic nie zostało zmienione."
           }
         }
       }
@@ -2943,6 +3011,23 @@
         }
       }
     },
+    "Unknown event: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown event: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieznane zdarzenie: %@"
+          }
+        }
+      }
+    },
     "Unmount the whole disk so it can be unplugged safely": {
       "extractionState": "manual",
       "localizations": {
@@ -3109,6 +3194,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trwa praca na „%@”"
+          }
+        }
+      }
+    },
+    "Would eject the whole disk holding “%@” (%@).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Would eject the whole disk holding “%@” (%@)."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysunąłbym cały nośnik z „%@” (%@)."
+          }
+        }
+      }
+    },
+    "Would not restart — add --restart.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Would not restart — add --restart."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie restartowałbym — dodaj --restart."
+          }
+        }
+      }
+    },
+    "Would restart right after.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Would restart right after."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zrestartowałbym od razu potem."
+          }
+        }
+      }
+    },
+    "Would set the startup disk to “%@” (%@).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Would set the startup disk to “%@” (%@)."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustawiłbym dysk startowy na „%@” (%@)."
           }
         }
       }
@@ -3602,6 +3755,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "po ustawieniu dysku uruchom ponownie"
+          }
+        }
+      }
+    },
+    "say what would happen and change nothing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "say what would happen and change nothing"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "powiedz, co by się stało, i nic nie zmieniaj"
           }
         }
       }
