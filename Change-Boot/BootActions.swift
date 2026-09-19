@@ -75,23 +75,43 @@ enum BootActions {
     /// To ta sama preferencja, którą przestawia checkbox „Otwórz ponownie okna
     /// przy następnym logowaniu" w systemowym oknie restartu — jedyne ustawienie
     /// poza NVRAM-em, jakie ten program rusza.
-    static func setWindowRestore(_ enabled: Bool) {
+    ///
+    /// 🔴 Sama ta preferencja **nic nie znaczy**, dopóki restart nie idzie z
+    /// parametrem `state saving preference` — patrz `restart()`. Do 0.1.7 program
+    /// stawiał ją na `0` i restartował poleceniem, które stan zapisuje zawsze.
+    ///
+    /// Zwraca to, co po zapisie faktycznie siedzi w preferencjach: `cfprefsd`
+    /// potrafi zapis przyjąć i nie donieść o porażce, a orzekanie o czystym starcie
+    /// bez odczytu zwrotnego to zgadywanie.
+    @discardableResult
+    static func setWindowRestore(_ enabled: Bool) -> Bool {
         CFPreferencesSetValue("TALLogoutSavesState" as CFString,
                               enabled as CFBoolean,
                               "com.apple.loginwindow" as CFString,
                               kCFPreferencesCurrentUser,
                               kCFPreferencesAnyHost)
         CFPreferencesAppSynchronize("com.apple.loginwindow" as CFString)
+
+        let zapisane = CFPreferencesCopyValue("TALLogoutSavesState" as CFString,
+                                              "com.apple.loginwindow" as CFString,
+                                              kCFPreferencesCurrentUser,
+                                              kCFPreferencesAnyHost) as? Bool
+        return zapisane == enabled
     }
 
     // MARK: - Zamykanie programów
 
     /// Zamyka programy użytkownika i zwraca nazwy tych, które się nie poddały.
     ///
-    /// 🔴 To jest **jedyna** rzecz, która naprawdę daje czysty start. Sama preferencja
-    /// `TALLogoutSavesState` nie wystarcza — zmierzone 2026-09-19: po powrocie z `Mac Lab`
-    /// flaga stała na `0`, a okna i tak wróciły. loginwindow wznawia to, co działało
-    /// w chwili wylogowania, więc program zamknięty **przed** restartem nie ma jak wrócić.
+    /// **Droga awaryjna, nie główna.** Czysty start robi para: `TALLogoutSavesState`
+    /// na `0` plus restart z `state saving preference`. Tędy idziemy dopiero wtedy,
+    /// gdy odczyt zwrotny preferencji pokaże, że zapis się nie przyjął — wtedy
+    /// zostaje twardsze narzędzie: program zamknięty **przed** restartem nie ma jak
+    /// wrócić, bo loginwindow wznawia to, co działało w chwili wylogowania.
+    ///
+    /// Cena jest realna i dlatego to nie jest domyślna ścieżka: `terminate()` ubija
+    /// sesje otwartych programów (w tym Claude) zamiast pozwolić im wyjść normalną
+    /// drogą wylogowania.
     ///
     /// Finder zostaje — jego „zamknięcie" to i tak ponowne uruchomienie, a bez niego
     /// pulpit znika na chwilę bez żadnego zysku.
@@ -123,8 +143,16 @@ enum BootActions {
     ///
     /// `shutdown -r` ubija sesję z boku; loginwindow nie przechodzi wtedy pełnego
     /// wylogowania i potrafi mimo ustawienia zostawić stan okien.
+    ///
+    /// 🔴 `with state saving preference` **nie jest ozdobnikiem**. Słownik System
+    /// Events mówi wprost: *„If «state saving preference» is omitted or false,
+    /// state is always saved."* Gołe `restart` zapisuje stan sesji niezależnie od
+    /// `TALLogoutSavesState`, więc do 0.1.7 czysty start nie miał prawa działać —
+    /// i nie działał. Z parametrem loginwindow pyta o preferencję użytkownika,
+    /// czyli o tę, którą program przed chwilą ustawił.
     static func restart() throws {
-        _ = try AppleScript.run("tell application \"System Events\" to restart")
+        _ = try AppleScript.run(
+            "tell application \"System Events\" to restart with state saving preference")
     }
 
     // MARK: - Wysuwanie

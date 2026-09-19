@@ -90,13 +90,19 @@ final class AppModel {
         busy = true
         failure = nil
         do {
-            BootActions.setWindowRestore(!cleanStart)
+            // Czysty start stoi na dwóch rzeczach naraz: preferencji ustawionej tutaj
+            // i na tym, że `restart()` idzie z parametrem `state saving preference`.
+            // Samo ustawienie preferencji nic nie daje — zmierzone 2026-09-19.
+            let preferencjaPrzyjeta = BootActions.setWindowRestore(!cleanStart)
 
             // Dysk startowy ustawiamy PRZED zamykaniem programów: gdyby bless się nie
             // udał albo użytkownik cofnął hasło, nikt nie traci otwartej pracy.
             try BootActions.setStartupDisk(to: system)
 
-            if cleanStart {
+            // Droga awaryjna: preferencja się nie zapisała, więc zamykamy programy
+            // ręcznie. Zamknięty program nie ma jak wrócić, cokolwiek loginwindow
+            // sobie zapisze.
+            if cleanStart && !preferencjaPrzyjeta {
                 let oporne = BootActions.closeUserApps()
                 if !oporne.isEmpty {
                     failure = String(localized: "These apps did not close: \(oporne.joined(separator: ", ")).\n\nThey probably have unsaved work. Deal with them and switch again — the startup disk is already set.")
