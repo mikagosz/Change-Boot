@@ -17,32 +17,12 @@ struct ContentView: View {
 
     /// Kąt obrotu. `0` — lista, `180` — opcje. Wszystko inne to ruch między nimi.
     private var kat: Double { showingOptions ? 180 : 0 }
-
-    /// Połowa czasu obrotu: w tym momencie jedna strona znika, a druga się pojawia.
-    /// Gdyby przełączać widoczność bez opóźnienia, przez pół animacji widać byłoby
-    /// lustrzane odbicie tej strony, która właśnie odjeżdża.
-    private var polowa: Double { ruchOgraniczony ? 0 : 0.22 }
-    private var czasObrotu: Double { ruchOgraniczony ? 0 : 0.45 }
+    private var czasObrotu: Double { ruchOgraniczony ? 0 : 0.5 }
 
     var body: some View {
         ZStack {
-            przod
-                .rotation3DEffect(.degrees(kat), axis: (x: 0, y: 1, z: 0),
-                                  perspective: 0.35)
-                .opacity(showingOptions ? 0 : 1)
-                .animation(.linear(duration: 0.01).delay(polowa), value: showingOptions)
-                .allowsHitTesting(!showingOptions)
-                .accessibilityHidden(showingOptions)
-
-            tyl
-                // Tył jest **wstępnie obrócony o 180°**, inaczej po dojechaniu
-                // animacji byłby odbiciem lustrzanym.
-                .rotation3DEffect(.degrees(kat - 180), axis: (x: 0, y: 1, z: 0),
-                                  perspective: 0.35)
-                .opacity(showingOptions ? 1 : 0)
-                .animation(.linear(duration: 0.01).delay(polowa), value: showingOptions)
-                .allowsHitTesting(showingOptions)
-                .accessibilityHidden(!showingOptions)
+            przod.modifier(StronaObrotu(kat: kat, tyl: false))
+            tyl.modifier(StronaObrotu(kat: kat, tyl: true))
         }
         .animation(.easeInOut(duration: czasObrotu), value: showingOptions)
         .frame(minWidth: 440, minHeight: 380)
@@ -110,16 +90,25 @@ struct ContentView: View {
     /// wciąż ten sam program, a nie nowe okno.
     private var tyl: some View {
         VStack(alignment: .leading, spacing: 0) {
-            header
+            HStack(spacing: 4) {
+                Button {
+                    showingOptions = false
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(Text("Back to the list"))
+                .accessibilityLabel(Text("Back to the list"))
+                // Esc też zawraca — strzałka jest do klikania, klawisz do pośpiechu.
+                .keyboardShortcut(.cancelAction)
+                .padding(.leading, 12)
+
+                header
+            }
             Divider()
             SettingsView()
-            Divider()
-            HStack {
-                Spacer()
-                Button("Done") { showingOptions = false }
-                    .keyboardShortcut(.defaultAction)
-            }
-            .padding(12)
         }
     }
 
@@ -308,5 +297,39 @@ struct AddSystemSheet: View {
         }
         .padding(16)
         .frame(width: 420)
+    }
+}
+
+/// Jedna strona obracanego okna.
+///
+/// 🔴 Musi być `Animatable`, i to jest sedno. Pierwsza wersja (0.1.18) składała obrót
+/// z `rotation3DEffect` plus osobnego `.animation(.linear(duration: 0.01))` na
+/// przełączanie widoczności — a `.animation` działa na **wszystko powyżej siebie
+/// w łańcuchu**, więc zjadała animację obrotu. Obrót dostawał 0,01 s i wyglądał jak
+/// podmiana obrazka. Zgłoszone przez [U]: *„obrót nie działa albo jest niewidoczny"*.
+///
+/// Z `animatableData` SwiftUI woła `body` na każdej klatce z pośrednim kątem, więc
+/// strona znika dokładnie na 90°, w chwili gdy jest ustawiona krawędzią do patrzącego.
+/// Bez tego przez pół animacji widać lustrzane odbicie strony odjeżdżającej.
+struct StronaObrotu: ViewModifier, Animatable {
+    var kat: Double
+    /// Tył jest **wstępnie obrócony o 180°**, inaczej po dojechaniu animacji
+    /// czytałoby się go od tyłu.
+    let tyl: Bool
+
+    var animatableData: Double {
+        get { kat }
+        set { kat = newValue }
+    }
+
+    func body(content: Content) -> some View {
+        let widoczna = tyl ? kat >= 90 : kat < 90
+        content
+            .opacity(widoczna ? 1 : 0)
+            .allowsHitTesting(widoczna)
+            .accessibilityHidden(!widoczna)
+            .rotation3DEffect(.degrees(tyl ? kat - 180 : kat),
+                              axis: (x: 0, y: 1, z: 0),
+                              perspective: 0.5)
     }
 }

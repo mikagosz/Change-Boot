@@ -121,6 +121,23 @@
         }
       }
     },
+    "Back to the list": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to the list"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Powrót do listy"
+          }
+        }
+      }
+    },
     "Blue": {
       "extractionState": "manual",
       "localizations": {
