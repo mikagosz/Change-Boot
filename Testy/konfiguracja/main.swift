@@ -6,7 +6,9 @@
 //          Change-Boot/Configuration.swift Change-Boot/SystemColor.swift \
 //          Change-Boot/AppModel.swift Change-Boot/BootActions.swift \
 //          Change-Boot/PrivilegedShell.swift Change-Boot/HelperClient.swift \
-//          Change-Boot/HelperProtocol.swift && /tmp/test-konfiguracja
+//          Change-Boot/HelperProtocol.swift Change-Boot/AppBundle.swift \
+//          Change-Boot/LoginItem.swift Change-Boot/EventLog.swift \
+//          Change-Boot/AppVersion.swift && /tmp/test-konfiguracja
 //
 // Pilnuje reguł, które już raz zostały złamane — patrz komentarze przy sprawdzianach.
 

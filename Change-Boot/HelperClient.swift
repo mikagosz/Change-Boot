@@ -58,19 +58,53 @@ enum HelperClient {
     /// z `DerivedData` przestaje działać po pierwszym przebudowaniu — i wygląda
     /// to wtedy na usterkę pomocnika, a nie na przeniesiony plik.
     static var isInTemporaryLocation: Bool {
-        let path = Bundle.main.bundleURL.path
+        let path = AppBundle.main.bundleURL.path
         return path.contains("/DerivedData/") || path.contains("/Volumes/")
     }
 
     // MARK: - Instalacja
 
+    /// Czym skończyła się rejestracja pomocnika.
+    ///
+    /// Trzeci stan istnieje, bo macOS ma trzeci stan — patrz `install()`.
+    enum Wynik {
+        case gotowy
+        case czekaNaZgode
+    }
+
     /// Rejestruje demona. Przy pierwszym razie macOS pyta o zgodę administratora.
+    ///
+    /// 🔴 **`register()` rzuca także wtedy, gdy rejestracja się UDAŁA.** macOS
+    /// pokazuje wtedy powiadomienie „Aktywność aplikacji w tle — «Change-Boot» może
+    /// działać w tle u wszystkich użytkowników. Czy to zezwolić?", a wywołanie kończy
+    /// się błędem `Operation not permitted`. Po kliknięciu „Zezwól" pomocnik jest
+    /// zainstalowany i działa — tyle że program zdążył już zapisać porażkę.
+    ///
+    /// Zmierzone 2026-09-19 na dwóch systemach niezależnie; dowód w dzienniku
+    /// zdarzeń obu instalacji:
+    /// `{"czynnosc":"instalacjaPomocnika","skutek":"nieudane",`
+    /// ` "szczegol":"Nie można ukończyć tej operacji. Operation not permitted"}`.
+    /// Zgłoszone przez [U]: *„historia pokazuje błędnie, że instalacja pomocnika
+    /// się nie udała"*.
+    ///
+    /// Dlatego o skutku orzeka **stan usługi po wywołaniu**, a nie to, czy rzuciło.
+    /// `SMAppService` jest tu jedynym świadkiem, który mówi prawdę.
     ///
     /// Zarejestrowany demon wskazuje na **to** miejsce, w którym program stoi
     /// w chwili rejestracji: `BundleProgram` w pliście jest ścieżką względem bundla.
     /// Przeniesienie programu po rejestracji zrywa powiązanie i trzeba je odnowić.
-    static func install() throws {
-        try service.register()
+    @discardableResult
+    static func install() throws -> Wynik {
+        do {
+            try service.register()
+        } catch {
+            switch service.status {
+            case .enabled:          return .gotowy
+            case .requiresApproval: return .czekaNaZgode
+            default:                throw error
+            }
+        }
+        return service.status == .requiresApproval ? .czekaNaZgode : .gotowy
     }
 
     static func uninstall() throws {

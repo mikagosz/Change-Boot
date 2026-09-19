@@ -8,9 +8,11 @@ import Foundation
 /// nie dla patrzącego na okno.
 enum AppVersion {
     /// Na przykład `v.0.1.11`.
+    ///
+    /// Numer idzie z `AppBundle`, nie z `Bundle.main`: uruchomiony przez dowiązanie
+    /// `change-boot` proces nie ma pakietu pod ścieżką procesu i wypisywał `v.?`.
     static var short: String {
-        let number = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
-        return "v.\(number)"
+        "v.\(AppBundle.wersja ?? "?")"
     }
 
     /// Na przykład `Change-Boot v.0.1.11`.

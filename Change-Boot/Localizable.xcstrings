@@ -818,6 +818,23 @@
         }
       }
     },
+    "Leaving the Dock": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leaving the Dock"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zniknięcie z Docka"
+          }
+        }
+      }
+    },
     "Menu bar icon": {
       "extractionState": "manual",
       "localizations": {
@@ -1090,6 +1107,23 @@
         }
       }
     },
+    "One thing Change-Boot cannot do for you: macOS puts recently used apps back in the Dock by itself. Turn off “Show suggested and recent apps in Dock” in System Settings → Desktop & Dock, or the icon comes back no matter what this app sets. There is a button for it in Options.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One thing Change-Boot cannot do for you: macOS puts recently used apps back in the Dock by itself. Turn off “Show suggested and recent apps in Dock” in System Settings → Desktop & Dock, or the icon comes back no matter what this app sets. There is a button for it in Options."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jednego Change-Boot nie zrobi za ciebie: macOS sam wstawia do Docka ostatnio używane programy. Wyłącz „Pokazuj sugerowane i ostatnie aplikacje w Docku” w Ustawieniach systemowych → Biurko i Dock, bo inaczej ikona wróci niezależnie od tego, co ustawi ten program. Przycisk do tego stoi w Opcjach."
+          }
+        }
+      }
+    },
     "Open Change-Boot": {
       "extractionState": "manual",
       "localizations": {
@@ -1107,6 +1141,57 @@
         }
       }
     },
+    "Open Change-Boot at every login": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Change-Boot at every login"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwieraj Change-Boot przy każdym logowaniu"
+          }
+        }
+      }
+    },
+    "Open Change-Boot when I come back to this system": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Change-Boot when I come back to this system"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz Change-Boot po powrocie na ten system"
+          }
+        }
+      }
+    },
+    "Open Desktop & Dock settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Desktop & Dock settings"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz ustawienia Biurka i Docka"
+          }
+        }
+      }
+    },
     "Open System Settings": {
       "extractionState": "manual",
       "localizations": {
@@ -1120,6 +1205,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Otwórz Ustawienia systemowe"
+          }
+        }
+      }
+    },
+    "Opening Change-Boot": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening Change-Boot"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwieranie Change-Boota"
+          }
+        }
+      }
+    },
+    "Opening after a switch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening after a switch"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwarcie po przełączeniu"
           }
         }
       }
@@ -1566,6 +1685,40 @@
         }
       }
     },
+    "Switching away from this system leaves a one-off login item behind, so Change-Boot is already open when you come back — the moment you usually want to eject the disk you just arrived from. The item removes itself at that start. If you would rather have the app at every login, there is a separate switch for that in Options.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switching away from this system leaves a one-off login item behind, so Change-Boot is already open when you come back — the moment you usually want to eject the disk you just arrived from. The item removes itself at that start. If you would rather have the app at every login, there is a separate switch for that in Options."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przełączenie się stąd zostawia na tym systemie jednorazowy wpis logowania, więc po powrocie Change-Boot jest już otwarty — dokładnie wtedy, gdy zwykle chcesz wysunąć dysk, z którego właśnie przyszedłeś. Wpis zdejmuje się sam przy tym starcie. Jeśli wolisz mieć program przy każdym logowaniu, w Opcjach stoi na to osobny przełącznik."
+          }
+        }
+      }
+    },
+    "Switching from here sets a one-off login item on this system. Come back to it and Change-Boot is already open, ready to eject the disk you just arrived from. The item removes itself at that start.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switching from here sets a one-off login item on this system. Come back to it and Change-Boot is already open, ready to eject the disk you just arrived from. The item removes itself at that start."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przełączenie się stąd zakłada na tym systemie jednorazowy wpis logowania. Wrócisz tu, a Change-Boot już stoi otwarty i gotowy wysunąć dysk, z którego przyszedłeś. Wpis zdejmuje się sam przy tym starcie."
+          }
+        }
+      }
+    },
     "Teal": {
       "extractionState": "manual",
       "localizations": {
@@ -1651,19 +1804,19 @@
         }
       }
     },
-    "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options and type change-boot help to see everything.": {
+    "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it shows your systems and the exact command to switch to each. change-boot help lists everything.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options and type change-boot help to see everything."
+            "value": "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it shows your systems and the exact command to switch to each. change-boot help lists everything."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ten sam program odpowiada w terminalu: list, current, switch, eject i log. Kończy się kodem wyjścia, więc skrypt wie, czy przełączenie się udało. Zainstaluj polecenie w Opcjach i wpisz change-boot help, żeby zobaczyć całość."
+            "value": "Ten sam program odpowiada w terminalu: list, current, switch, eject i log. Kończy się kodem wyjścia, więc skrypt pozna, czy przełączenie się udało. Zainstaluj polecenie w Opcjach, a potem wpisz samo change-boot — pokaże twoje systemy i gotowe polecenie do każdego z nich. Pełną listę daje change-boot help."
           }
         }
       }
@@ -1770,6 +1923,23 @@
         }
       }
     },
+    "Waiting for approval in System Settings → General → Login Items.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for approval in System Settings → General → Login Items."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Czeka na zgodę w Ustawieniach systemowych → Ogólne → Obiekty logowania."
+          }
+        }
+      }
+    },
     "Welcome to Change-Boot": {
       "extractionState": "manual",
       "localizations": {
@@ -1817,6 +1987,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bez dowiązania działa też pełna ścieżka:"
+          }
+        }
+      }
+    },
+    "Working on “%@”": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Working on “%@”"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trwa praca na „%@”"
           }
         }
       }
@@ -1885,6 +2072,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS %@ · %@"
+          }
+        }
+      }
+    },
+    "macOS puts recently used apps back in the Dock on its own. For the icon to really stay away, turn off “Show suggested and recent apps in Dock” in System Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS puts recently used apps back in the Dock on its own. For the icon to really stay away, turn off “Show suggested and recent apps in Dock” in System Settings."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS sam wstawia do Docka ostatnio używane programy. Żeby ikona naprawdę zniknęła, wyłącz w Ustawieniach systemowych „Pokazuj sugerowane i ostatnie aplikacje w Docku”."
           }
         }
       }

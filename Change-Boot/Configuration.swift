@@ -19,6 +19,12 @@ final class Configuration {
     var cleanStartByDefault: Bool { didSet { save() } }
     var setupCompleted: Bool { didSet { save() } }
 
+    /// Zwykły wpis logowania — program otwiera się przy każdym zalogowaniu.
+    var launchAtLogin: Bool { didSet { save() } }
+    /// Program otwiera się **raz**, po powrocie na ten system przełączeniem
+    /// zrobionym tym programem. Szczegóły i uzasadnienie: `LoginItem`.
+    var launchAfterSwitch: Bool { didSet { save() } }
+
     struct Entry: Codable, Identifiable, Hashable {
         let volumeUUID: String
         /// Ostatnia znana nazwa — tylko do pokazania, gdy dysku nie ma w pobliżu.
@@ -43,9 +49,15 @@ final class Configuration {
         static let hideDock = "hidesDockIcon"
         static let cleanStart = "cleanStartByDefault"
         static let setupDone = "setupCompleted"
+        static let launchAtLogin = "launchAtLogin"
+        static let launchAfterSwitch = "launchAfterSwitch"
+        /// Znacznik jednorazowego wpisu logowania. Świadomie **nie** jest polem
+        /// `Configuration`: pisze i czyta go `LoginItem` przy starcie i przed
+        /// restartem, czyli poza cyklem zapisu ustawień.
+        static let armedOnce = "loginItemArmedOnce"
     }
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = AppBundle.defaults) {
         self.defaults = defaults
         // Ikona w pasku menu domyślnie WYŁĄCZONA: program bywa używany przy
         // nagrywaniu ekranu, gdzie każdy dodatkowy element paska przeszkadza.
@@ -57,6 +69,13 @@ final class Configuration {
         self.hidesDockIcon = defaults.bool(forKey: Key.hideDock)
         self.cleanStartByDefault = defaults.object(forKey: Key.cleanStart) as? Bool ?? true
         self.setupCompleted = defaults.bool(forKey: Key.setupDone)
+        // Domyślnie WYŁĄCZONY: wpis logowania to zmiana w cudzym systemie
+        // i włącza ją użytkownik świadomie.
+        self.launchAtLogin = defaults.bool(forKey: Key.launchAtLogin)
+        // Domyślnie WŁĄCZONE, odwrotnie niż autostart: jednorazowe otwarcie po
+        // powrocie jest tym, po co w ogóle wraca się na drugi system, a wpis
+        // zdejmuje się sam przy najbliższym starcie. Poproszone wprost przez [U].
+        self.launchAfterSwitch = defaults.object(forKey: Key.launchAfterSwitch) as? Bool ?? true
 
         if let data = defaults.data(forKey: Key.entries),
            let decoded = try? JSONDecoder().decode([Entry].self, from: data) {
@@ -119,5 +138,7 @@ final class Configuration {
         defaults.set(hidesDockIcon, forKey: Key.hideDock)
         defaults.set(cleanStartByDefault, forKey: Key.cleanStart)
         defaults.set(setupCompleted, forKey: Key.setupDone)
+        defaults.set(launchAtLogin, forKey: Key.launchAtLogin)
+        defaults.set(launchAfterSwitch, forKey: Key.launchAfterSwitch)
     }
 }

@@ -45,8 +45,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     /// `defaults read com.mikagosz.ChangeBoot AppleLanguages` → klucza nie ma,
     /// a `current` zwracało `.polish`.
     static var current: AppLanguage {
-        let domain = Bundle.main.bundleIdentifier ?? ""
-        guard let own = UserDefaults.standard.persistentDomain(forName: domain)?[key] as? [String],
+        let domain = AppBundle.identyfikator ?? ""
+        guard let own = AppBundle.defaults.persistentDomain(forName: domain)?[key] as? [String],
               let first = own.first else { return .system }
         if first.hasPrefix("pl") { return .polish }
         if first.hasPrefix("en") { return .english }
@@ -55,9 +55,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     static func apply(_ language: AppLanguage) {
         if let code = language.code {
-            UserDefaults.standard.set([code], forKey: key)
+            AppBundle.defaults.set([code], forKey: key)
         } else {
-            UserDefaults.standard.removeObject(forKey: key)
+            AppBundle.defaults.removeObject(forKey: key)
         }
     }
 
@@ -67,7 +67,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     static func relaunch() {
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.createsNewApplicationInstance = true
-        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL,
+        NSWorkspace.shared.openApplication(at: AppBundle.main.bundleURL,
                                            configuration: configuration) { _, _ in
             DispatchQueue.main.async { NSApp.terminate(nil) }
         }
@@ -109,6 +109,12 @@ struct HelpView: View {
                     section("menubar.arrow.up.rectangle", "Menu bar icon",
                             "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar instead of quitting, and you can have it leave the Dock as well. Its colours can be stripped too, from the icon's own menu, so it looks like the rest of the menu bar and follows light and dark mode on its own.")
 
+                    section("dock.rectangle", "Leaving the Dock",
+                            "One thing Change-Boot cannot do for you: macOS puts recently used apps back in the Dock by itself. Turn off “Show suggested and recent apps in Dock” in System Settings → Desktop & Dock, or the icon comes back no matter what this app sets. There is a button for it in Options.")
+
+                    section("power", "Opening after a switch",
+                            "Switching away from this system leaves a one-off login item behind, so Change-Boot is already open when you come back — the moment you usually want to eject the disk you just arrived from. The item removes itself at that start. If you would rather have the app at every login, there is a separate switch for that in Options.")
+
                     Divider()
 
                     section("character.bubble", "Language",
@@ -117,7 +123,7 @@ struct HelpView: View {
                     Divider()
 
                     section("terminal", "Command line",
-                            "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options and type change-boot help to see everything.")
+                            "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it shows your systems and the exact command to switch to each. change-boot help lists everything.")
 
                     Divider()
 

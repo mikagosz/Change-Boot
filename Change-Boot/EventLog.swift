@@ -40,12 +40,19 @@ enum EventLog {
         case usunieciePomocnika
         case instalacjaPolecenia
         case usunieciePolecenia
+        /// Wpis logowania założony przed przełączeniem, żeby program otworzył się
+        /// sam po powrocie na ten system.
+        case uzbrojenieNaPowrot
     }
 
     enum Skutek: String, Codable {
         case udane
         case nieudane
         case anulowane
+        /// Czynność przyjęta, ale niedokończona — czeka na człowieka.
+        /// Dziś jeden przypadek: pomocnik zarejestrowany i czekający na zgodę
+        /// w Ustawieniach systemowych. Do 0.2.2 zapisywał się jako `nieudane`.
+        case oczekuje
     }
 
     enum Zrodlo: String, Codable {
@@ -110,7 +117,7 @@ enum EventLog {
             czystyStart: czystyStart,
             zrodlo: zrodlo,
             uzytkownik: NSUserName(),
-            wersja: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?",
+            wersja: AppBundle.wersja ?? "?",
             szczegol: szczegol)
 
         guard var dane = try? koder.encode(wpis) else { return }

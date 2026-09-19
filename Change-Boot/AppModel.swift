@@ -18,6 +18,14 @@ final class AppModel {
     private(set) var detected: [BootSystem] = []
     private(set) var current: BootSystem?
     var busy = false
+    /// UUID woluminu, na którym trwa właśnie czynność — wiersz listy rysuje wtedy
+    /// w miejscu ikony dysku śmigło.
+    ///
+    /// Osobne pole, a nie samo `busy`: śmigło ma stać **przy dysku, którego
+    /// dotyczy**, a nie w stopce okna obok numeru wersji. Polecenie [U] 2026-09-19:
+    /// *„jak mamy ten dysk koloru zielonego, to on wtedy w momencie wypinania znika
+    /// i włącza się to śmigło wirujące"*.
+    private(set) var busyVolumeUUID: String?
     var failure: String?
 
     private var diskObservers: [NSObjectProtocol] = []
@@ -116,6 +124,12 @@ final class AppModel {
 
             EventLog.zapisz(.przelaczenie, skutek: .udane, z: current, na: system,
                             czystyStart: cleanStart, zrodlo: .okno)
+
+            // Wpis logowania zakładamy na TYM systemie, tuż przed jego opuszczeniem —
+            // odpali się, gdy tu wrócimy. Nie rzuca: przełączenie idzie dalej nawet
+            // wtedy, gdy wpisu nie dało się założyć.
+            if configuration.launchAfterSwitch { LoginItem.uzbrojNaPowrot() }
+
             try BootActions.restart()
         } catch BootError.cancelled {
             // Użytkownik zamknął okno hasła — nic się nie stało.
@@ -130,20 +144,36 @@ final class AppModel {
         busy = false
     }
 
+    /// Wysuwa dysk **w tle**, nie na wątku okna.
+    ///
+    /// 🔴 To nie jest ozdobnik. Do 0.2.2 `diskutil eject` blokował wątek główny, więc
+    /// śmigło nie miało kiedy narysować ani jednej klatki — animacja w SwiftUI chodzi
+    /// na tym samym wątku, który właśnie czeka na `waitUntilExit()`. Wskaźnik pracy
+    /// dorysowany bez przeniesienia roboty w tło stałby nieruchomo.
     func eject(_ system: BootSystem) {
         guard !busy else { return }
         busy = true
+        busyVolumeUUID = system.volumeUUID
         failure = nil
-        do {
-            try BootActions.eject(system)
-            EventLog.zapisz(.wysuniecie, skutek: .udane, na: system, zrodlo: .okno)
-            refresh()
-        } catch {
-            failure = error.localizedDescription
-            EventLog.zapisz(.wysuniecie, skutek: .nieudane, na: system, zrodlo: .okno,
-                            szczegol: error.localizedDescription)
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            var blad: Error?
+            do { try BootActions.eject(system) } catch { blad = error }
+
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if let blad {
+                    self.failure = blad.localizedDescription
+                    EventLog.zapisz(.wysuniecie, skutek: .nieudane, na: system, zrodlo: .okno,
+                                    szczegol: blad.localizedDescription)
+                } else {
+                    EventLog.zapisz(.wysuniecie, skutek: .udane, na: system, zrodlo: .okno)
+                }
+                self.refresh()
+                self.busyVolumeUUID = nil
+                self.busy = false
+            }
         }
-        busy = false
     }
 }
 
@@ -155,10 +185,14 @@ final class AppModel {
 /// bo inaczej zostałby bez okna i bez ikony, czyli nie do odzyskania.
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        !UserDefaults.standard.bool(forKey: Configuration.Key.menuBar)
+        !AppBundle.defaults.bool(forKey: Configuration.Key.menuBar)
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Wpis logowania założony przed przełączeniem zrobił swoje — program
+        // właśnie wstał. Zdejmujemy go, żeby nie został na zawsze.
+        LoginItem.rozbrojPoStarcie()
+
         for nazwa in [NSWindow.willCloseNotification, NSWindow.didBecomeMainNotification] {
             NotificationCenter.default.addObserver(forName: nazwa, object: nil, queue: .main) { _ in
                 // `willClose` leci ZANIM okno zniknie z `NSApp.windows`, więc licząc
@@ -179,8 +213,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// `setActivationPolicy(.accessory)` wszedł w 0.1.7 — `git log -S` nie pokazuje
     /// ani jednego commita z tym wywołaniem. Ikona w Docku nigdy nie znikała.
     static func aktualizujObecnoscWDocku() {
-        let chowamy = UserDefaults.standard.bool(forKey: Configuration.Key.hideDock)
-        let pasek = UserDefaults.standard.bool(forKey: Configuration.Key.menuBar)
+        let chowamy = AppBundle.defaults.bool(forKey: Configuration.Key.hideDock)
+        let pasek = AppBundle.defaults.bool(forKey: Configuration.Key.menuBar)
         let celPolityki: NSApplication.ActivationPolicy =
             (chowamy && pasek && !maOtwarteOkno()) ? .accessory : .regular
         guard NSApp.activationPolicy() != celPolityki else { return }
@@ -195,6 +229,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.windows.contains { okno in
             okno.isVisible && okno.styleMask.contains(.titled) && !(okno is NSPanel)
         }
+    }
+
+    /// Panel „Biurko i Dock" w Ustawieniach systemowych.
+    ///
+    /// Stoi tutaj, bo prowadzi do przełącznika „Pokazuj sugerowane i ostatnie
+    /// aplikacje w Docku" — jedynej rzeczy, która potrafi wstawić program
+    /// z powrotem do Docka mimo ustawienia po naszej stronie. Identyfikator
+    /// panelu zmierzony: `CFBundleIdentifier` z `DesktopSettings.appex`.
+    static func otworzUstawieniaDocka() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.Desktop-Settings.extension")
+        else { return }
+        NSWorkspace.shared.open(url)
     }
 
     /// Wywoływane, zanim program otworzy okno z menu paska — bez powrotu do

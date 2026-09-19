@@ -37,8 +37,19 @@ enum CommandLineTool {
     /// nie znamy. Pierwsza wersja (0.2.0) przepuszczała nieznany czasownik dalej
     /// i program po cichu otwierał okno zamiast powiedzieć „nie znam takiego
     /// polecenia". W terminalu wyglądało to na zawieszenie.
-    static func czyPolecenie(_ argumenty: [String]) -> Bool {
-        guard let pierwszy = argumenty.dropFirst().first else { return false }
+    /// `terminal` wchodzi parametrem, żeby sprawdzian headless mógł zbadać obie
+    /// odpowiedzi bez podszywania się pod deskryptor wyjścia.
+    static func czyPolecenie(_ argumenty: [String],
+                             terminal: Bool = isatty(STDOUT_FILENO) == 1) -> Bool {
+        guard let pierwszy = argumenty.dropFirst().first else {
+            // 🔴 Gołe wywołanie rozstrzyga **deskryptor wyjścia**, nie argumenty.
+            // Z terminala `change-boot` ma powiedzieć, co umie; z Findera i z Docka
+            // ma otworzyć okno. Do 0.2.2 obie drogi kończyły się oknem — a że proces
+            // szedł wtedy przez dowiązanie w `/usr/local/bin`, okno wstawało bez
+            // pakietu: po angielsku, od kreatora i z wersją „v.?".
+            // Zgłoszone przez [U] 2026-09-19 zrzutem z terminala.
+            return terminal
+        }
         if czasowniki.contains(pierwszy) { return true }
         return !pierwszy.hasPrefix("-")
     }
@@ -51,7 +62,11 @@ enum CommandLineTool {
 
     static func main(_ argumenty: [String]) -> Never {
         var reszta = Array(argumenty.dropFirst())
-        let czasownik = reszta.isEmpty ? "help" : reszta.removeFirst()
+        // Gołe `change-boot` wita ekranem stanu, nie pełną listą przełączników:
+        // [U] 2026-09-19 spodziewał się *„opisu, że jak wpiszesz to, to przyłączysz
+        // się tu"* — czyli własnych dysków z gotowym poleceniem przy każdym,
+        // a nie składni w nawiasach kątowych.
+        let czasownik = reszta.isEmpty ? "powitanie" : reszta.removeFirst()
         let opcje = Opcje(reszta)
 
         switch czasownik {
@@ -62,6 +77,7 @@ enum CommandLineTool {
         case "log":                    zakoncz(dziennik(opcje))
         case "--version":              print(AppVersion.short); zakoncz(.ok)
         case "help", "--help", "-h":   pomoc(); zakoncz(.ok)
+        case "powitanie":              zakoncz(powitanie())
         default:
             FileHandle.standardError.write(Data("Nieznane polecenie: \(czasownik)\n".utf8))
             pomoc()
@@ -283,6 +299,54 @@ enum CommandLineTool {
         return .ok
     }
 
+    /// Ekran powitalny: gdzie jesteś, dokąd się da przejść i czym.
+    ///
+    /// Każdy dysk dostaje **gotowe do wklejenia polecenie**, bo o to chodziło
+    /// w zgłoszeniu: człowiek ma zobaczyć swoje dyski i wiedzieć, co wpisać,
+    /// a nie składać polecenie z opisu składni.
+    ///
+    /// Nazwy w cudzysłowie prostym — nazwa woluminu bywa ze spacją („Mac Lab")
+    /// i wklejona bez cudzysłowu rozpadłaby się na dwa argumenty.
+    private static func powitanie() -> Kod {
+        let konfiguracja = Configuration()
+        let wykryte = SystemScanner.scan()
+        let biezacy = SystemScanner.current()
+
+        print("Change-Boot \(AppVersion.short) — przełącznik systemu startowego")
+        print("")
+        if let biezacy {
+            print("Pracujesz na „\(biezacy.name)”  (macOS \(biezacy.productVersion) · \(biezacy.deviceIdentifier))")
+            print("")
+        }
+
+        guard !konfiguracja.entries.isEmpty else {
+            print("Żaden system nie jest jeszcze na liście.")
+            print("Otwórz okno programu i dodaj systemy, albo wpisz:  change-boot help")
+            return .ok
+        }
+
+        print("TWOJE SYSTEMY")
+        for wpis in konfiguracja.entries {
+            let system = wykryte.first { $0.volumeUUID == wpis.volumeUUID }
+            let nazwa = system?.name ?? wpis.lastKnownName
+            let wyrownana = nazwa.padding(toLength: max(22, nazwa.count),
+                                          withPad: " ", startingAt: 0)
+            guard let system else {
+                print("  ✕ \(wyrownana)  niepodłączony")
+                continue
+            }
+            if system.volumeUUID == biezacy?.volumeUUID {
+                print("  ● \(wyrownana)  ← tu jesteś")
+            } else {
+                print("  ○ \(wyrownana)  change-boot switch '\(nazwa)' --restart")
+            }
+        }
+
+        print("")
+        print("Wszystkie polecenia i kody wyjścia:  change-boot help")
+        return .ok
+    }
+
     private static func pomoc() {
         print("""
         Change-Boot \(AppVersion.short) — przełącznik systemu startowego
@@ -297,6 +361,7 @@ enum CommandLineTool {
           eject <nazwa|UUID>    wysuwa CAŁY nośnik, nie sam wolumin
           log                   ostatnie zdarzenia
           help                  ten opis
+          (bez polecenia)       twoje systemy i gotowe polecenie przy każdym
 
         OPCJE
           --json                wyjście do odczytu maszynowego

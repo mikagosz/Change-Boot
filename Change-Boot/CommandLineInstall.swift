@@ -21,7 +21,7 @@ enum CommandLineInstall {
     /// Binarka programu, czyli cel dowiązania. Ta sama, która obsługuje okno
     /// i demona — wiersz poleceń jest jej trzecią rolą.
     static var cel: String {
-        Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/Change-Boot").path
+        AppBundle.main.bundleURL.appendingPathComponent("Contents/MacOS/Change-Boot").path
     }
 
     enum Stan: Equatable {

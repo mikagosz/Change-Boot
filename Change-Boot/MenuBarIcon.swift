@@ -37,31 +37,69 @@ enum MenuBarIcon {
         monochromatyczna ? obrazMono : obraz
     }
 
-    /// Wariant bez kolorów: jeden dysk, rysowany jako **szablon**.
+    /// Wariant bez kolorów: te same **dwa** dyski, rysowane jako szablon.
     ///
     /// `isTemplate = true` oddaje barwienie systemowi — ikona sama trzyma się
     /// trybu jasnego i ciemnego, podświetlenia po kliknięciu i ograniczonej
     /// przezroczystości. Dokładnie to, czego wersja kolorowa zrobić nie może.
     ///
-    /// Jeden dysk, nie dwa: w szablonie nie ma jak rozdzielić zachodzących
-    /// kształtów obrysem w kolorze tła — tło jest wtedy nieznane, bo maluje je
-    /// system. Dwa nakładające się dyski zlałyby się w jedną plamę.
+    /// 🔴 Do 0.1.15 stał tu **jeden** dysk, z uzasadnieniem, że w szablonie nie ma
+    /// jak rozdzielić zachodzących kształtów obrysem w kolorze tła — tło jest
+    /// wtedy nieznane, bo maluje je system. To prawda o obrysie, ale nie o całym
+    /// problemie: szparę da się **wyciąć**, a nie zamalować. Wersja kolorowa kładzie
+    /// pod przednim dyskiem cztery przesunięte kopie w kolorze tła; tutaj te same
+    /// kopie idą operacją `destinationOut`, czyli zjadają alfę tylnego dysku.
+    /// Szpara wychodzi przezroczysta, więc pokazuje pasek menu — a to jest
+    /// rozdzielenie działające na każdym tle, także na tym, którego nie znamy.
+    ///
+    /// Zgłoszone przez [U] 2026-09-19: *„po przełączeniu na monochromatyczną widnieje
+    /// ikona tylko jednego dysku zamiast dwóch"*. Obie wersje mają pokazywać to samo,
+    /// bo obie są tym samym programem.
     private static func zbudujMono() -> NSImage {
         let rozmiar = NSSize(width: szerokosc, height: wysokosc)
         let img = NSImage(size: rozmiar, flipped: false) { _ in
-            guard let symbolImg = NSImage(systemSymbolName: "externaldrive.fill",
-                                          accessibilityDescription: nil)?
-                .withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: 16,
-                                                                     weight: .semibold))
-            else { return true }
-            let ramka = NSRect(x: (szerokosc - dyskW) / 2,
-                               y: (wysokosc - dyskH) / 2 - 1,
-                               width: dyskW, height: dyskH)
-            symbolImg.draw(in: ramka, from: .zero, operation: .sourceOver, fraction: 1)
+            guard let tyl = sylwetka("internaldrive.fill"),
+                  let przod = sylwetka("externaldrive.fill") else { return true }
+
+            let ramkaTyl = NSRect(x: przesuniecieX, y: przesuniecieY,
+                                  width: dyskW, height: dyskH)
+            let ramkaPrzodu = NSRect(x: 0, y: 0, width: dyskW, height: dyskH)
+
+            tyl.draw(in: ramkaTyl, from: .zero, operation: .sourceOver, fraction: 1)
+
+            // Szpara: przedni dysk rozdmuchany o 0,9 pt na wszystkie strony,
+            // wycięty z tego, co już leży. Te same 0,9 pt co w wersji kolorowej,
+            // żeby obie ikony miały identyczną grubość rozdzielenia.
+            for dx in [-0.9, 0, 0.9] as [CGFloat] {
+                for dy in [-0.9, 0, 0.9] as [CGFloat] {
+                    przod.draw(in: ramkaPrzodu.offsetBy(dx: dx, dy: dy),
+                               from: .zero, operation: .destinationOut, fraction: 1)
+                }
+            }
+
+            przod.draw(in: ramkaPrzodu, from: .zero, operation: .sourceOver, fraction: 1)
             return true
         }
         img.isTemplate = true
         return img
+    }
+
+    /// Symbol jako pełna czarna sylwetka.
+    ///
+    /// Rysowany wprost symbol SF nie ma obiecanego koloru — zależy on od ustawień
+    /// kontekstu i konfiguracji symbolu. W szablonie liczy się wyłącznie kanał alfa,
+    /// więc kształt wycinamy z czarnego prostokąta przez `destinationIn` i mamy
+    /// pewność, co dalej wchodzi do operacji `destinationOut`.
+    private static func sylwetka(_ symbol: String) -> NSImage? {
+        let cfg = NSImage.SymbolConfiguration(pointSize: 16, weight: .semibold)
+        guard let symbolImg = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)?
+                .withSymbolConfiguration(cfg) else { return nil }
+        return NSImage(size: symbolImg.size, flipped: false) { rect in
+            NSColor.black.set()
+            rect.fill()
+            symbolImg.draw(in: rect, from: .zero, operation: .destinationIn, fraction: 1)
+            return true
+        }
     }
 
     private static func zbuduj() -> NSImage {

@@ -40,6 +40,7 @@ struct SettingsView: View {
         case .udane:     return "checkmark.circle.fill"
         case .nieudane:  return "xmark.circle.fill"
         case .anulowane: return "minus.circle.fill"
+        case .oczekuje:  return "clock.fill"
         }
     }
 
@@ -48,6 +49,7 @@ struct SettingsView: View {
         case .udane:     return .green
         case .nieudane:  return .red
         case .anulowane: return .secondary
+        case .oczekuje:  return .orange
         }
     }
 
@@ -69,6 +71,8 @@ struct SettingsView: View {
             return "Instalacja polecenia w terminalu\(zrodlo)"
         case .usunieciePolecenia:
             return "Usunięcie polecenia z terminala\(zrodlo)"
+        case .uzbrojenieNaPowrot:
+            return "Otwarcie po powrocie na ten system\(zrodlo)"
         }
     }
 
@@ -93,6 +97,56 @@ struct SettingsView: View {
                     .onChange(of: configuration.hidesDockIcon) { _, _ in
                         AppDelegate.aktualizujObecnoscWDocku()
                     }
+
+                // 🔴 Bez tego zdania ustawienie wygląda na zepsute. Program zdejmuje
+                // się z Docka poprawnie, a macOS wstawia go z powrotem — jako
+                // „ostatnio używany". To druga, niezależna ścieżka do tego samego
+                // miejsca i programowi nie wolno jej dotykać, bo to ustawienie Docka,
+                // nie Change-Boota. Zgłoszone przez [U] 2026-09-19 ze zrzutem panelu
+                // „Biurko i Dock".
+                if configuration.hidesDockIcon && configuration.showsMenuBarIcon {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("macOS puts recently used apps back in the Dock on its own. For the icon to really stay away, turn off “Show suggested and recent apps in Dock” in System Settings.",
+                              systemImage: "info.circle")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button("Open Desktop & Dock settings") {
+                            AppDelegate.otworzUstawieniaDocka()
+                        }
+                    }
+                }
+            }
+
+            Section("Opening Change-Boot") {
+                Toggle("Open Change-Boot when I come back to this system",
+                       isOn: $configuration.launchAfterSwitch)
+                Text("Switching from here sets a one-off login item on this system. Come back to it and Change-Boot is already open, ready to eject the disk you just arrived from. The item removes itself at that start.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Toggle("Open Change-Boot at every login", isOn: $configuration.launchAtLogin)
+                    .onChange(of: configuration.launchAtLogin) { _, wlaczony in
+                        do {
+                            try LoginItem.ustaw(wlaczony)
+                        } catch {
+                            helperFailure = error.localizedDescription
+                            configuration.launchAtLogin = LoginItem.wlaczony
+                        }
+                    }
+
+                if configuration.launchAtLogin && LoginItem.czekaNaZgode {
+                    HStack {
+                        Label("Waiting for approval in System Settings → General → Login Items.",
+                              systemImage: "exclamationmark.triangle")
+                            .font(.callout)
+                            .foregroundStyle(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer()
+                        Button("Open System Settings") { HelperClient.openLoginItemsSettings() }
+                    }
+                }
             }
 
             Section("Language") {
@@ -132,7 +186,7 @@ struct SettingsView: View {
                     if HelperClient.isReady {
                         Button("Remove helper") { run(HelperClient.uninstall, czynnosc: .usunieciePomocnika) }
                     } else {
-                        Button("Install helper") { run(HelperClient.install, czynnosc: .instalacjaPomocnika) }
+                        Button("Install helper") { zainstalujPomocnika() }
                     }
                 }
                 .disabled(busy)
@@ -241,6 +295,34 @@ struct SettingsView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             stanPolecenia = CommandLineInstall.opisStanu
             poleceniZainstalowane = CommandLineInstall.stan == .zainstalowane
+            zdarzenia = EventLog.ostatnie(6)
+            busy = false
+        }
+    }
+
+    /// Instalacja pomocnika ma **trzy** możliwe końce, nie dwa.
+    ///
+    /// `SMAppService.register()` rzuca `Operation not permitted` także wtedy, gdy
+    /// rejestracja przeszła i macOS czeka tylko na kliknięcie „Zezwól" w swoim
+    /// powiadomieniu. Do 0.2.2 program zapisywał w historii porażkę, a pomocnik
+    /// po zgodzie działał — patrz `HelperClient.install`.
+    private func zainstalujPomocnika() {
+        busy = true
+        do {
+            let wynik = try HelperClient.install()
+            EventLog.zapisz(.instalacjaPomocnika,
+                            skutek: wynik == .gotowy ? .udane : .oczekuje,
+                            zrodlo: .okno,
+                            szczegol: wynik == .gotowy
+                                ? nil
+                                : "czeka na zgodę w Ustawieniach systemowych")
+        } catch {
+            helperFailure = error.localizedDescription
+            EventLog.zapisz(.instalacjaPomocnika, skutek: .nieudane, zrodlo: .okno,
+                            szczegol: error.localizedDescription)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            helperStatus = HelperClient.statusDescription
             zdarzenia = EventLog.ostatnie(6)
             busy = false
         }

@@ -145,7 +145,11 @@ struct ContentView: View {
                 Label("Add system", systemImage: "plus")
             }
             Spacer()
-            if model.busy { ProgressView().controlSize(.small) }
+            // Tylko wtedy, gdy robota nie dotyczy konkretnego dysku — inaczej
+            // śmigło stoi w wierszu tego dysku i tu byłoby drugie, przy wersji.
+            if model.busy && model.busyVolumeUUID == nil {
+                ProgressView().controlSize(.small)
+            }
             Button {
                 showingOptions = true
             } label: {
@@ -178,20 +182,37 @@ struct SystemRowView: View {
 
     @State private var pickingColour = false
 
+    /// Czy to na tym dysku trwa właśnie robota.
+    private var pracuje: Bool { model.busyVolumeUUID == row.entry.volumeUUID }
+
     var body: some View {
         HStack(spacing: 10) {
             Button {
                 pickingColour = true
             } label: {
-                Image(systemName: icon)
-                    // Odpięty dysk zachowuje swój kolor, tylko przygaszony — inaczej
-                    // wszystkie nieobecne wyglądałyby jednakowo.
-                    .foregroundStyle(row.entry.color.color.opacity(row.isAvailable ? 1 : 0.35))
-                    .frame(width: 22)
+                // Śmigło **w miejscu ikony dysku**, nie obok niej: przez te kilka
+                // sekund wiersz ma mówić „ten dysk jest w trakcie", a nie „program
+                // coś robi". Polecenie [U] 2026-09-19, po pierwszym podejściu ze
+                // śmigłem w stopce okna, przy numerze wersji.
+                Group {
+                    if pracuje {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Image(systemName: icon)
+                            // Odpięty dysk zachowuje swój kolor, tylko przygaszony —
+                            // inaczej wszystkie nieobecne wyglądałyby jednakowo.
+                            .foregroundStyle(row.entry.color.color
+                                .opacity(row.isAvailable ? 1 : 0.35))
+                    }
+                }
+                .frame(width: 22)
             }
             .buttonStyle(.plain)
+            .disabled(pracuje)
             .help(Text("Change colour"))
-            .accessibilityLabel(Text("Colour: \(Text(row.entry.color.label))"))
+            .accessibilityLabel(pracuje
+                ? Text("Working on “\(row.name)”")
+                : Text("Colour: \(Text(row.entry.color.label))"))
             .popover(isPresented: $pickingColour, arrowEdge: .bottom) {
                 ColorPickerPopover(current: row.entry.color) { picked in
                     model.configuration.setColor(picked, for: row.entry)

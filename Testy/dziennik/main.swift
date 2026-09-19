@@ -7,7 +7,8 @@
 //          Change-Boot/BootActions.swift Change-Boot/PrivilegedShell.swift \
 //          Change-Boot/HelperClient.swift Change-Boot/HelperProtocol.swift \
 //          Change-Boot/Configuration.swift Change-Boot/SystemColor.swift \
-//          Change-Boot/AppVersion.swift && /tmp/test-dziennik
+//          Change-Boot/AppVersion.swift Change-Boot/AppBundle.swift \
+//          Change-Boot/LoginItem.swift && /tmp/test-dziennik
 //
 // Dziennik pisze do WŁASNEGO katalogu tymczasowego, nie do Application Support
 // użytkownika — sprawdzian nie ma prawa dopisać nic do prawdziwej historii.
@@ -81,8 +82,13 @@ sprawdz("gołe słowo też, nawet nieznane — inaczej literówka po cichu otwie
 // wzięty za polecenie — macOS dokłada ten przełącznik przy uruchomieniu z Findera.
 sprawdz("przełącznik systemowy NIE jest poleceniem",
         !CommandLineTool.czyPolecenie(["/x/Change-Boot", "-psn_0_12345"]))
-sprawdz("brak argumentów NIE jest poleceniem",
-        !CommandLineTool.czyPolecenie(["/x/Change-Boot"]))
+// Gołe wywołanie rozstrzyga deskryptor wyjścia, nie argumenty — obie odpowiedzi
+// są poprawne i obie muszą zostać zmierzone. Bez pary tych dwóch linijek wpadka
+// 0.2.2 („change-boot z terminala otwierał okno") wróciłaby niezauważona.
+sprawdz("brak argumentów z terminala JEST poleceniem — wypisuje powitanie",
+        CommandLineTool.czyPolecenie(["/x/Change-Boot"], terminal: true))
+sprawdz("brak argumentów spoza terminala NIE jest poleceniem — otwiera okno",
+        !CommandLineTool.czyPolecenie(["/x/Change-Boot"], terminal: false))
 sprawdz("--version jest poleceniem mimo myślnika",
         CommandLineTool.czyPolecenie(["/x/Change-Boot", "--version"]))
 
