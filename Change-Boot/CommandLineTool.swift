@@ -159,7 +159,7 @@ enum CommandLineTool {
                         urzadzenieStartowe: BootActions.currentStartupDevice())
 
         if opcje.json { return wypiszJSON(stan) }
-        print("Pracujesz z: \(stan.nazwa ?? "?")  (macOS \(stan.macOS ?? "?"))")
+        print("Pracujesz na: \(stan.nazwa ?? "?")  (macOS \(stan.macOS ?? "?"))")
         print("Firmware wystartuje z: /dev/\(stan.urzadzenieStartowe ?? "?")")
         return .ok
     }

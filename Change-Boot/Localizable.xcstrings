@@ -563,19 +563,19 @@
         }
       }
     },
-    "Every setting lives in the Options window — the gear button at the bottom of the main window, or Command-comma. That is also where you install the helper that stops macOS asking for your password on every switch.": {
+    "Every setting lives behind the Options button at the bottom of the window — the window turns around to show them. Command-comma does the same. That is also where you install the helper that stops macOS asking for your password on every switch.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Every setting lives in the Options window — the gear button at the bottom of the main window, or Command-comma. That is also where you install the helper that stops macOS asking for your password on every switch."
+            "value": "Every setting lives behind the Options button at the bottom of the window — the window turns around to show them. Command-comma does the same. That is also where you install the helper that stops macOS asking for your password on every switch."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wszystkie ustawienia siedzą w oknie Opcji — przycisk z kołem zębatym na dole okna głównego albo Command-przecinek. Stamtąd instaluje się też pomocnika, dzięki któremu macOS przestaje pytać o hasło przy każdym przełączeniu."
+            "value": "Wszystkie ustawienia siedzą za przyciskiem „Opcje” na dole okna — okno obraca się, żeby je pokazać. Command-przecinek robi to samo. Stamtąd instaluje się też pomocnika, dzięki któremu macOS przestaje pytać o hasło przy każdym przełączeniu."
           }
         }
       }
@@ -597,23 +597,6 @@
         }
       }
     },
-    "Gray": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gray"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Szary"
-          }
-        }
-      }
-    },
     "Green": {
       "extractionState": "manual",
       "localizations": {
@@ -627,6 +610,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zielony"
+          }
+        }
+      }
+    },
+    "Grey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grey"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Szary"
           }
         }
       }
@@ -1340,7 +1340,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pracujesz z %@"
+            "value": "Pracujesz na %@"
           }
         }
       }
@@ -1357,7 +1357,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pracujesz z „%@”"
+            "value": "Pracujesz na „%@”"
           }
         }
       }

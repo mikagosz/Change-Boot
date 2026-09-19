@@ -25,6 +25,11 @@ enum SystemColor: String, CaseIterable, Identifiable {
 
     /// Nazwa do odczytania przez VoiceOver — sam kolor nie niesie informacji dla
     /// osoby, która go nie widzi.
+    ///
+    /// Pisownia brytyjska („Grey"), tak jak reszta napisów programu — „colour",
+    /// „greyed out". 🔴 To jest **tylko etykieta**: `rawValue` zostaje `gray`,
+    /// bo siedzi w zapisanej konfiguracji użytkownika i zmiana skasowałaby mu
+    /// przypisane kolory.
     var label: LocalizedStringKey {
         switch self {
         case .blue:   return "Blue"
@@ -35,7 +40,7 @@ enum SystemColor: String, CaseIterable, Identifiable {
         case .teal:   return "Teal"
         case .pink:   return "Pink"
         case .yellow: return "Yellow"
-        case .gray:   return "Gray"
+        case .gray:   return "Grey"
         }
     }
 }

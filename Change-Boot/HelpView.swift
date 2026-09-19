@@ -117,7 +117,7 @@ struct HelpView: View {
                     Divider()
 
                     section("gearshape", "Options",
-                            "Every setting lives in the Options window — the gear button at the bottom of the main window, or Command-comma. That is also where you install the helper that stops macOS asking for your password on every switch.")
+                            "Every setting lives behind the Options button at the bottom of the window — the window turns around to show them. Command-comma does the same. That is also where you install the helper that stops macOS asking for your password on every switch.")
                 }
                 .padding(16)
             }
