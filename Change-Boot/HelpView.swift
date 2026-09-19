@@ -122,7 +122,7 @@ struct HelpView: View {
             Divider()
 
             HStack {
-                Text(versionLine).font(.caption).foregroundStyle(.tertiary)
+                Text(AppVersion.withName).font(.caption).foregroundStyle(.tertiary)
                 Spacer()
                 Button("Done") { dismiss() }.keyboardShortcut(.defaultAction)
             }
@@ -136,12 +136,6 @@ struct HelpView: View {
         } message: {
             Text(helperFailure ?? "")
         }
-    }
-
-    private var versionLine: String {
-        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
-        let b = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"
-        return "Change-Boot \(v) (\(b))"
     }
 
     private func section(_ symbol: String, _ title: LocalizedStringKey,
