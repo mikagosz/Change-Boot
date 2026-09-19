@@ -206,19 +206,19 @@
         }
       }
     },
-    "Change-Boot speaks Polish and English. Pick the language in the Change-Boot menu at the top of the screen, or in the menu bar icon. The app restarts when you change it, because the language is loaded once, when the app starts.": {
+    "Change-Boot speaks Polish and English. Pick the language in Options, in the Change-Boot menu at the top of the screen, or in the menu bar icon. The app restarts when you change it, because the language is loaded once, when the app starts.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Change-Boot speaks Polish and English. Pick the language in the Change-Boot menu at the top of the screen, or in the menu bar icon. The app restarts when you change it, because the language is loaded once, when the app starts."
+            "value": "Change-Boot speaks Polish and English. Pick the language in Options, in the Change-Boot menu at the top of the screen, or in the menu bar icon. The app restarts when you change it, because the language is loaded once, when the app starts."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Change-Boot mówi po polsku i po angielsku. Język wybierzesz w menu Change-Boot na górze ekranu albo w ikonie w pasku menu. Zmiana uruchamia program ponownie, bo język wczytuje się raz, przy starcie."
+            "value": "Change-Boot mówi po polsku i po angielsku. Język wybierzesz w Opcjach, w menu Change-Boot na górze ekranu albo w ikonie w pasku menu. Zmiana uruchamia program ponownie, bo język wczytuje się raz, przy starcie."
           }
         }
       }
@@ -542,6 +542,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Każda dodana instalacja macOS siedzi tutaj, zapamiętana przez UUID woluminu, a nie przez nazwę. Zmienisz nazwę dysku — wpis nadąży. Odepniesz dysk — wpis zostanie, tylko przygaszony, bo odpięty dysk to nie powód, żeby zapomnieć ustawienia."
+          }
+        }
+      }
+    },
+    "Every setting lives in the Options window — the gear button at the bottom of the main window, or Command-comma. That is also where you install the helper that stops macOS asking for your password on every switch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every setting lives in the Options window — the gear button at the bottom of the main window, or Command-comma. That is also where you install the helper that stops macOS asking for your password on every switch."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszystkie ustawienia siedzą w oknie Opcji — przycisk z kołem zębatym na dole okna głównego albo Command-przecinek. Stamtąd instaluje się też pomocnika, dzięki któremu macOS przestaje pytać o hasło przy każdym przełączeniu."
           }
         }
       }
@@ -971,6 +988,23 @@
         }
       }
     },
+    "Options": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Options"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opcje"
+          }
+        }
+      }
+    },
     "Orange": {
       "extractionState": "manual",
       "localizations": {
@@ -1324,6 +1358,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Przełącz"
+          }
+        }
+      }
+    },
+    "Switching": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switching"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przełączanie"
           }
         }
       }

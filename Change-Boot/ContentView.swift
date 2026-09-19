@@ -12,10 +12,75 @@ struct ContentView: View {
     @State private var pendingSwitch: BootSystem?
     @State private var adding = false
     @State private var showingHelp = false
+    @State private var showingOptions = false
+    @Environment(\.accessibilityReduceMotion) private var ruchOgraniczony
+
+    /// Kąt obrotu. `0` — lista, `180` — opcje. Wszystko inne to ruch między nimi.
+    private var kat: Double { showingOptions ? 180 : 0 }
+
+    /// Połowa czasu obrotu: w tym momencie jedna strona znika, a druga się pojawia.
+    /// Gdyby przełączać widoczność bez opóźnienia, przez pół animacji widać byłoby
+    /// lustrzane odbicie tej strony, która właśnie odjeżdża.
+    private var polowa: Double { ruchOgraniczony ? 0 : 0.22 }
+    private var czasObrotu: Double { ruchOgraniczony ? 0 : 0.45 }
 
     var body: some View {
-        @Bindable var configuration = model.configuration
+        ZStack {
+            przod
+                .rotation3DEffect(.degrees(kat), axis: (x: 0, y: 1, z: 0),
+                                  perspective: 0.35)
+                .opacity(showingOptions ? 0 : 1)
+                .animation(.linear(duration: 0.01).delay(polowa), value: showingOptions)
+                .allowsHitTesting(!showingOptions)
+                .accessibilityHidden(showingOptions)
 
+            tyl
+                // Tył jest **wstępnie obrócony o 180°**, inaczej po dojechaniu
+                // animacji byłby odbiciem lustrzanym.
+                .rotation3DEffect(.degrees(kat - 180), axis: (x: 0, y: 1, z: 0),
+                                  perspective: 0.35)
+                .opacity(showingOptions ? 1 : 0)
+                .animation(.linear(duration: 0.01).delay(polowa), value: showingOptions)
+                .allowsHitTesting(showingOptions)
+                .accessibilityHidden(!showingOptions)
+        }
+        .animation(.easeInOut(duration: czasObrotu), value: showingOptions)
+        .frame(minWidth: 440, minHeight: 380)
+        .task { model.refresh() }
+        .confirmationDialog(
+            pendingSwitch.map { Text("Restart from “\($0.name)”?") } ?? Text(""),
+            isPresented: Binding(get: { pendingSwitch != nil },
+                                 set: { if !$0 { pendingSwitch = nil } }),
+            titleVisibility: .visible)
+        {
+            Button("Restart") {
+                if let system = pendingSwitch {
+                    model.switchTo(system, cleanStart: model.configuration.cleanStartByDefault)
+                }
+                pendingSwitch = nil
+            }
+            Button("Cancel", role: .cancel) { pendingSwitch = nil }
+        } message: {
+            Text(model.configuration.cleanStartByDefault
+                 ? "Apps and windows from this session will not come back."
+                 : "macOS will reopen the apps and windows you have open now.")
+        }
+        .alert("Change-Boot", isPresented: Binding(
+            get: { model.failure != nil },
+            set: { if !$0 { model.failure = nil } })) {
+            Button("OK", role: .cancel) { model.failure = nil }
+        } message: {
+            Text(model.failure ?? "")
+        }
+        .sheet(isPresented: $adding) { AddSystemSheet() }
+        .sheet(isPresented: $showingHelp) { HelpView() }
+        .onReceive(NotificationCenter.default.publisher(for: .changeBootShowHelp)) { _ in
+            showingHelp = true
+        }
+    }
+
+    /// Przód — lista systemów.
+    private var przod: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
             Divider()
@@ -39,40 +104,27 @@ struct ContentView: View {
             Divider()
             footer
         }
-        .frame(minWidth: 440, minHeight: 404)
-        .task { model.refresh() }
-        .confirmationDialog(
-            pendingSwitch.map { Text("Restart from “\($0.name)”?") } ?? Text(""),
-            isPresented: Binding(get: { pendingSwitch != nil },
-                                 set: { if !$0 { pendingSwitch = nil } }),
-            titleVisibility: .visible)
-        {
-            Button("Restart") {
-                if let system = pendingSwitch {
-                    model.switchTo(system, cleanStart: configuration.cleanStartByDefault)
-                }
-                pendingSwitch = nil
+    }
+
+    /// Tył — ustawienia. Ten sam nagłówek, żeby po obrocie było wiadomo, że to
+    /// wciąż ten sam program, a nie nowe okno.
+    private var tyl: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            header
+            Divider()
+            SettingsView()
+            Divider()
+            HStack {
+                Spacer()
+                Button("Done") { showingOptions = false }
+                    .keyboardShortcut(.defaultAction)
             }
-            Button("Cancel", role: .cancel) { pendingSwitch = nil }
-        } message: {
-            Text(configuration.cleanStartByDefault
-                 ? "Apps and windows from this session will not come back."
-                 : "macOS will reopen the apps and windows you have open now.")
-        }
-        .alert("Change-Boot", isPresented: Binding(
-            get: { model.failure != nil },
-            set: { if !$0 { model.failure = nil } })) {
-            Button("OK", role: .cancel) { model.failure = nil }
-        } message: {
-            Text(model.failure ?? "")
-        }
-        .sheet(isPresented: $adding) { AddSystemSheet() }
-        .sheet(isPresented: $showingHelp) { HelpView() }
-        .onReceive(NotificationCenter.default.publisher(for: .changeBootShowHelp)) { _ in
-            showingHelp = true
+            .padding(12)
         }
     }
 
+    /// Nagłówek jest wspólny dla obu stron — po obrocie ma być widać, że to wciąż
+    /// ten sam program i wciąż ten sam system, z którego pracujesz.
     private var header: some View {
         HStack(spacing: 10) {
             Image(systemName: "checkmark.seal.fill")
@@ -91,47 +143,40 @@ struct ContentView: View {
         .padding(12)
     }
 
+    /// Stopka niesie **działania**, nie ustawienia.
+    ///
+    /// Do 0.1.17 dokładały się tutaj kolejne przełączniki, aż zrobiła się z tego
+    /// zbieranina — [U] 2026-09-19 uciął to wprost. Ustawienia mają własne okno,
+    /// a tutaj zostają: dodanie systemu, przejście do opcji, pomoc i numer wersji.
     private var footer: some View {
-        @Bindable var configuration = model.configuration
-        return VStack(alignment: .leading, spacing: 8) {
-            Toggle("Clean start — do not reopen apps and windows",
-                   isOn: $configuration.cleanStartByDefault)
-            Toggle("Show icon in the menu bar",
-                   isOn: $configuration.showsMenuBarIcon)
-            // Stoi w oknie, a nie w menu ikony paska, bo to jedyne miejsce, z którego
-            // da się to **wyłączyć z powrotem**: przy zgaszonej ikonie paska jej menu
-            // nie istnieje, a program bez Docka i bez ikony byłby nie do odzyskania.
-            Toggle("Hide the Dock icon when the window is closed",
-                   isOn: $configuration.hidesDockIcon)
-                .padding(.leading, 18)
-                .disabled(!configuration.showsMenuBarIcon)
-                .onChange(of: configuration.hidesDockIcon) { _, _ in
-                    AppDelegate.aktualizujObecnoscWDocku()
-                }
-
-            HStack {
-                Button {
-                    adding = true
-                } label: {
-                    Label("Add system", systemImage: "plus")
-                }
-                Spacer()
-                if model.busy { ProgressView().controlSize(.small) }
-                Button {
-                    showingHelp = true
-                } label: {
-                    Label("Help", systemImage: "questionmark.circle")
-                }
-                .help(Text("What each thing does"))
+        HStack {
+            Button {
+                adding = true
+            } label: {
+                Label("Add system", systemImage: "plus")
             }
-            // Wersja przez `overlay`, nie między dwoma `Spacer()`: dwa odstępy
-            // wyśrodkowałyby ją względem tego, co zostało po przyciskach, a te są
-            // różnej szerokości. Tak stoi na środku stopki, nie na środku szpary.
-            .overlay(alignment: .center) {
-                Text(AppVersion.short)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+            Spacer()
+            if model.busy { ProgressView().controlSize(.small) }
+            Button {
+                showingOptions = true
+            } label: {
+                Label("Options", systemImage: "gearshape")
             }
+            .keyboardShortcut(",", modifiers: .command)
+            Button {
+                showingHelp = true
+            } label: {
+                Label("Help", systemImage: "questionmark.circle")
+            }
+            .help(Text("What each thing does"))
+        }
+        // Wersja przez `overlay`, nie między dwoma `Spacer()`: dwa odstępy
+        // wyśrodkowałyby ją względem tego, co zostało po przyciskach, a te są
+        // różnej szerokości. Tak stoi na środku stopki, nie na środku szpary.
+        .overlay(alignment: .center) {
+            Text(AppVersion.short)
+                .font(.caption)
+                .foregroundStyle(.tertiary)
         }
         .padding(12)
     }

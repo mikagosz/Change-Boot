@@ -78,9 +78,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 struct HelpView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var helperStatus = HelperClient.statusDescription
-    @State private var helperFailure: String?
-    @State private var busy = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -115,11 +112,12 @@ struct HelpView: View {
                     Divider()
 
                     section("character.bubble", "Language",
-                            "Change-Boot speaks Polish and English. Pick the language in the Change-Boot menu at the top of the screen, or in the menu bar icon. The app restarts when you change it, because the language is loaded once, when the app starts.")
+                            "Change-Boot speaks Polish and English. Pick the language in Options, in the Change-Boot menu at the top of the screen, or in the menu bar icon. The app restarts when you change it, because the language is loaded once, when the app starts.")
 
                     Divider()
 
-                    helperSection
+                    section("gearshape", "Options",
+                            "Every setting lives in the Options window — the gear button at the bottom of the main window, or Command-comma. That is also where you install the helper that stops macOS asking for your password on every switch.")
                 }
                 .padding(16)
             }
@@ -134,13 +132,6 @@ struct HelpView: View {
             .padding(16)
         }
         .frame(width: 480, height: 560)
-        .alert("Change-Boot", isPresented: Binding(
-            get: { helperFailure != nil },
-            set: { if !$0 { helperFailure = nil } })) {
-            Button("OK", role: .cancel) { helperFailure = nil }
-        } message: {
-            Text(helperFailure ?? "")
-        }
     }
 
     private func section(_ symbol: String, _ title: LocalizedStringKey,
@@ -156,67 +147,6 @@ struct HelpView: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-        }
-    }
-
-    // MARK: - Pomocnik
-
-    private var helperSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: HelperClient.isReady ? "lock.open" : "lock")
-                    .foregroundStyle(.secondary)
-                    .frame(width: 22)
-                    .font(.title3)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Password").font(.headline)
-                    Text("Changing the startup disk needs administrator rights. Install the helper once and Change-Boot stops asking for your password on every switch.")
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(helperStatus)
-                        .font(.callout)
-                        .foregroundStyle(HelperClient.isReady ? .green : .secondary)
-                }
-            }
-
-            if HelperClient.isInTemporaryLocation && !HelperClient.isReady {
-                Label("Move Change-Boot to the Applications folder first. The helper remembers where the app was when you installed it, so registering it from a build folder stops working after the next build.",
-                      systemImage: "exclamationmark.triangle")
-                    .font(.callout)
-                    .foregroundStyle(.orange)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            HStack {
-                Spacer()
-                if busy { ProgressView().controlSize(.small) }
-                if HelperClient.status == .requiresApproval {
-                    Button("Open System Settings") {
-                        HelperClient.openLoginItemsSettings()
-                    }
-                }
-                if HelperClient.isReady {
-                    Button("Remove helper") { run(HelperClient.uninstall) }
-                } else {
-                    Button("Install helper") { run(HelperClient.install) }
-                }
-            }
-            .disabled(busy)
-        }
-    }
-
-    private func run(_ action: @escaping () throws -> Void) {
-        busy = true
-        do {
-            try action()
-        } catch {
-            helperFailure = error.localizedDescription
-        }
-        // Stan po rejestracji potrafi wejść z opóźnieniem — odczytujemy go z
-        // `SMAppService`, a nie zakładamy, że skoro nie rzuciło, to jest włączony.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            helperStatus = HelperClient.statusDescription
-            busy = false
         }
     }
 }
