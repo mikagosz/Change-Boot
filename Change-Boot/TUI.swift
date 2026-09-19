@@ -65,6 +65,13 @@ enum TUI {
                 }
             case .inne:
                 break
+            case .przerwane:
+                // Zmiana rozmiaru okna. Nic nie robimy tutaj — przerysowanie
+                // na końcu obrotu samo weźmie nowy rozmiar z `Terminal.rozmiar`.
+                break
+            case .koniec:
+                // Wejście zniknęło. Bez tego pętla kręciłaby procesor w kółko.
+                break petla
             }
             rysuj()
         }
@@ -163,10 +170,34 @@ extension TUI {
     ///
     /// Rysowanie wiersz po wierszu przez osobne `write` miga na oczach: terminal
     /// pokazuje połowę ramki, zanim doleci reszta. Jeden zapis to jedna klatka.
+    ///
+    /// 🔴 Każdy wiersz staje pod **własnym adresem** (`ESC[w;1H`), a nie przez
+    /// znak końca linii po poprzednim. Dwa powody, oba widziane na ekranie:
+    ///
+    /// 1. Koniec linii w ostatnim wierszu okna przewija terminal o jeden i cały
+    ///    widok wędruje w górę. Przy oknie niższym niż rysunek wędruje tyle razy,
+    ///    ile brakuje wierszy — a po powiększeniu okna Terminal.app dokłada puste
+    ///    wiersze u góry i widok zostaje przyklejony do dołu.
+    /// 2. Wiersz szerszy od okna zawija się i przesuwa wszystko pod nim o jeden.
+    ///
+    /// Adresowanie bezwzględne znaczy: pierwszy wiersz rysunku jest pierwszym
+    /// wierszem okna, cokolwiek działo się przedtem i jakkolwiek okno urosło.
+    /// Zgłoszone przez [U] 2026-09-19: „otwiera się bardzo nisko".
     private static func rysuj() {
-        var ekran = Terminal.naPoczatek + Terminal.wyczysc
-        for wiersz in zloz() { ekran += wiersz + "\r\n" }
-        Terminal.pisz(ekran)
+        Terminal.pisz(klatka(wysokosc: Terminal.rozmiar.wiersze))
+    }
+
+    /// Jedna klatka gotowa do zapisu. Osobno od `rysuj`, żeby sprawdzian
+    /// `Testy/terminal` mógł ją policzyć bez malowania po czyimś ekranie.
+    static func klatka(wysokosc: Int) -> String {
+        var ekran = Terminal.wyczysc
+        // Rysunek wyższy od okna nie ma jak się zmieścić. Ucinamy dół — to gubi
+        // pasek klawiszy, ale nie rozsypuje reszty; przewijanie gubiłoby górę
+        // i zostawiało widok w miejscu, w którym nikt go nie szukał.
+        for (numer, wiersz) in zloz().prefix(max(0, wysokosc)).enumerated() {
+            ekran += Terminal.wWierszu(numer + 1) + wiersz
+        }
+        return ekran
     }
 
     /// Jeden wiersz o pełnej szerokości, z tłem pomalowanym do samego końca.

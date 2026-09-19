@@ -149,6 +149,61 @@ sprawdz("bardzo długa nazwa NIE rozpycha panelu — nadal jedna szerokość",
 sprawdz("pusty pas ma pełną szerokość",
         Paleta.szerokosc(TUI.pas()) == TUI.szerokosc + 6)
 
+print("\nUmiejscowienie klatki w oknie")
+
+// 🔴 Ten sprawdzian istnieje, bo widok „otwierał się bardzo nisko" — zgłoszone
+// przez [U] 2026-09-19 zrzutem okna 85×52, na którym rysunek siedział przy
+// samym dole. Klatka szła wtedy wiersz po wierszu, przez znak końca linii:
+// każdy taki znak w ostatnim wierszu okna przewija terminal o jeden, a po
+// powiększeniu okna Terminal.app dokłada puste wiersze u góry i widok zostaje
+// przyklejony do dołu. Teraz każdy wiersz ma własny adres i policzyć to można
+// tutaj, bez patrzenia na ekran.
+let klatka = TUI.klatka(wysokosc: 52)
+
+sprawdz("klatka zaczyna się od wyczyszczenia ekranu",
+        klatka.hasPrefix(Terminal.wyczysc))
+sprawdz("pierwszy wiersz rysunku jest PIERWSZYM wierszem okna",
+        klatka.dropFirst(Terminal.wyczysc.count).hasPrefix(Terminal.wWierszu(1)))
+sprawdz("w klatce nie ma ani jednego znaku końca linii",
+        !klatka.contains("\n") && !klatka.contains("\r"))
+
+// Ile wierszy klatka faktycznie zajmuje i czy któryś nie wyszedł poza okno.
+func adresyWierszy(_ tekst: String) -> [Int] {
+    var numery: [Int] = []
+    var reszta = Substring(tekst)
+    while let poczatek = reszta.range(of: "\u{1B}[") {
+        reszta = reszta[poczatek.upperBound...]
+        guard let koniec = reszta.firstIndex(of: "H") else { break }
+        let srodek = reszta[..<koniec]
+        // Adres wiersza wygląda tak: `w;1`. Cokolwiek innego to inna sekwencja.
+        if srodek.hasSuffix(";1"), let w = Int(srodek.dropLast(2)) { numery.append(w) }
+    }
+    return numery
+}
+
+let adresy = adresyWierszy(klatka)
+print("  wierszy w klatce: \(adresy.count), od \(adresy.first ?? -1) do \(adresy.last ?? -1)")
+sprawdz("wiersze idą po kolei od 1 w górę",
+        adresy == Array(1...adresy.count))
+sprawdz("kontrola dodatnia — adresy w ogóle się znalazły", adresy.count > 10)
+
+// Okno niższe od rysunku: klatka ma się URWAĆ, a nie przewinąć terminala.
+let niska = TUI.klatka(wysokosc: 8)
+let adresyNiskie = adresyWierszy(niska)
+print("  przy oknie na 8 wierszy: \(adresyNiskie.count)")
+sprawdz("przy niskim oknie klatka nie wychodzi poza ostatni wiersz",
+        adresyNiskie.count <= 8 && (adresyNiskie.max() ?? 0) <= 8)
+sprawdz("kontrola ujemna — pełna klatka jest wyższa niż 8 wierszy",
+        adresy.count > 8)
+sprawdz("okno o zerowej wysokości nie wywraca składania",
+        adresyWierszy(TUI.klatka(wysokosc: 0)).isEmpty)
+
+print("\nZmiana rozmiaru okna")
+sprawdz("bez sygnału nie ma zgłoszonej zmiany rozmiaru",
+        Terminal.czyZmienionoRozmiar() == false)
+sprawdz("adres wiersza ma kształt ESC[w;1H",
+        Terminal.wWierszu(7) == "\u{1B}[7;1H")
+
 print("\nWybór drogi koloru")
 sprawdz("czyKolor odpowiada na NO_COLOR i TERM=dumb",
         Terminal.czyKolor == (ProcessInfo.processInfo.environment["NO_COLOR"] == nil

@@ -12,6 +12,28 @@ enum Terminal {
     private static var zapamietane: termios?
     private static var zapiete = false
 
+    /// 🔴 Bajty przywracające, przygotowane **zanim** przyjdzie pierwszy sygnał.
+    ///
+    /// Procedura sygnału nie może alokować pamięci ani rzucać wyjątku, a
+    /// `FileHandle.write` robi jedno i drugie. Na zamkniętym pseudoterminalu
+    /// `write` oddaje `EIO`, a `NSConcreteFileHandle` zamienia to na wyjątek
+    /// Objective-C, którego w Swifcie nikt nie łapie — i program kończy się
+    /// `Abort trap: 6` zamiast po cichu wyjść.
+    ///
+    /// Zmierzone 2026-09-19 na raporcie awarii zgłoszonym przez [U] po zamknięciu
+    /// okna Terminala czerwonym kółkiem zamiast klawisza `q`:
+    /// `_sigtramp` → `przywroc` → `-[NSConcreteFileHandle writeData:]` →
+    /// `objc_exception_throw` → `abort`. Dlatego bufor stoi gotowy z góry,
+    /// a zapis idzie surowym `write(2)`, który wolno wołać z procedury sygnału.
+    private static var bajtyPowrotu = [UInt8]()
+
+    /// Okno zmieniło rozmiar. Podnosi to procedura sygnału, zdejmuje pętla.
+    ///
+    /// `sig_atomic_t`, bo tylko na takim zapisie wolno w procedurze sygnału
+    /// polegać. Sama procedura **nie rysuje** — rysowanie to alokacja i zapis
+    /// w środku obcego stanu, czyli ta sama pułapka co wyżej.
+    private static var zmienionyRozmiar: sig_atomic_t = 0
+
     /// 🔴 **Najważniejsza rzecz w tym pliku.**
     ///
     /// Program, który wejdzie w tryb surowy i zginie bez przywrócenia ustawień,
@@ -45,6 +67,19 @@ enum Terminal {
             akcja.sa_flags = 0
             sigaction(sygnal, &akcja, nil)
         }
+
+        // Zmiana rozmiaru okna. Bez tego rysunek zostaje tam, gdzie go zastała
+        // poprzednia wielkość okna: Terminal.app przy powiększeniu dokłada puste
+        // wiersze u góry, więc widok zjeżdża na dół i tam siedzi do następnego
+        // klawisza. Zgłoszone przez [U] 2026-09-19: „otwiera się bardzo nisko".
+        //
+        // 🔴 `sa_flags = 0`, czyli **bez** `SA_RESTART`: czekające `read` ma
+        // wrócić z `EINTR`, żeby pętla w ogóle dostała szansę przerysować.
+        var okno = sigaction()
+        okno.__sigaction_u.__sa_handler = { _ in Terminal.zmienionyRozmiar = 1 }
+        sigemptyset(&okno.sa_mask)
+        okno.sa_flags = 0
+        sigaction(SIGWINCH, &okno, nil)
     }
 
     /// Przywraca terminal do stanu sprzed. Wolno wołać wielokrotnie.
@@ -52,7 +87,14 @@ enum Terminal {
         guard var stare = zapamietane else { return }
         zapamietane = nil
         tcsetattr(STDIN_FILENO, TCSAFLUSH, &stare)
-        pisz(pokazKursor + zwyklyEkran)
+        bajtyPowrotu.withUnsafeBufferPointer { bufor in
+            guard let poczatek = bufor.baseAddress else { return }
+            var wyslane = 0
+            while wyslane < bufor.count {
+                let ile = write(STDOUT_FILENO, poczatek + wyslane, bufor.count - wyslane)
+                if ile > 0 { wyslane += ile } else if errno == EINTR { continue } else { break }
+            }
+        }
     }
 
     // MARK: - Tryb surowy
@@ -92,6 +134,9 @@ enum Terminal {
 
         var stare = termios()
         guard tcgetattr(STDIN_FILENO, &stare) == 0 else { return false }
+        // Bufor powrotu powstaje TUTAJ, przy pełnej swobodzie alokacji — nie
+        // w procedurze sygnału, gdzie na alokację jest za późno.
+        bajtyPowrotu = Array((pokazKursor + zwyklyEkran).utf8)
         zapamietane = stare
         zapnijPrzywracanie()
 
@@ -120,10 +165,33 @@ enum Terminal {
     static let schowajKursor = "\u{1B}[?25l"
     static let pokazKursor = "\u{1B}[?25h"
     static let wyczysc = "\u{1B}[2J\u{1B}[H"
-    static let naPoczatek = "\u{1B}[H"
 
+    /// Zapis na wyjście surowym `write(2)`.
+    ///
+    /// 🔴 Nie `FileHandle`: ten na nieudanym zapisie rzuca wyjątek Objective-C,
+    /// a jedyna chwila, w której zapis się nie udaje — zniknięty pseudoterminal —
+    /// jest dokładnie tą, w której program ma po cichu wyjść, a nie paść.
+    /// Urwany zapis jest tu bez znaczenia: nie ma już komu tego pokazać.
     static func pisz(_ tekst: String) {
-        FileHandle.standardOutput.write(Data(tekst.utf8))
+        let bajty = Array(tekst.utf8)
+        bajty.withUnsafeBufferPointer { bufor in
+            guard let poczatek = bufor.baseAddress else { return }
+            var wyslane = 0
+            while wyslane < bufor.count {
+                let ile = write(STDOUT_FILENO, poczatek + wyslane, bufor.count - wyslane)
+                if ile > 0 { wyslane += ile } else if errno == EINTR { continue } else { break }
+            }
+        }
+    }
+
+    /// Ustawia pisanie na początku podanego wiersza okna. Wiersze liczone od 1.
+    static func wWierszu(_ wiersz: Int) -> String { "\u{1B}[\(wiersz);1H" }
+
+    /// Czy od ostatniego pytania okno zmieniło rozmiar. Pytanie zeruje stan.
+    static func czyZmienionoRozmiar() -> Bool {
+        guard zmienionyRozmiar != 0 else { return false }
+        zmienionyRozmiar = 0
+        return true
     }
 
     // MARK: - Rozmiar okna
@@ -145,6 +213,11 @@ enum Terminal {
         case gora, dol, enter, escape
         case znak(Character)
         case inne
+        /// Odczyt przerwał sygnał — w praktyce zmiana rozmiaru okna.
+        /// Nie jest klawiszem: pętla ma tylko przerysować i czytać dalej.
+        case przerwane
+        /// Wejście się skończyło: potok zamknięty albo terminal zniknął.
+        case koniec
     }
 
     /// Czyta jeden klawisz. Blokuje do naciśnięcia.
@@ -153,7 +226,12 @@ enum Terminal {
     /// jest klawiszem, więc po nim czytamy **nieblokująco** — inaczej wciśnięcie
     /// Escape zawieszałoby program do następnego klawisza.
     static func czytajKlawisz() -> Klawisz {
-        guard let pierwszy = bajt() else { return .inne }
+        let pierwszy: UInt8
+        switch bajt() {
+        case .koniec:        return .koniec
+        case .przerwane:     return .przerwane
+        case .bajt(let b):   pierwszy = b
+        }
         switch pierwszy {
         case 0x0A, 0x0D: return .enter
         case 0x03:       return .znak("q")          // Ctrl-C traktujemy jak wyjście
@@ -171,9 +249,21 @@ enum Terminal {
         }
     }
 
-    private static func bajt() -> UInt8? {
+    /// Wynik jednego odczytu. Trzy stany, nie dwa.
+    ///
+    /// 🔴 Pierwsza wersja oddawała `UInt8?` i traktowała **koniec wejścia** tak
+    /// samo jak nieznany klawisz. Skutek: po zamknięciu wejścia pętla dostawała
+    /// w kółko „nic", rysowała ekran i czytała znowu — program kręcił procesor
+    /// bez końca, zamiast wyjść. Widać to dopiero przy uruchomieniu spod
+    /// `script` albo z zamkniętym potokiem, nie przy zwykłym pisaniu.
+    private enum Odczyt { case bajt(UInt8), przerwane, koniec }
+
+    private static func bajt() -> Odczyt {
         var b: UInt8 = 0
-        return read(STDIN_FILENO, &b, 1) == 1 ? b : nil
+        let ile = read(STDIN_FILENO, &b, 1)
+        if ile == 1 { return .bajt(b) }
+        if ile == 0 { return .koniec }
+        return errno == EINTR ? .przerwane : .koniec
     }
 
     /// Odczyt z krótkim terminem — do rozpoznawania sekwencji strzałek.
@@ -183,7 +273,8 @@ enum Terminal {
         fdUstaw(STDIN_FILENO, &zestaw)
         var termin = timeval(tv_sec: 0, tv_usec: 50_000)   // 50 ms
         guard select(STDIN_FILENO + 1, &zestaw, nil, nil, &termin) > 0 else { return nil }
-        return bajt()
+        if case .bajt(let b) = bajt() { return b }
+        return nil
     }
 
     // `FD_ZERO` i `FD_SET` to makra C — w Swifcie trzeba je napisać samemu.
