@@ -63,14 +63,15 @@ enum BootActions {
         // pomocnika, choćby stał gotowy. To jest cała treść tej reguły:
         // przełączenie ma kosztować świadomy gest, a nie jedno kliknięcie.
         if Polityka.wymagajHasla {
-            let quoted = system.mountPoint.replacingOccurrences(of: "'", with: "'\\''")
-            _ = try PrivilegedShell.run("/usr/sbin/bless --mount '\(quoted)' --setBoot 2>&1")
+            try PrivilegedShell.ustawDyskStartowy(mountPoint: system.mountPoint)
             try sprawdzFirmware(system)
             return
         }
 
         // Najpierw pomocnik: zarejestrowany demon robi to bez pytania o hasło.
-        // Dopiero gdy go nie ma albo milczy, zostaje systemowe okno hasła.
+        // Dopiero gdy go nie ma albo milczy, zostaje pytanie o hasło — w oknie
+        // systemowym albo w terminalu, zależnie od tego, skąd program chodzi.
+        // Rozstrzyga to `PrivilegedShell.ustawDyskStartowy`, nie to miejsce.
         do {
             try HelperClient.setStartupDisk(mountPoint: system.mountPoint)
         } catch let HelperClient.Failure.bless(code, output) {
@@ -78,8 +79,7 @@ enum BootActions {
             // pytać o hasło i próbować drugi raz tego samego.
             throw BootError.blessFailed("bless (\(code))\n\(output)")
         } catch {
-            let quoted = system.mountPoint.replacingOccurrences(of: "'", with: "'\\''")
-            _ = try PrivilegedShell.run("/usr/sbin/bless --mount '\(quoted)' --setBoot 2>&1")
+            try PrivilegedShell.ustawDyskStartowy(mountPoint: system.mountPoint)
         }
 
         try sprawdzFirmware(system)

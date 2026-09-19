@@ -12,6 +12,7 @@
 //          Change-Boot/HelperProtocol.swift Change-Boot/LoginItem.swift \
 //          Change-Boot/HelpView.swift Change-Boot/Odinstalowanie.swift \
 //          Change-Boot/CommandLineInstall.swift Change-Boot/Polityka.swift \
+//          Change-Boot/Kondycja.swift \
 //          && /tmp/test-terminal
 //
 // 🔴 Sprawdzian NIE wchodzi w tryb surowy i nie rysuje po ekranie. Bada rzeczy,

@@ -12,6 +12,8 @@ enum HelperClient {
     enum Failure: LocalizedError {
         case notInstalled
         case needsApproval
+        /// Zarejestrowany, ale nie odpowiada — launchd go nie uruchamia.
+        case milczy
         case connection(String)
         case bless(code: Int32, output: String)
 
@@ -21,6 +23,8 @@ enum HelperClient {
                 return String(localized: "The privileged helper is not installed.")
             case .needsApproval:
                 return String(localized: "The helper is waiting for your approval in System Settings → General → Login Items.")
+            case .milczy:
+                return String(localized: "The helper is registered but does not answer. Remove it in Options and install it again.")
             case .connection(let message):
                 return String(localized: "Could not talk to the privileged helper.\n\n\(message)")
             case .bless(let code, let output):
@@ -102,6 +106,7 @@ enum HelperClient {
     /// Przeniesienie programu po rejestracji zrywa powiązanie i trzeba je odnowić.
     @discardableResult
     static func install() throws -> Wynik {
+        zapomnijZywotnosc()
         do {
             try service.register()
         } catch {
@@ -115,6 +120,7 @@ enum HelperClient {
     }
 
     static func uninstall() throws {
+        zapomnijZywotnosc()
         try service.unregister()
     }
 
@@ -126,13 +132,26 @@ enum HelperClient {
 
     /// Ustawia dysk startowy rękami pomocnika. Rzuca, gdy pomocnika nie ma —
     /// decyzję o drodze zastępczej podejmuje `BootActions`, nie ten typ.
+    ///
+    /// Dowód życia idzie **przed** właściwym wywołaniem i ma własny, krótki
+    /// termin — patrz `czyOdpowiada()`. Bez niego pomocnik zarejestrowany,
+    /// ale nieuruchamialny kosztował piętnaście sekund przy każdym kliknięciu.
     static func setStartupDisk(mountPoint: String) throws {
         switch service.status {
         case .enabled:          break
         case .requiresApproval: throw Failure.needsApproval
         default:                throw Failure.notInstalled
         }
+        guard czyOdpowiada() else { throw Failure.milczy }
+        try zawolaj(mountPoint: mountPoint, termin: terminOdpowiedzi)
+    }
 
+    /// Jedna rozmowa z pomocnikiem, z terminem podanym z zewnątrz.
+    ///
+    /// Termin jest parametrem, bo mierzymy tym dwie różne rzeczy: dowód życia
+    /// (krótko — to jedno odbicie) i prawdziwe `bless` (hojnie — na Apple Silicon
+    /// bywa powolne). Jedna stała nie może być dobra dla obu.
+    private static func zawolaj(mountPoint: String, termin: TimeInterval) throws {
         let connection = NSXPCConnection(machServiceName: HelperNames.machService,
                                          options: .privileged)
         connection.remoteObjectInterface = NSXPCInterface(with: HelperProtocol.self)
@@ -180,8 +199,8 @@ enum HelperClient {
         // Termin jest hojny, bo `bless` na Apple Silicon bywa powolny, ale
         // SKOŃCZONY — bo program, który wisi, jest gorszy od programu, który
         // pyta o hasło. Po terminie `BootActions` schodzi na drogę zastępczą.
-        guard czekacz.wait(timeout: .now() + terminOdpowiedzi) == .success else {
-            throw Failure.connection(String(localized: "The helper did not answer within \(Int(terminOdpowiedzi)) s. It is registered but not starting."))
+        guard czekacz.wait(timeout: .now() + termin) == .success else {
+            throw Failure.connection(String(localized: "The helper did not answer within \(Int(termin)) s. It is registered but not starting."))
         }
 
         zamek.lock(); defer { zamek.unlock() }
@@ -189,6 +208,85 @@ enum HelperClient {
         guard code == 0 else { throw Failure.bless(code: code, output: output) }
     }
 
-    /// Ile czekamy na odpowiedź pomocnika, zanim uznamy go za nieobecnego.
+    /// Ile czekamy na `bless` po drugiej stronie mostu. Hojnie, bo `bless`
+    /// na Apple Silicon bywa powolny — ale SKOŃCZENIE.
     static let terminOdpowiedzi: TimeInterval = 15
+
+    // MARK: - Dowód życia
+
+    /// Ile czekamy na sam dowód życia. Krótko: to jedno odbicie po moście,
+    /// bez żadnej roboty po drugiej stronie.
+    static let terminZywotnosci: TimeInterval = 2
+
+    private static let zamekZywotnosci = NSLock()
+    private static var zywotnosc: Bool?
+
+    /// Czy pomocnik naprawdę odpowiada.
+    ///
+    /// 🔴 To jest to, czego `isReady` powiedzieć nie umie. Na maszynie [U]
+    /// `SMAppService` mówił `.enabled`, a launchd demona nie uruchamiał —
+    /// i każde przełączenie kosztowało przez to **piętnaście sekund** czekania,
+    /// zanim program zszedł na okno hasła. Zgłoszenie [U] 2026-09-20:
+    /// *„po kliknięciu aby się przełączyć czeka się stanowczo za długo"*.
+    ///
+    /// Odpowiedź jest pamiętana do końca działania procesu. Rejestracja nie
+    /// zmienia się sama, a płacenie dwóch sekund przy każdym kliknięciu byłoby
+    /// tą samą wadą w mniejszej skali. Po instalacji i po usunięciu pomocnika
+    /// pamięć kasuje `zapomnijZywotnosc()`.
+    static func czyOdpowiada() -> Bool {
+        zamekZywotnosci.lock()
+        let znane = zywotnosc
+        zamekZywotnosci.unlock()
+        if let znane { return znane }
+
+        let wynik = zmierzZywotnosc()
+
+        zamekZywotnosci.lock()
+        zywotnosc = wynik
+        zamekZywotnosci.unlock()
+        return wynik
+    }
+
+    /// Kasuje pamięć o dowodzie życia. Woła się po każdej zmianie rejestracji.
+    static func zapomnijZywotnosc() {
+        zamekZywotnosci.lock()
+        zywotnosc = nil
+        zamekZywotnosci.unlock()
+    }
+
+    /// Pyta o dowód życia **w tle**, żeby kliknięcie nie czekało na odpowiedź.
+    ///
+    /// Woła to okno przy starcie i widok pełnoekranowy przy wejściu. Zanim
+    /// człowiek wybierze system i potwierdzi, odpowiedź zwykle już jest —
+    /// a gdy nie, kosztuje najwyżej `terminZywotnosci`.
+    static func sprawdzWTle() {
+        DispatchQueue.global(qos: .utility).async { _ = czyOdpowiada() }
+    }
+
+    /// Jedno odbicie po moście, bez żadnego skutku po drugiej stronie.
+    ///
+    /// 🔴 Świadomie **nie** nową metodą protokołu, choć `ping()` byłoby
+    /// czytelniejsze. Dwa powody, oba mocniejsze od czytelności:
+    ///
+    /// 1. Każda metoda tego protokołu jest czymś, co da się wywołać na demonie
+    ///    roota — dlatego martwe `version()` z niego wyleciało (P2-14 z audytu).
+    /// 2. Metoda dodana dziś nie istnieje w pomocniku **zainstalowanym wczoraj**,
+    ///    a to właśnie stary, niedziałający pomocnik jest tym, co mamy wykryć.
+    ///    Sonda, która wymaga nowego demona, milczy dokładnie tam, gdzie ma mierzyć.
+    ///
+    /// Pusta ścieżka nie przechodzi przez sito `isPlausibleMountPoint` w żadnej
+    /// wersji pomocnika: demon odpowiada `-1, "Refused mount point."` i nie
+    /// dotyka `bless`. Liczy się sama odpowiedź, nie jej treść — dlatego odmowa
+    /// sita jest tutaj **wynikiem pozytywnym**.
+    private static func zmierzZywotnosc() -> Bool {
+        guard service.status == .enabled else { return false }
+        do {
+            try zawolaj(mountPoint: "", termin: terminZywotnosci)
+            return true
+        } catch Failure.bless {
+            return true
+        } catch {
+            return false
+        }
+    }
 }

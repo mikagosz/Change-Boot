@@ -32,7 +32,7 @@ testowania programów bez cudzych ustawień i do nagrywania materiałów.
 |---|---|
 | System | macOS 26 lub nowszy |
 | Procesor | **Apple Silicon — sprawdzone.** Binarka jest uniwersalna i kod kompiluje się pod Intela, ale `bless`, T2 i Startup Security na prawdziwym Intelu **nie zostały sprawdzone** |
-| Uprawnienia | administrator — raz przy instalacji pomocnika albo przy każdym przełączeniu, jeśli pomocnika nie zainstalujesz |
+| Uprawnienia | administrator — raz przy instalacji pomocnika albo przy każdym przełączeniu, jeśli pomocnika nie zainstalujesz. Z okna pyta systemowe okno hasła, z terminala `sudo` w tym samym oknie |
 | Podpis | **lokalny certyfikat.** U obcego Gatekeeper poprosi o pierwsze wpuszczenie ręcznie |
 
 > [!warning] Na Apple Silicon pierwsze pobłogosławienie woluminu może wymagać
@@ -148,6 +148,7 @@ Testy/wykrywanie     dyski, woluminy, odróżnianie Cryptexów od systemów
 Testy/konfiguracja   lista, kolory, trwałość wpisu odpiętego dysku
 Testy/pomocnik       kształt restartu, sito punktów montowania, zgodność podpisu
 Testy/dziennik       zapis i odczyt, równoległość, rozbiór argumentów
+Testy/terminal       przeliczanie barw, szerokości panelu, umiejscowienie klatki
 ```
 
 Bez podłączonego dysku zewnętrznego część sprawdzianów jest **jawnie pomijana**,

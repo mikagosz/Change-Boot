@@ -100,6 +100,9 @@ struct HelpView: View {
                     section("arrow.triangle.2.circlepath", "Switch",
                             "Sets the startup disk, checks that the firmware really accepted it, and only then restarts. If the check fails, nothing restarts — the Mac would have booted the wrong system.")
 
+                    section("lock.shield", "The password, and how to stop it",
+                            "Setting the startup disk needs administrator rights, so macOS asks for your password every time. Install the helper in Options and it asks once, at install time, instead. macOS shows a notification about background activity then — the helper is only registered once you click Allow. A registered helper that stops answering is not silent about it: Options says so, and the switch falls back to the password prompt rather than waiting.")
+
                     section("sparkles", "Clean start",
                             "On: your apps and windows do not come back after the restart. Off: macOS reopens them, the same as the “Reopen windows when logging back in” checkbox in the system restart dialog.")
 
@@ -123,7 +126,18 @@ struct HelpView: View {
                     Divider()
 
                     section("terminal", "Command line",
-                            "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it opens a full-screen view you steer with the arrow keys. Add --plain for plain text, and change-boot help lists everything.")
+                            "The same program answers to Terminal: list, current, switch, eject, volumes, log and uninstall. Every command ends with an exit code, so a script can tell whether the switch worked. Add --dry-run to switch and eject to see what would happen without changing anything, and --json or --csv to volumes to take the report somewhere else. Install the command in Options, then change-boot help lists all of it.")
+
+                    section("keyboard", "The full-screen view",
+                            "Type change-boot on its own in Terminal and it opens a full-screen view of the same list: arrow keys to move, ENTER to boot the selected system, E to eject its whole disk, R to re-read the disks, Q to leave. Add --plain if you would rather have one static block of text. When a password is needed, it is asked right there in the terminal window — no dialog box appears.")
+
+                    Divider()
+
+                    section("clock.arrow.circlepath", "History",
+                            "Every switch, eject and install leaves a dated note in Options, under History — including the ones that failed and the ones you cancelled. It is a plain text file, one line per event, and Options has a button that shows it in Finder. Removing Change-Boot leaves it alone.")
+
+                    section("building.2", "Managed by a profile",
+                            "On a work Mac, an administrator can send a configuration profile that decides which systems you are allowed to boot and whether a password is required every time. Systems outside that list are marked and refuse to boot, and the settings the profile decides are greyed out in Options with a line saying who manages them. Without such a profile none of this appears.")
 
                     Divider()
 

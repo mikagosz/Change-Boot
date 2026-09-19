@@ -51,6 +51,11 @@ enum TUI {
         }
         defer { Terminal.przywroc() }
 
+        // Dowód życia pomocnika pytany od razu i w tle: od niego zależy, czy
+        // `ENTER` ma najpierw wyjść z trybu surowego pod monit o hasło. Pytany
+        // dopiero przy potwierdzeniu kosztowałby czekanie w najgorszym momencie.
+        HelperClient.sprawdzWTle()
+
         odswiez()
         rysuj()
 
@@ -162,12 +167,17 @@ enum TUI {
         stan.pracuje = true
         rysuj()
 
-        // 🔴 Bez pomocnika przełączenie wywołuje SYSTEMOWE okno hasła. Zanim
-        // się pojawi, wracamy do zwykłego ekranu — okno dialogowe nad osobnym
-        // ekranem terminala wygląda jak zawieszenie i nie wiadomo, co odpowiada.
-        let bezPomocnika = !HelperClient.isReady
-        if bezPomocnika { Terminal.przywroc() }
-        defer { if bezPomocnika { Terminal.wejdzWTrybSurowy() } }
+        // 🔴 Zanim padnie pytanie o hasło, wracamy do zwykłego ekranu. `sudo`
+        // gasi echo sam i pisze monit w zwykłym buforze — nad osobnym ekranem
+        // TUI nie byłoby go w ogóle widać, a człowiek patrzyłby na zamrożony
+        // rysunek i zastanawiał się, co program robi.
+        //
+        // 🔴 Pytamy `czyOdpowiada()`, a nie `isReady`. `isReady` to odpowiedź
+        // rejestru: na maszynie [U] mówił „jest", a pomocnik nie wstawał i i tak
+        // kończyło się hasłem — tyle że nad rysunkiem, bez wyjścia z trybu surowego.
+        let zHaslem = Polityka.wymagajHasla || !HelperClient.czyOdpowiada()
+        if zHaslem { Terminal.przywroc() }
+        defer { if zHaslem { Terminal.wejdzWTrybSurowy() } }
 
         let konfiguracja = Configuration()
         let czysty = konfiguracja.cleanStartByDefault

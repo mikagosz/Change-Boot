@@ -6,7 +6,17 @@
 //          Change-Boot/BootActions.swift Change-Boot/PrivilegedShell.swift \
 //          Change-Boot/HelperClient.swift Change-Boot/HelperProtocol.swift \
 //          Change-Boot/HelperDaemon.swift Change-Boot/AppBundle.swift Change-Boot/Polityka.swift \
+//          Change-Boot/Terminal.swift Change-Boot/CommandLineTool.swift \
+//          Change-Boot/TUI.swift Change-Boot/TUIPaleta.swift Change-Boot/AppVersion.swift \
+//          Change-Boot/Configuration.swift Change-Boot/SystemColor.swift \
+//          Change-Boot/EventLog.swift Change-Boot/LoginItem.swift Change-Boot/HelpView.swift \
+//          Change-Boot/Odinstalowanie.swift Change-Boot/CommandLineInstall.swift \
+//          Change-Boot/Kondycja.swift \
 //          && /tmp/test-pomocnik
+//
+// Lista urosła w 0.2.20: `PrivilegedShell` pyta teraz `Terminal`, skąd program
+// chodzi, i bierze z katalogu ciągów zdanie tłumaczące, po co mu hasło —
+// a `CommandLineTool` ciągnie za sobą resztę wiersza poleceń.
 //
 // Nic tutaj nie restartuje maszyny ani nie instaluje demona: sprawdzane jest to,
 // co da się sprawdzić bez skutków ubocznych — kształt polecenia restartu, sito
@@ -54,6 +64,12 @@ sprawdz("nieistniejąca ścieżka odrzucona",
         !HelperService.isPlausibleMountPoint("/Volumes/Nie ma takiego dysku 4f1a"))
 sprawdz("plik zamiast katalogu odrzucony",
         !HelperService.isPlausibleMountPoint("/etc/hosts"))
+
+// 🔴 Na tym wisi dowód życia pomocnika. `HelperClient.zmierzZywotnosc` woła
+// most z PUSTĄ ścieżką i liczy na to, że sito ją odrzuci, nie tykając `bless`.
+// Poluzowanie sita zamieniłoby niewinną sondę w prawdziwe przełączenie dysku.
+sprawdz("pusta ścieżka odrzucona — na tym stoi sonda dowodu życia",
+        !HelperService.isPlausibleMountPoint(""))
 
 // 🔴 P2-11 z audytu. Sito do 0.2.12 przyjmowało wszystko pod `/Volumes`, co
 // istnieje i jest katalogiem — a `fileExists` nie odróżnia dowiązania, udziału

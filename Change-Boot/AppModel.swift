@@ -49,6 +49,11 @@ final class AppModel {
         self.configuration = configuration
         refresh()
         startWatchingDisks()
+        // Dowód życia pomocnika pytany przy starcie, w tle. Odpowiedź jest
+        // potrzebna dopiero przy kliknięciu „Przełącz", ale zapytana dopiero
+        // wtedy kosztowałaby czekanie dokładnie w tym momencie — a to jest
+        // zgłoszenie [U] 2026-09-20, patrz `HelperClient.czyOdpowiada()`.
+        HelperClient.sprawdzWTle()
     }
 
     deinit {

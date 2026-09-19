@@ -22,6 +22,9 @@ struct SettingsView: View {
     /// razu, więc bez tego przycisk restartu byłby wyłączony zawsze.
     @State private var languageAtOpen = AppLanguage.current
     @State private var helperStatus = HelperClient.statusDescription
+    /// Pomocnik jest w rejestrze, ale nie odpowiada. Osobne pole, bo
+    /// `HelperClient.status` tego nie wie — patrz `HelperClient.czyOdpowiada()`.
+    @State private var pomocnikMilczy = false
     @State private var helperFailure: String?
     @State private var busy = false
     @State private var historia: EventLog.Odczyt = .pusty
@@ -239,6 +242,18 @@ struct SettingsView: View {
                 }
                 .disabled(busy)
 
+                // 🔴 Rejestracja nie jest dowodem na działającego pomocnika.
+                // Bez tego zdania Opcje mówiły „zainstalowany, hasło niepotrzebne",
+                // a każde przełączenie i tak kończyło się oknem hasła — zgłoszone
+                // przez [U] 2026-09-20 jako „czeka się stanowczo za długo".
+                if pomocnikMilczy {
+                    Label("The helper is registered, but it does not answer, so macOS asks for your password anyway. Remove it here and install it again.",
+                          systemImage: "exclamationmark.triangle")
+                        .font(.callout)
+                        .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 if HelperClient.isInTemporaryLocation && !HelperClient.isReady {
                     Label("Move Change-Boot to the Applications folder first. The helper remembers where the app was when you installed it, so registering it from a build folder stops working after the next build.",
                           systemImage: "exclamationmark.triangle")
@@ -369,7 +384,10 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .task { historia = EventLog.przeczytaj(6) }
+        .task {
+            historia = EventLog.przeczytaj(6)
+            await odswiezStanPomocnika()
+        }
         .confirmationDialog(Text("Remove everything Change-Boot installed?"),
                             isPresented: $pytanieOOdinstalowanie,
                             titleVisibility: .visible) {
@@ -434,7 +452,30 @@ struct SettingsView: View {
             helperStatus = HelperClient.statusDescription
             historia = EventLog.przeczytaj(6)
             busy = false
+            Task { await odswiezStanPomocnika() }
         }
+    }
+
+    /// Pyta pomocnika o dowód życia poza wątkiem okna.
+    ///
+    /// Pomiar trwa do `HelperClient.terminZywotnosci`, a na wątku głównym
+    /// zaciąłby Opcje na te dwie sekundy — czyli powtórzyłby w mniejszej skali
+    /// dokładnie tę wadę, którą naprawia.
+    private func odswiezStanPomocnika() async {
+        let zarejestrowany = HelperClient.isReady
+        guard zarejestrowany else {
+            pomocnikMilczy = false
+            return
+        }
+        // Pomiar od nowa, nie z pamięci. Otwarcie Opcji jest świadomym gestem,
+        // a pamięć z całego uruchomienia programu mogłaby nieść jeden chybiony
+        // pomiar sprzed godziny — i pokazywać pomarańczowe ostrzeżenie o czymś,
+        // co od dawna działa. Tędy idzie droga wyjścia z fałszywego alarmu.
+        let odpowiada = await Task.detached(priority: .utility) {
+            HelperClient.zapomnijZywotnosc()
+            return HelperClient.czyOdpowiada()
+        }.value
+        pomocnikMilczy = !odpowiada
     }
 
     /// Sprzątanie z okna. Melduje szczegółowo, a nie jednym „gotowe": czynność
