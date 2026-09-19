@@ -8,7 +8,9 @@
 //          Change-Boot/HelperClient.swift Change-Boot/HelperProtocol.swift \
 //          Change-Boot/Configuration.swift Change-Boot/SystemColor.swift \
 //          Change-Boot/AppVersion.swift Change-Boot/AppBundle.swift \
-//          Change-Boot/LoginItem.swift && /tmp/test-dziennik
+//          Change-Boot/LoginItem.swift Change-Boot/HelpView.swift \
+//          Change-Boot/Odinstalowanie.swift Change-Boot/CommandLineInstall.swift \
+//          && /tmp/test-dziennik
 //
 // Dziennik pisze do WŁASNEGO katalogu tymczasowego, nie do Application Support
 // użytkownika — sprawdzian nie ma prawa dopisać nic do prawdziwej historii.

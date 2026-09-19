@@ -127,6 +127,9 @@ struct HelpView: View {
 
                     Divider()
 
+                    section("trash", "Removing Change-Boot",
+                            "Three things live outside the app: the privileged helper, the change-boot command in /usr/local/bin and the login item. The Trash does not touch any of them, and the helper runs as root. Options has a button that takes all three off, and change-boot uninstall does the same from Terminal — which still works after the window is gone. Your settings and the event log are left alone.")
+
                     section("gearshape", "Options",
                             "Every setting lives behind the Options button at the bottom of the window — the window turns around to show them. Command-comma does the same. That is also where you install the helper that stops macOS asking for your password on every switch.")
                 }

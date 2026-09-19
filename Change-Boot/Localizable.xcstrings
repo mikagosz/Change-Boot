@@ -359,6 +359,23 @@
         }
       }
     },
+    "Change-Boot puts three things outside its own app: the privileged helper, the change-boot command in /usr/local/bin, and — if you turned it on — a login item. Dragging the app to the Trash leaves all three behind, and the helper runs as root. Take them off here first.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot puts three things outside its own app: the privileged helper, the change-boot command in /usr/local/bin, and — if you turned it on — a login item. Dragging the app to the Trash leaves all three behind, and the helper runs as root. Take them off here first."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot zakłada trzy rzeczy poza własnym pakietem: pomocnika, polecenie change-boot w /usr/local/bin i — jeśli to włączysz — wpis logowania. Przeciągnięcie ikony do Kosza nie rusza żadnej z nich, a pomocnik chodzi jako root. Zdejmij je najpierw tutaj."
+          }
+        }
+      }
+    },
     "Change-Boot speaks Polish and English. Pick the language in Options, in the Change-Boot menu at the top of the screen, or in the menu bar icon. The app restarts when you change it, because the language is loaded once, when the app starts.": {
       "extractionState": "manual",
       "localizations": {
@@ -644,6 +661,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gotowe"
+          }
+        }
+      }
+    },
+    "Done. You can move Change-Boot to the Trash now — your settings and the event log stay where they are.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done. You can move Change-Boot to the Trash now — your settings and the event log stay where they are."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gotowe. Możesz przenieść Change-Boota do Kosza — ustawienia i dziennik zdarzeń zostają tam, gdzie były."
           }
         }
       }
@@ -1362,6 +1396,40 @@
         }
       }
     },
+    "Nothing to remove — Change-Boot has not installed anything outside its own app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to remove — Change-Boot has not installed anything outside its own app."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie ma czego zdejmować — Change-Boot nie zainstalował nic poza własnym pakietem."
+          }
+        }
+      }
+    },
+    "Now you can move Change-Boot to the Trash.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now you can move Change-Boot to the Trash."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teraz możesz przenieść Change-Boota do Kosza."
+          }
+        }
+      }
+    },
     "OK": {
       "extractionState": "manual",
       "localizations": {
@@ -1821,6 +1889,40 @@
         }
       }
     },
+    "Remove everything Change-Boot installed?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove everything Change-Boot installed?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdjąć wszystko, co Change-Boot zainstalował?"
+          }
+        }
+      }
+    },
+    "Remove everything installed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove everything installed"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdejmij wszystko, co zainstalowane"
+          }
+        }
+      }
+    },
     "Remove from list": {
       "extractionState": "manual",
       "localizations": {
@@ -1868,6 +1970,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Usuń polecenie"
+          }
+        }
+      }
+    },
+    "Removing Change-Boot": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removing Change-Boot"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odinstalowanie Change-Boota"
+          }
+        }
+      }
+    },
+    "Removing what Change-Boot installed outside its own app:": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removing what Change-Boot installed outside its own app:"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdejmuję to, co Change-Boot zainstalował poza własnym pakietem:"
           }
         }
       }
@@ -2433,6 +2569,23 @@
         }
       }
     },
+    "The privileged helper, the change-boot command and the login item come off. Your settings and the event log stay. macOS will ask for your password once, for the command in /usr/local/bin.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The privileged helper, the change-boot command and the login item come off. Your settings and the event log stay. macOS will ask for your password once, for the command in /usr/local/bin."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schodzą: pomocnik, polecenie change-boot i wpis logowania. Ustawienia i dziennik zdarzeń zostają. macOS poprosi raz o hasło — za polecenie w /usr/local/bin."
+          }
+        }
+      }
+    },
     "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it shows your systems and the exact command to switch to each. change-boot help lists everything.": {
       "extractionState": "manual",
       "localizations": {
@@ -2446,6 +2599,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ten sam program odpowiada w terminalu: list, current, switch, eject i log. Kończy się kodem wyjścia, więc skrypt pozna, czy przełączenie się udało. Zainstaluj polecenie w Opcjach, a potem wpisz samo change-boot — pokaże twoje systemy i gotowe polecenie do każdego z nich. Pełną listę daje change-boot help."
+          }
+        }
+      }
+    },
+    "There was nothing to remove.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There was nothing to remove."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie było czego zdejmować."
           }
         }
       }
@@ -2480,6 +2650,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nie zamknęły się: %@"
+          }
+        }
+      }
+    },
+    "Three things live outside the app: the privileged helper, the change-boot command in /usr/local/bin and the login item. The Trash does not touch any of them, and the helper runs as root. Options has a button that takes all three off, and change-boot uninstall does the same from Terminal — which still works after the window is gone. Your settings and the event log are left alone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three things live outside the app: the privileged helper, the change-boot command in /usr/local/bin and the login item. The Trash does not touch any of them, and the helper runs as root. Options has a button that takes all three off, and change-boot uninstall does the same from Terminal — which still works after the window is gone. Your settings and the event log are left alone."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poza programem żyją trzy rzeczy: pomocnik, polecenie change-boot w /usr/local/bin i wpis logowania. Kosz nie rusza żadnej z nich, a pomocnik chodzi jako root. W Opcjach jest przycisk zdejmujący wszystkie trzy, a to samo robi change-boot uninstall z terminala — które działa także wtedy, gdy okna już nie ma. Ustawienia i dziennik zdarzeń zostają nietknięte."
           }
         }
       }
@@ -2739,6 +2926,57 @@
         }
       }
     },
+    "You can also do this from Terminal, even after this window is gone: change-boot uninstall": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can also do this from Terminal, even after this window is gone: change-boot uninstall"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To samo zrobisz z terminala, także wtedy, gdy tego okna już nie ma: change-boot uninstall"
+          }
+        }
+      }
+    },
+    "You cancelled the password prompt.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You cancelled the password prompt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Okno hasła zostało anulowane."
+          }
+        }
+      }
+    },
+    "Your settings and the event log are left alone. Remove them by hand if you want:": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your settings and the event log are left alone. Remove them by hand if you want:"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustawienia i dziennik zdarzeń zostają nietknięte. Skasuj je ręcznie, jeśli chcesz:"
+          }
+        }
+      }
+    },
     "bless failed (%d).\n\n%@": {
       "extractionState": "manual",
       "localizations": {
@@ -2854,6 +3092,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "ile zdarzeń wypisać (domyślnie 20)"
+          }
+        }
+      }
+    },
+    "login item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "login item"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wpis logowania"
           }
         }
       }
@@ -3011,6 +3266,23 @@
         }
       }
     },
+    "privileged helper": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "privileged helper"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pomocnik"
+          }
+        }
+      }
+    },
     "recent events": {
       "extractionState": "manual",
       "localizations": {
@@ -3024,6 +3296,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "ostatnie zdarzenia"
+          }
+        }
+      }
+    },
+    "removes the helper, the command and the login item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removes the helper, the command and the login item"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zdejmuje pomocnika, polecenie i wpis logowania"
           }
         }
       }
@@ -3143,6 +3432,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "czeka na zgodę w Ustawieniach systemowych"
+          }
+        }
+      }
+    },
+    "was not installed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "was not installed"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nie było zainstalowane"
           }
         }
       }

@@ -25,6 +25,8 @@ struct SettingsView: View {
     @State private var helperFailure: String?
     @State private var busy = false
     @State private var historia: EventLog.Odczyt = .pusty
+    @State private var pytanieOOdinstalowanie = false
+    @State private var wynikOdinstalowania: String?
     @State private var stanPolecenia = CommandLineInstall.opisStanu
     @State private var poleceniZainstalowane = CommandLineInstall.stan == .zainstalowane
 
@@ -247,6 +249,32 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Removing Change-Boot") {
+                Text("Change-Boot puts three things outside its own app: the privileged helper, the change-boot command in /usr/local/bin, and — if you turned it on — a login item. Dragging the app to the Trash leaves all three behind, and the helper runs as root. Take them off here first.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack {
+                    Text("You can also do this from Terminal, even after this window is gone: change-boot uninstall")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .textSelection(.enabled)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer()
+                    Button("Remove everything installed") { pytanieOOdinstalowanie = true }
+                        .disabled(busy || !Odinstalowanie.cokolwiekZainstalowane)
+                }
+
+                if let wynikOdinstalowania {
+                    Text(wynikOdinstalowania)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
             Section("History") {
                 switch historia {
                 case .pusty:
@@ -307,6 +335,14 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .task { historia = EventLog.przeczytaj(6) }
+        .confirmationDialog(Text("Remove everything Change-Boot installed?"),
+                            isPresented: $pytanieOOdinstalowanie,
+                            titleVisibility: .visible) {
+            Button("Remove", role: .destructive) { odinstaluj() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("The privileged helper, the change-boot command and the login item come off. Your settings and the event log stay. macOS will ask for your password once, for the command in /usr/local/bin.")
+        }
         .alert("Change-Boot", isPresented: Binding(
             get: { helperFailure != nil },
             set: { if !$0 { helperFailure = nil } })) {
@@ -361,6 +397,43 @@ struct SettingsView: View {
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             helperStatus = HelperClient.statusDescription
+            historia = EventLog.przeczytaj(6)
+            busy = false
+        }
+    }
+
+    /// Sprzątanie z okna. Melduje szczegółowo, a nie jednym „gotowe": czynność
+    /// dotyka demona roota i katalogu systemowego, więc człowiek ma zobaczyć,
+    /// co dokładnie zeszło, a co nie.
+    private func odinstaluj() {
+        busy = true
+        let wynik = Odinstalowanie.wykonaj()
+
+        func linia(_ co: String, _ stan: Odinstalowanie.Stan) -> String? {
+            switch stan {
+            case .zdjete:          return "✓ \(co)"
+            case .nieBylo:         return nil
+            case .nieudane(let p): return "✗ \(co) — \(p)"
+            }
+        }
+        var linie = [
+            linia(String(localized: "login item"), wynik.wpisLogowania),
+            linia(String(localized: "privileged helper"), wynik.pomocnik),
+            linia("/usr/local/bin/change-boot", wynik.polecenie),
+        ].compactMap { $0 }
+
+        if linie.isEmpty {
+            linie = [String(localized: "There was nothing to remove.")]
+        } else if wynik.wszystkoPoszlo && wynik.cokolwiekBylo {
+            linie.append("")
+            linie.append(String(localized: "Done. You can move Change-Boot to the Trash now — your settings and the event log stay where they are."))
+        }
+        wynikOdinstalowania = linie.joined(separator: "\n")
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            helperStatus = HelperClient.statusDescription
+            stanPolecenia = CommandLineInstall.opisStanu
+            poleceniZainstalowane = CommandLineInstall.stan == .zainstalowane
             historia = EventLog.przeczytaj(6)
             busy = false
         }

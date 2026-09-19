@@ -86,7 +86,8 @@ enum CommandLineTool {
     }
 
     private static let czasowniki: Set<String> = [
-        "list", "current", "switch", "eject", "log", "help", "--help", "-h", "--version",
+        "list", "current", "switch", "eject", "log", "uninstall",
+        "help", "--help", "-h", "--version",
     ]
 
     // MARK: - Wejście
@@ -106,6 +107,7 @@ enum CommandLineTool {
         case "switch":                 zakoncz(przelacz(opcje))
         case "eject":                  zakoncz(wysun(opcje))
         case "log":                    zakoncz(dziennik(opcje))
+        case "uninstall":              zakoncz(odinstaluj(opcje))
         case "--version":              print(AppVersion.short); zakoncz(.ok)
         case "help", "--help", "-h":   pomoc(); zakoncz(.ok)
         case "powitanie":              zakoncz(powitanie())
@@ -318,6 +320,42 @@ enum CommandLineTool {
         return .ok
     }
 
+    /// Zdejmuje demona, dowiązanie i wpis logowania.
+    ///
+    /// 🔴 Po co to w wierszu poleceń, skoro jest przycisk w Opcjach: bo przycisk
+    /// znika razem z programem. Kto skasuje ikonę pierwszy, nie ma już czym
+    /// posprzątać — a zostaje mu zarejestrowany demon roota. To polecenie działa
+    /// dopóki binarka jest na dysku, także przez dowiązanie (P1-06 z audytu).
+    private static func odinstaluj(_ opcje: Opcje) -> Kod {
+        guard Odinstalowanie.cokolwiekZainstalowane else {
+            print(t("Nothing to remove — Change-Boot has not installed anything outside its own app."))
+            return .ok
+        }
+
+        let wynik = Odinstalowanie.wykonaj()
+
+        func powiedz(_ co: String, _ stan: Odinstalowanie.Stan) {
+            switch stan {
+            case .zdjete:           print("  ✓ \(co)")
+            case .nieBylo:          print("  — \(co): " + t("was not installed"))
+            case .nieudane(let p):  blad("  ✗ \(co): \(p)")
+            }
+        }
+
+        print(t("Removing what Change-Boot installed outside its own app:"))
+        powiedz(t("login item"), wynik.wpisLogowania)
+        powiedz(t("privileged helper"), wynik.pomocnik)
+        powiedz("/usr/local/bin/change-boot", wynik.polecenie)
+
+        print("")
+        print(t("Your settings and the event log are left alone. Remove them by hand if you want:"))
+        for sciezka in Odinstalowanie.coZostaje { print("  \(sciezka)") }
+        print("")
+        print(t("Now you can move Change-Boot to the Trash."))
+
+        return wynik.wszystkoPoszlo ? .ok : .blad
+    }
+
     // MARK: - Pomocnicze
 
     /// Szuka po UUID, a dopiero potem po nazwie — UUID jest jednoznaczny, nazwa nie.
@@ -403,6 +441,7 @@ enum CommandLineTool {
         wiersz("switch <" + t("name|UUID") + ">", t("sets the startup disk"))
         wiersz("eject <" + t("name|UUID") + ">",  t("ejects the WHOLE disk, not just the volume"))
         wiersz("log",                   t("recent events"))
+        wiersz("uninstall",             t("removes the helper, the command and the login item"))
         wiersz("help",                  t("this description"))
         wiersz("(" + t("no command") + ")", t("your systems, with a ready command next to each"))
         print("")

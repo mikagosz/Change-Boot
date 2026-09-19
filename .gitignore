@@ -3,3 +3,7 @@ build/
 DerivedData/
 *.xcuserstate
 xcuserdata/
+*.p12
+*.cer
+*.pem
+* - instalator/
