@@ -87,7 +87,7 @@ enum CommandLineTool {
 
     private static let czasowniki: Set<String> = [
         "list", "current", "switch", "eject", "log", "uninstall",
-        "help", "--help", "-h", "--version",
+        "help", "--help", "-h", "--version", "--plain",
     ]
 
     // MARK: - Wejście
@@ -110,7 +110,11 @@ enum CommandLineTool {
         case "uninstall":              zakoncz(odinstaluj(opcje))
         case "--version":              print(AppVersion.short); zakoncz(.ok)
         case "help", "--help", "-h":   pomoc(); zakoncz(.ok)
-        case "powitanie":              zakoncz(powitanie())
+        // Gołe wywołanie z terminala otwiera interfejs pełnoekranowy; `--plain`
+        // zostawia statyczne powitanie z 0.2.3, bo tryb surowy terminala to rzecz,
+        // która w cudzym środowisku potrafi się nie udać.
+        case "powitanie":              zakoncz(opcje.zwykly ? powitanie() : TUI.uruchom())
+        case "--plain":                zakoncz(powitanie())
         default:
             blad(t("Unknown command: \(czasownik)"))
             pomoc()
@@ -128,6 +132,8 @@ enum CommandLineTool {
         let zRestartem: Bool
         let limit: Int
         let cel: String?
+        /// Bez interfejsu pełnoekranowego — sam tekst.
+        let zwykly: Bool
 
         init(_ argumenty: [String]) {
             var cel: String?
@@ -135,12 +141,14 @@ enum CommandLineTool {
             var czysty: Bool?
             var json = false
             var restart = false
+            var zwykly = false
 
             var i = 0
             while i < argumenty.count {
                 let a = argumenty[i]
                 switch a {
                 case "--json":      json = true
+                case "--plain":     zwykly = true
                 case "--clean":     czysty = true
                 case "--no-clean":  czysty = false
                 case "--restart":   restart = true
@@ -157,6 +165,7 @@ enum CommandLineTool {
             self.zRestartem = restart
             self.limit = limit
             self.cel = cel
+            self.zwykly = zwykly
         }
     }
 
@@ -385,7 +394,7 @@ enum CommandLineTool {
     ///
     /// Nazwy w cudzysłowie prostym — nazwa woluminu bywa ze spacją („Mac Lab")
     /// i wklejona bez cudzysłowu rozpadłaby się na dwa argumenty.
-    private static func powitanie() -> Kod {
+    static func powitanie() -> Kod {
         let konfiguracja = Configuration()
         let wykryte = SystemScanner.scan()
         let biezacy = SystemScanner.current()
@@ -443,10 +452,11 @@ enum CommandLineTool {
         wiersz("log",                   t("recent events"))
         wiersz("uninstall",             t("removes the helper, the command and the login item"))
         wiersz("help",                  t("this description"))
-        wiersz("(" + t("no command") + ")", t("your systems, with a ready command next to each"))
+        wiersz("(" + t("no command") + ")", t("a full-screen view you can steer with the arrow keys"))
         print("")
         print(t("OPTIONS"))
         wiersz("--json",                t("machine-readable output"))
+        wiersz("--plain",               t("plain text instead of the full-screen view"))
         wiersz("--restart",             t("restart once the startup disk is set"))
         wiersz("--clean / --no-clean",  t("clean start; without it the app setting decides"))
         wiersz("--limit <n>",           t("how many events to print (default 20)"))

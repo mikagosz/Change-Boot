@@ -240,6 +240,23 @@
         }
       }
     },
+    "BOOTABLE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BOOTABLE"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STARTOWALNY"
+          }
+        }
+      }
+    },
     "Back to the list": {
       "extractionState": "manual",
       "localizations": {
@@ -274,6 +291,23 @@
         }
       }
     },
+    "Boot": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boot"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom"
+          }
+        }
+      }
+    },
     "COMMANDS": {
       "extractionState": "manual",
       "localizations": {
@@ -291,6 +325,23 @@
         }
       }
     },
+    "CURRENT": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CURRENT"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TU JESTEŚ"
+          }
+        }
+      }
+    },
     "Cancel": {
       "extractionState": "manual",
       "localizations": {
@@ -304,6 +355,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Anuluj"
+          }
+        }
+      }
+    },
+    "Cancelled.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelled."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anulowane."
           }
         }
       }
@@ -508,6 +576,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wiersz poleceń"
+          }
+        }
+      }
+    },
+    "Confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Potwierdź"
           }
         }
       }
@@ -1226,6 +1311,23 @@
         }
       }
     },
+    "Navigate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navigate"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz"
+          }
+        }
+      }
+    },
     "No connected system found: %@": {
       "extractionState": "manual",
       "localizations": {
@@ -1872,6 +1974,23 @@
         }
       }
     },
+    "RESTART FROM “%@”? ENTER to confirm, ESC to cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RESTART FROM “%@”? ENTER to confirm, ESC to cancel"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URUCHOMIĆ PONOWNIE Z „%@”? ENTER potwierdza, ESC anuluje"
+          }
+        }
+      }
+    },
     "Red": {
       "extractionState": "manual",
       "localizations": {
@@ -1885,6 +2004,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Czerwony"
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odśwież"
           }
         }
       }
@@ -2178,6 +2314,40 @@
         }
       }
     },
+    "STARTUP VOLUMES": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STARTUP VOLUMES"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DYSKI STARTOWE"
+          }
+        }
+      }
+    },
+    "SYSTEM READY": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SYSTEM READY"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GOTOWY"
+          }
+        }
+      }
+    },
     "Set to open when you come back to this system": {
       "extractionState": "manual",
       "localizations": {
@@ -2242,6 +2412,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pokaż plik dziennika"
+          }
+        }
+      }
+    },
+    "Startup Disk Manager": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startup Disk Manager"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zarządzanie dyskiem startowym"
           }
         }
       }
@@ -2603,19 +2790,19 @@
         }
       }
     },
-    "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it shows your systems and the exact command to switch to each. change-boot help lists everything.": {
+    "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it opens a full-screen view you steer with the arrow keys. Add --plain for plain text, and change-boot help lists everything.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it shows your systems and the exact command to switch to each. change-boot help lists everything."
+            "value": "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it opens a full-screen view you steer with the arrow keys. Add --plain for plain text, and change-boot help lists everything."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ten sam program odpowiada w terminalu: list, current, switch, eject i log. Kończy się kodem wyjścia, więc skrypt pozna, czy przełączenie się udało. Zainstaluj polecenie w Opcjach, a potem wpisz samo change-boot — pokaże twoje systemy i gotowe polecenie do każdego z nich. Pełną listę daje change-boot help."
+            "value": "Ten sam program odpowiada w terminalu: list, current, switch, eject i log. Kończy się kodem wyjścia, więc skrypt pozna, czy przełączenie się udało. Zainstaluj polecenie w Opcjach, a potem wpisz samo change-boot — otworzy widok pełnoekranowy do obsługi strzałkami. Dodaj --plain, żeby dostać zwykły tekst, a pełną listę daje change-boot help."
           }
         }
       }
@@ -2786,6 +2973,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wolumin „%@” jest niedostępny. Podłącz dysk i spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "WORKING": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WORKING"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PRACUJĘ"
           }
         }
       }
@@ -2990,6 +3194,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ustawienia i dziennik zdarzeń zostają nietknięte. Skasuj je ręcznie, jeśli chcesz:"
+          }
+        }
+      }
+    },
+    "a full-screen view you can steer with the arrow keys": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "a full-screen view you can steer with the arrow keys"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "widok pełnoekranowy do obsługi strzałkami"
+          }
+        }
+      }
+    },
+    "available": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "available"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wolne"
           }
         }
       }
@@ -3279,6 +3517,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "administratora w systemowym oknie — także wtedy, gdy polecenie"
+          }
+        }
+      }
+    },
+    "plain text instead of the full-screen view": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "plain text instead of the full-screen view"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zwykły tekst zamiast widoku pełnoekranowego"
           }
         }
       }

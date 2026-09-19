@@ -123,7 +123,7 @@ struct HelpView: View {
                     Divider()
 
                     section("terminal", "Command line",
-                            "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it shows your systems and the exact command to switch to each. change-boot help lists everything.")
+                            "The same program answers to Terminal: list, current, switch, eject and log. It ends with an exit code, so a script can tell whether the switch worked. Install the command in Options, then type change-boot on its own — it opens a full-screen view you steer with the arrow keys. Add --plain for plain text, and change-boot help lists everything.")
 
                     Divider()
 

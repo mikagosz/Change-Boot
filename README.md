@@ -20,7 +20,9 @@ testowania programów bez cudzych ustawień i do nagrywania materiałów.
 - **Pamięta systemy po UUID woluminu**, nie po nazwie. Zmiana nazwy dysku niczego
   nie psuje, a odpięty dysk zostaje na liście jako niedostępny.
 - **Wiersz poleceń** — te same czynności ze skryptu albo z harmonogramu, z ustalonymi
-  kodami wyjścia i wyjściem JSON.
+  kodami wyjścia i wyjściem JSON. Samo `change-boot` otwiera widok pełnoekranowy
+  obsługiwany strzałkami; każdy czasownik idzie zwykłym tekstem i ma nietknięte
+  kody wyjścia.
 - **Dziennik zdarzeń** — co, kiedy, przez kogo i z jakim skutkiem.
 - Polski i angielski, do przełączenia w programie.
 
@@ -90,7 +92,8 @@ w pozycji Change-Boota.
 ## Wiersz poleceń
 
 ```bash
-change-boot                       # twoje systemy i gotowe polecenie przy każdym
+change-boot                       # widok pełnoekranowy, do obsługi strzałkami
+change-boot --plain               # to samo zwykłym tekstem
 change-boot list                  # skonfigurowane systemy i ich dostępność
 change-boot current               # gdzie jesteś i skąd wystartuje firmware
 change-boot switch "Mac Lab" --restart
