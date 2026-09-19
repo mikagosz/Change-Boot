@@ -13,7 +13,15 @@ struct ChangeBootApp: App {
                 .environment(model)
         }
         .windowResizability(.contentSize)
-        .defaultSize(width: 460, height: 450)
+        .defaultSize(width: 460, height: 420)
+        .commands {
+            // Zaraz za „O programie Change-Boot", czyli tam, gdzie macOS trzyma
+            // rzeczy dotyczące samego programu.
+            CommandGroup(after: .appInfo) {
+                LanguageMenu()
+                Divider()
+            }
+        }
 
         MenuBarExtra(isInserted: Binding(
                         get: { model.configuration.showsMenuBarIcon },

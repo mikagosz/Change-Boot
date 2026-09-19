@@ -149,6 +149,7 @@ struct MenuBarContent: View {
             openWindow(id: "main")
             NotificationCenter.default.post(name: .changeBootShowHelp, object: nil)
         }
+        LanguageMenu()
         Button("Quit") { NSApp.terminate(nil) }
     }
 }

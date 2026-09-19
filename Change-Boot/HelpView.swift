@@ -36,9 +36,18 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     private static let key = "AppleLanguages"
 
+    /// 🔴 Czytamy **własną przegródkę**, nie `UserDefaults.standard.array(forKey:)`.
+    ///
+    /// Zwykły odczyt przechodzi przez całą listę domen, razem z globalną, a tam
+    /// `AppleLanguages` stoi zawsze — u [U] `("pl-PL")`. Program bez własnego
+    /// ustawienia wyglądał przez to na ustawiony na polski i ptaszek w menu siadał
+    /// przy „Polski" zamiast przy „Jak w systemie". Zmierzone 2026-09-19:
+    /// `defaults read com.mikagosz.ChangeBoot AppleLanguages` → klucza nie ma,
+    /// a `current` zwracało `.polish`.
     static var current: AppLanguage {
-        guard let list = UserDefaults.standard.array(forKey: key) as? [String],
-              let first = list.first else { return .system }
+        let domain = Bundle.main.bundleIdentifier ?? ""
+        guard let own = UserDefaults.standard.persistentDomain(forName: domain)?[key] as? [String],
+              let first = own.first else { return .system }
         if first.hasPrefix("pl") { return .polish }
         if first.hasPrefix("en") { return .english }
         return .system
@@ -106,7 +115,7 @@ struct HelpView: View {
                     Divider()
 
                     section("character.bubble", "Language",
-                            "Change-Boot speaks Polish and English. The picker sits at the bottom of the window, next to the other settings. Changing it restarts the app, because the language is loaded once, when the app starts.")
+                            "Change-Boot speaks Polish and English. Pick the language in the Change-Boot menu at the top of the screen, or in the menu bar icon. The app restarts when you change it, because the language is loaded once, when the app starts.")
 
                     Divider()
 
@@ -208,6 +217,35 @@ struct HelpView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             helperStatus = HelperClient.statusDescription
             busy = false
+        }
+    }
+}
+
+/// Podmenu wyboru języka, to samo w dwóch menu.
+///
+/// Stoi w górnym menu programu (obok „O programie") **i** w menu ikony w pasku.
+/// Dwa miejsca są celowe: ikona w pasku jest domyślnie wyłączona, więc sama
+/// zostawiłaby wybór niedostępnym; górne menu widać tylko wtedy, gdy program jest
+/// na wierzchu, więc samo nie starczy, gdy ktoś pracuje z paska.
+///
+/// Wybór działa od razu i od razu uruchamia program ponownie — język wczytuje się
+/// raz, przy starcie procesu, więc „wybrałem i nic się nie stało" byłoby gorsze
+/// niż restart bez pytania.
+struct LanguageMenu: View {
+    var body: some View {
+        Menu("Language") {
+            // `Toggle` rysuje w menu natywny ptaszek przy wybranej pozycji i nie
+            // dokłada własnego nagłówka. `Picker(.inline)` też daje ptaszki, ale
+            // powtarza etykietę w środku podmenu — wychodzi „Język → Język".
+            ForEach(AppLanguage.allCases) { option in
+                Toggle(option.label, isOn: Binding(
+                    get: { AppLanguage.current == option },
+                    set: { wybrane in
+                        guard wybrane, option != AppLanguage.current else { return }
+                        AppLanguage.apply(option)
+                        AppLanguage.relaunch()
+                    }))
+            }
         }
     }
 }
