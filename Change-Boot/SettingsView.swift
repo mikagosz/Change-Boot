@@ -54,25 +54,36 @@ struct SettingsView: View {
     }
 
     /// Zdanie po ludzku, nie surowe pola zapisu.
+    ///
+    /// 🔴 Składane z **kluczy katalogu**, nie z polskich literałów. Do 0.2.6 stały
+    /// tu zdania wpisane wprost po polsku, a `Text(String)` katalogu nie dotyka —
+    /// więc sekcja Historia mówiła po polsku także przy programie ustawionym na
+    /// angielski, mimo że Pomoc obiecywała dwa języki (P1-05 z audytu 2026-09-19).
+    ///
+    /// Zdanie składa się z kawałków, a nie z jednego klucza na każdą kombinację:
+    /// czynność razy źródło razy czysty start to dwanaście kluczy zamiast dziewięciu,
+    /// a przy każdej nowej czynności rosłoby to mnożąc się dalej.
     private func opis(_ wpis: EventLog.Entry) -> String {
-        let zrodlo = wpis.zrodlo == .wierszPolecen ? " (wiersz poleceń)" : ""
+        let zrodlo = wpis.zrodlo == .wierszPolecen
+            ? String(localized: " (command line)")
+            : ""
+        let cel = wpis.naSystem ?? "?"
         switch wpis.czynnosc {
         case .przelaczenie:
-            let cel = wpis.naSystem ?? "?"
-            let czysty = (wpis.czystyStart ?? false) ? ", czysty start" : ""
-            return "Przełączenie na „\(cel)”\(czysty)\(zrodlo)"
+            let czysty = (wpis.czystyStart ?? false) ? String(localized: ", clean start") : ""
+            return String(localized: "Switch to “\(cel)”") + czysty + zrodlo
         case .wysuniecie:
-            return "Wysunięcie „\(wpis.naSystem ?? "?")”\(zrodlo)"
+            return String(localized: "Eject “\(cel)”") + zrodlo
         case .instalacjaPomocnika:
-            return "Instalacja pomocnika\(zrodlo)"
+            return String(localized: "Helper installed") + zrodlo
         case .usunieciePomocnika:
-            return "Usunięcie pomocnika\(zrodlo)"
+            return String(localized: "Helper removed") + zrodlo
         case .instalacjaPolecenia:
-            return "Instalacja polecenia w terminalu\(zrodlo)"
+            return String(localized: "Terminal command installed") + zrodlo
         case .usunieciePolecenia:
-            return "Usunięcie polecenia z terminala\(zrodlo)"
+            return String(localized: "Terminal command removed") + zrodlo
         case .uzbrojenieNaPowrot:
-            return "Otwarcie po powrocie na ten system\(zrodlo)"
+            return String(localized: "Set to open when you come back to this system") + zrodlo
         }
     }
 
@@ -342,7 +353,7 @@ struct SettingsView: View {
                             zrodlo: .okno,
                             szczegol: wynik == .gotowy
                                 ? nil
-                                : "czeka na zgodę w Ustawieniach systemowych")
+                                : String(localized: "waiting for approval in System Settings"))
         } catch {
             helperFailure = error.localizedDescription
             EventLog.zapisz(.instalacjaPomocnika, skutek: .nieudane, zrodlo: .okno,

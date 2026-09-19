@@ -15,6 +15,37 @@ import Foundation
 /// administratora po stronie programu.
 enum CommandLineTool {
 
+    // MARK: - Napisy
+
+    /// Pakiet, z którego wiersz poleceń bierze napisy.
+    ///
+    /// 🔴 Dwie pułapki naraz i obie były prawdziwą usterką (P1-05 z audytu 2026-09-19):
+    ///
+    /// 1. `String(localized:)` **bez** `bundle:` idzie do `Bundle.main`, a ten przy
+    ///    uruchomieniu przez dowiązanie `/usr/local/bin/change-boot` nie jest
+    ///    pakietem programu — patrz `AppBundle`. Bez tego parametru katalog ciągów
+    ///    byłby niewidoczny i zostałyby same klucze.
+    /// 2. Język wybrany **w programie** siedzi w przegródce programu, a proces
+    ///    wiersza poleceń ma własną listę preferowanych języków. Dlatego wybrany
+    ///    język podaje się wprost, wskazując katalog `.lproj`. Przy ustawieniu
+    ///    „jak w systemie" zostaje zwykły pakiet i jego własne rozstrzyganie.
+    private static let katalog: Bundle = {
+        guard let kod = AppLanguage.current.code,
+              let sciezka = AppBundle.main.path(forResource: kod, ofType: "lproj"),
+              let wlasny = Bundle(path: sciezka) else { return AppBundle.main }
+        return wlasny
+    }()
+
+    /// Napis z katalogu ciągów. Krótka nazwa, bo wchodzi w co drugą linijkę.
+    static func t(_ klucz: String.LocalizationValue) -> String {
+        String(localized: klucz, bundle: katalog)
+    }
+
+    /// To samo, ale prosto na standardowe wyjście błędów.
+    private static func blad(_ tekst: String) {
+        FileHandle.standardError.write(Data((tekst + "\n").utf8))
+    }
+
     /// Kody wyjścia. Ustalone, bo od nich zależy `if` w cudzym skrypcie —
     /// zmiana znaczenia którejkolwiek liczby psuje automatyzację po stronie klienta.
     enum Kod: Int32 {
@@ -79,7 +110,7 @@ enum CommandLineTool {
         case "help", "--help", "-h":   pomoc(); zakoncz(.ok)
         case "powitanie":              zakoncz(powitanie())
         default:
-            FileHandle.standardError.write(Data("Nieznane polecenie: \(czasownik)\n".utf8))
+            blad(t("Unknown command: \(czasownik)"))
             pomoc()
             zakoncz(.zleUzycie)
         }
@@ -153,11 +184,11 @@ enum CommandLineTool {
         if opcje.json { return wypiszJSON(wiersze) }
 
         guard !wiersze.isEmpty else {
-            print("Żaden system nie jest skonfigurowany. Otwórz program i dodaj systemy.")
+            print(t("No system is configured. Open the app and add the systems you want."))
             return .ok
         }
         for w in wiersze {
-            let znacznik = w.biezacy ? " ← bieżący" : (w.dostepny ? "" : "  (niepodłączony)")
+            let znacznik = w.biezacy ? t(" ← current") : (w.dostepny ? "" : t("  (not connected)"))
             let opis = w.dostepny ? "macOS \(w.macOS ?? "?") · \(w.urzadzenie ?? "?")" : w.uuid
             print("\(w.nazwa)\(znacznik)\n    \(opis)")
         }
@@ -175,18 +206,18 @@ enum CommandLineTool {
                         urzadzenieStartowe: BootActions.currentStartupDevice())
 
         if opcje.json { return wypiszJSON(stan) }
-        print("Pracujesz na: \(stan.nazwa ?? "?")  (macOS \(stan.macOS ?? "?"))")
-        print("Firmware wystartuje z: /dev/\(stan.urzadzenieStartowe ?? "?")")
+        print(t("Running from: \(stan.nazwa ?? "?")  (macOS \(stan.macOS ?? "?"))"))
+        print(t("The firmware will start from: /dev/\(stan.urzadzenieStartowe ?? "?")"))
         return .ok
     }
 
     private static func przelacz(_ opcje: Opcje) -> Kod {
         guard let cel = opcje.cel else {
-            FileHandle.standardError.write(Data("Podaj nazwę albo UUID systemu.\n".utf8))
+            blad(t("Give the name or the UUID of a system."))
             return .zleUzycie
         }
         guard let system = znajdz(cel) else {
-            FileHandle.standardError.write(Data("Nie znaleziono podłączonego systemu: \(cel)\n".utf8))
+            blad(t("No connected system found: \(cel)"))
             EventLog.zapisz(.przelaczenie, skutek: .nieudane, naNazwa: cel,
                             zrodlo: .wierszPolecen, szczegol: "nie znaleziono woluminu")
             return .brakWoluminu
@@ -203,8 +234,8 @@ enum CommandLineTool {
             if czysty && !preferencjaPrzyjeta {
                 let oporne = BootActions.closeUserApps()
                 if !oporne.isEmpty {
-                    let tekst = "Nie zamknęły się: \(oporne.joined(separator: ", "))"
-                    FileHandle.standardError.write(Data("\(tekst)\n".utf8))
+                    let tekst = t("These did not close: \(oporne.joined(separator: ", "))")
+                    blad(tekst)
                     EventLog.zapisz(.przelaczenie, skutek: .nieudane, z: skad, na: system,
                                     czystyStart: czysty, zrodlo: .wierszPolecen, szczegol: tekst)
                     return .blad
@@ -218,42 +249,42 @@ enum CommandLineTool {
             if opcje.zRestartem {
                 try BootActions.restart()
             } else {
-                print("Dysk startowy ustawiony na „\(system.name)”. Restart nie nastąpił — dodaj --restart.")
+                print(t("Startup disk set to “\(system.name)”. Nothing restarted — add --restart."))
             }
             return .ok
         } catch BootError.cancelled {
             EventLog.zapisz(.przelaczenie, skutek: .anulowane, z: skad, na: system,
                             czystyStart: czysty, zrodlo: .wierszPolecen)
             return .anulowane
-        } catch let blad as BootError {
-            FileHandle.standardError.write(Data("\(blad.localizedDescription)\n".utf8))
+        } catch let usterka as BootError {
+            blad(usterka.localizedDescription)
             EventLog.zapisz(.przelaczenie, skutek: .nieudane, z: skad, na: system,
                             czystyStart: czysty, zrodlo: .wierszPolecen,
-                            szczegol: blad.localizedDescription)
-            if case .verificationFailed = blad { return .weryfikacjaNieprzeszla }
+                            szczegol: usterka.localizedDescription)
+            if case .verificationFailed = usterka { return .weryfikacjaNieprzeszla }
             return .blad
         } catch {
-            FileHandle.standardError.write(Data("\(error.localizedDescription)\n".utf8))
+            blad(error.localizedDescription)
             return .blad
         }
     }
 
     private static func wysun(_ opcje: Opcje) -> Kod {
         guard let cel = opcje.cel else {
-            FileHandle.standardError.write(Data("Podaj nazwę albo UUID systemu.\n".utf8))
+            blad(t("Give the name or the UUID of a system."))
             return .zleUzycie
         }
         guard let system = znajdz(cel) else {
-            FileHandle.standardError.write(Data("Nie znaleziono podłączonego systemu: \(cel)\n".utf8))
+            blad(t("No connected system found: \(cel)"))
             return .brakWoluminu
         }
         do {
             try BootActions.eject(system)
             EventLog.zapisz(.wysuniecie, skutek: .udane, na: system, zrodlo: .wierszPolecen)
-            print("Wysunięto cały nośnik z „\(system.name)”.")
+            print(t("Ejected the whole disk holding “\(system.name)”."))
             return .ok
         } catch {
-            FileHandle.standardError.write(Data("\(error.localizedDescription)\n".utf8))
+            blad(error.localizedDescription)
             EventLog.zapisz(.wysuniecie, skutek: .nieudane, na: system,
                             zrodlo: .wierszPolecen, szczegol: error.localizedDescription)
             return .blad
@@ -269,11 +300,10 @@ enum CommandLineTool {
             wpisy = w
         case .pusty:
             if opcje.json { return wypiszJSON([EventLog.Entry]()) }
-            print("Dziennik jest pusty: \(EventLog.plik.path)")
+            print(t("The event log is empty: \(EventLog.plik.path)"))
             return .ok
         case .nieczytelny(let powod):
-            FileHandle.standardError.write(Data(
-                "Nie da się odczytać dziennika \(EventLog.plik.path): \(powod)\n".utf8))
+            blad(t("The event log at \(EventLog.plik.path) could not be read: \(powod)"))
             return .blad
         }
         if opcje.json { return wypiszJSON(wpisy) }
@@ -322,71 +352,83 @@ enum CommandLineTool {
         let wykryte = SystemScanner.scan()
         let biezacy = SystemScanner.current()
 
-        print("Change-Boot \(AppVersion.short) — przełącznik systemu startowego")
+        print("Change-Boot \(AppVersion.short) — " + t("startup system switcher"))
         print("")
         if let biezacy {
-            print("Pracujesz na „\(biezacy.name)”  (macOS \(biezacy.productVersion) · \(biezacy.deviceIdentifier))")
+            print(t("Running from “\(biezacy.name)”  (macOS \(biezacy.productVersion) · \(biezacy.deviceIdentifier))"))
             print("")
         }
 
         guard !konfiguracja.entries.isEmpty else {
-            print("Żaden system nie jest jeszcze na liście.")
-            print("Otwórz okno programu i dodaj systemy, albo wpisz:  change-boot help")
+            print(t("No system is on the list yet."))
+            print(t("Open the app window and add systems, or type:  change-boot help"))
             return .ok
         }
 
-        print("TWOJE SYSTEMY")
+        print(t("YOUR SYSTEMS"))
         for wpis in konfiguracja.entries {
             let system = wykryte.first { $0.volumeUUID == wpis.volumeUUID }
             let nazwa = system?.name ?? wpis.lastKnownName
             let wyrownana = nazwa.padding(toLength: max(22, nazwa.count),
                                           withPad: " ", startingAt: 0)
             guard let system else {
-                print("  ✕ \(wyrownana)  niepodłączony")
+                print("  ✕ \(wyrownana)  " + t("not connected"))
                 continue
             }
             if system.volumeUUID == biezacy?.volumeUUID {
-                print("  ● \(wyrownana)  ← tu jesteś")
+                print("  ● \(wyrownana)  " + t("← you are here"))
             } else {
                 print("  ○ \(wyrownana)  change-boot switch '\(nazwa)' --restart")
             }
         }
 
         print("")
-        print("Wszystkie polecenia i kody wyjścia:  change-boot help")
+        print(t("Every command and exit code:  change-boot help"))
         return .ok
     }
 
+    /// Pełny opis. Ludzie czytają to jak dokumentację, więc idzie przez katalog
+    /// ciągów jak każdy inny napis — ale w kawałkach, a nie jednym blokiem:
+    /// jeden wielki klucz z całym ekranem rozjeżdża się przy pierwszej zmianie
+    /// i nie da się go przetłumaczyć bez przepisania całości.
     private static func pomoc() {
-        print("""
-        Change-Boot \(AppVersion.short) — przełącznik systemu startowego
+        print("Change-Boot \(AppVersion.short) — " + t("startup system switcher"))
+        print("")
+        print(t("USAGE"))
+        print("  change-boot <" + t("command") + "> [" + t("options") + "]")
+        print("")
+        print(t("COMMANDS"))
+        wiersz("list",                  t("configured systems and whether they are connected"))
+        wiersz("current",               t("the system you are running from, and the firmware target"))
+        wiersz("switch <" + t("name|UUID") + ">", t("sets the startup disk"))
+        wiersz("eject <" + t("name|UUID") + ">",  t("ejects the WHOLE disk, not just the volume"))
+        wiersz("log",                   t("recent events"))
+        wiersz("help",                  t("this description"))
+        wiersz("(" + t("no command") + ")", t("your systems, with a ready command next to each"))
+        print("")
+        print(t("OPTIONS"))
+        wiersz("--json",                t("machine-readable output"))
+        wiersz("--restart",             t("restart once the startup disk is set"))
+        wiersz("--clean / --no-clean",  t("clean start; without it the app setting decides"))
+        wiersz("--limit <n>",           t("how many events to print (default 20)"))
+        print("")
+        print(t("EXIT CODES"))
+        print("  " + t("0 ok · 1 error · 2 bad usage · 3 no such volume"))
+        print("  " + t("4 the firmware did not accept the target · 5 cancelled"))
+        print("")
+        print(t("NOTE"))
+        print("  " + t("Without the helper installed, every switch asks for an administrator"))
+        print("  " + t("password in a system dialog — also when the command comes from"))
+        print("  " + t("Terminal. The helper is installed in the app's Options."))
+    }
 
-        UŻYCIE
-          change-boot <polecenie> [opcje]
-
-        POLECENIA
-          list                  skonfigurowane systemy i ich dostępność
-          current               system, z którego pracujesz, i cel firmware'u
-          switch <nazwa|UUID>   ustawia dysk startowy
-          eject <nazwa|UUID>    wysuwa CAŁY nośnik, nie sam wolumin
-          log                   ostatnie zdarzenia
-          help                  ten opis
-          (bez polecenia)       twoje systemy i gotowe polecenie przy każdym
-
-        OPCJE
-          --json                wyjście do odczytu maszynowego
-          --restart             po ustawieniu dysku uruchom ponownie
-          --clean / --no-clean  czysty start; bez tego decyduje ustawienie programu
-          --limit <n>           ile zdarzeń wypisać (domyślnie 20)
-
-        KODY WYJŚCIA
-          0 ok · 1 błąd · 2 złe użycie · 3 brak woluminu
-          4 firmware nie przyjął celu · 5 anulowane
-
-        UWAGA
-          Bez zainstalowanego pomocnika każde przełączenie prosi o hasło
-          administratora w systemowym oknie — także wtedy, gdy polecenie
-          idzie z terminala. Pomocnika instaluje się w Opcjach programu.
-        """)
+    /// Jeden wiersz opisu polecenia: nazwa wyrównana do kolumny, potem opis.
+    /// Wyrównanie liczone, a nie wklepane spacjami — tłumaczenie zmienia długości.
+    private static func wiersz(_ nazwa: String, _ opis: String) {
+        let szerokosc = 22
+        let dopelnienie = nazwa.count < szerokosc
+            ? String(repeating: " ", count: szerokosc - nazwa.count)
+            : " "
+        print("  \(nazwa)\(dopelnienie)\(opis)")
     }
 }

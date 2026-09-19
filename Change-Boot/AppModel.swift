@@ -176,7 +176,7 @@ final class AppModel {
                     failure = String(localized: "These apps did not close: \(oporne.joined(separator: ", ")).\n\nThey probably have unsaved work. Deal with them and switch again — the startup disk is already set.")
                     EventLog.zapisz(.przelaczenie, skutek: .nieudane, z: current, na: system,
                                     czystyStart: cleanStart, zrodlo: .okno,
-                                    szczegol: "nie zamknęły się: \(oporne.joined(separator: ", "))")
+                                    szczegol: String(localized: "these did not close: \(oporne.joined(separator: ", "))"))
                     busy = false
                     return
                 }

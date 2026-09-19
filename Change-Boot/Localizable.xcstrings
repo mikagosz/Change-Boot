@@ -19,6 +19,57 @@
         }
       }
     },
+    "  (not connected)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "  (not connected)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "  (niepodłączony)"
+          }
+        }
+      }
+    },
+    " (command line)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " (command line)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " (wiersz poleceń)"
+          }
+        }
+      }
+    },
+    " ← current": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " ← current"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " ← bieżący"
+          }
+        }
+      }
+    },
     "%@ — this system": {
       "extractionState": "manual",
       "localizations": {
@@ -32,6 +83,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ — ten system"
+          }
+        }
+      }
+    },
+    ", clean start": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", clean start"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", czysty start"
+          }
+        }
+      }
+    },
+    "0 ok · 1 error · 2 bad usage · 3 no such volume": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0 ok · 1 error · 2 bad usage · 3 no such volume"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0 ok · 1 błąd · 2 złe użycie · 3 brak woluminu"
+          }
+        }
+      }
+    },
+    "4 the firmware did not accept the target · 5 cancelled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4 the firmware did not accept the target · 5 cancelled"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4 firmware nie przyjął celu · 5 anulowane"
           }
         }
       }
@@ -151,6 +253,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Niebieski"
+          }
+        }
+      }
+    },
+    "COMMANDS": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "COMMANDS"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POLECENIA"
           }
         }
       }
@@ -393,6 +512,23 @@
         }
       }
     },
+    "Could not create the log folder.\n\n%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not create the log folder.\n\n%@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się założyć katalogu dziennika.\n\n%@"
+          }
+        }
+      }
+    },
     "Could not determine the physical disk.": {
       "extractionState": "manual",
       "localizations": {
@@ -461,6 +597,23 @@
         }
       }
     },
+    "Could not write to the event log.\n\n%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not write to the event log.\n\n%@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się dopisać do dziennika zdarzeń.\n\n%@"
+          }
+        }
+      }
+    },
     "Current": {
       "extractionState": "manual",
       "localizations": {
@@ -491,6 +644,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gotowe"
+          }
+        }
+      }
+    },
+    "EXIT CODES": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXIT CODES"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KODY WYJŚCIA"
           }
         }
       }
@@ -546,6 +716,40 @@
         }
       }
     },
+    "Eject “%@”": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eject “%@”"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysunięcie „%@”"
+          }
+        }
+      }
+    },
+    "Ejected the whole disk holding “%@”.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejected the whole disk holding “%@”."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysunięto cały nośnik z „%@”."
+          }
+        }
+      }
+    },
     "Ejects the whole physical disk, not just the volume you see in Finder. Finder leaves the hidden data volume mounted, which is why unplugging after a Finder eject makes macOS complain that the disk was not ejected properly.": {
       "extractionState": "manual",
       "localizations": {
@@ -559,6 +763,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wysuwa cały dysk fizyczny, nie tylko wolumin widoczny w Finderze. Finder zostawia zamontowany ukryty wolumin danych i dlatego po jego wysunięciu macOS zgłasza, że dysk nie został wysunięty poprawnie."
+          }
+        }
+      }
+    },
+    "Every command and exit code:  change-boot help": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every command and exit code:  change-boot help"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszystkie polecenia i kody wyjścia:  change-boot help"
           }
         }
       }
@@ -631,6 +852,23 @@
         }
       }
     },
+    "Give the name or the UUID of a system.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Give the name or the UUID of a system."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podaj nazwę albo UUID systemu."
+          }
+        }
+      }
+    },
     "Green": {
       "extractionState": "manual",
       "localizations": {
@@ -678,6 +916,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pomoc"
+          }
+        }
+      }
+    },
+    "Helper installed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Helper installed"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instalacja pomocnika"
+          }
+        }
+      }
+    },
+    "Helper removed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Helper removed"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usunięcie pomocnika"
           }
         }
       }
@@ -886,6 +1158,40 @@
         }
       }
     },
+    "NOTE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOTE"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UWAGA"
+          }
+        }
+      }
+    },
+    "No connected system found: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No connected system found: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie znaleziono podłączonego systemu: %@"
+          }
+        }
+      }
+    },
     "No other macOS installation is connected right now.": {
       "extractionState": "manual",
       "localizations": {
@@ -916,6 +1222,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Brak obiektu pośredniczącego."
+          }
+        }
+      }
+    },
+    "No system is configured. Open the app and add the systems you want.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No system is configured. Open the app and add the systems you want."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Żaden system nie jest skonfigurowany. Otwórz program i dodaj systemy."
+          }
+        }
+      }
+    },
+    "No system is on the list yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No system is on the list yet."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Żaden system nie jest jeszcze na liście."
           }
         }
       }
@@ -1039,6 +1379,23 @@
         }
       }
     },
+    "OPTIONS": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPTIONS"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPCJE"
+          }
+        }
+      }
+    },
     "Off by default, because it gets in the way while recording the screen. With it on, closing the window leaves the app running in the menu bar instead of quitting, and you can have it leave the Dock as well. Its colours can be stripped too, from the icon's own menu, so it looks like the rest of the menu bar and follows light and dark mode on its own.": {
       "extractionState": "manual",
       "localizations": {
@@ -1124,6 +1481,23 @@
         }
       }
     },
+    "Only part of the entry was written.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only part of the entry was written."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapisała się tylko część wpisu."
+          }
+        }
+      }
+    },
     "Open Change-Boot": {
       "extractionState": "manual",
       "localizations": {
@@ -1205,6 +1579,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Otwórz Ustawienia systemowe"
+          }
+        }
+      }
+    },
+    "Open the app window and add systems, or type:  change-boot help": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the app window and add systems, or type:  change-boot help"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz okno programu i dodaj systemy, albo wpisz:  change-boot help"
           }
         }
       }
@@ -1600,6 +1991,57 @@
         }
       }
     },
+    "Running from “%@”  (macOS %@ · %@)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running from “%@”  (macOS %@ · %@)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pracujesz na „%@”  (macOS %@ · %@)"
+          }
+        }
+      }
+    },
+    "Running from: %@  (macOS %@)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running from: %@  (macOS %@)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pracujesz na: %@  (macOS %@)"
+          }
+        }
+      }
+    },
+    "Set to open when you come back to this system": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set to open when you come back to this system"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwarcie po powrocie na ten system"
+          }
+        }
+      }
+    },
     "Sets the startup disk, checks that the firmware really accepted it, and only then restarts. If the check fails, nothing restarts — the Mac would have booted the wrong system.": {
       "extractionState": "manual",
       "localizations": {
@@ -1651,6 +2093,23 @@
         }
       }
     },
+    "Startup disk set to “%@”. Nothing restarted — add --restart.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startup disk set to “%@”. Nothing restarted — add --restart."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dysk startowy ustawiony na „%@”. Restart nie nastąpił — dodaj --restart."
+          }
+        }
+      }
+    },
     "Switch": {
       "extractionState": "manual",
       "localizations": {
@@ -1664,6 +2123,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Przełącz"
+          }
+        }
+      }
+    },
+    "Switch to “%@”": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to “%@”"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przełączenie na „%@”"
           }
         }
       }
@@ -1736,6 +2212,57 @@
         }
       }
     },
+    "Terminal command installed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal command installed"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instalacja polecenia w terminalu"
+          }
+        }
+      }
+    },
+    "Terminal command removed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal command removed"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usunięcie polecenia z terminala"
+          }
+        }
+      }
+    },
+    "Terminal. The helper is installed in the app's Options.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal. The helper is installed in the app's Options."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "idzie z terminala. Pomocnika instaluje się w Opcjach programu."
+          }
+        }
+      }
+    },
     "The colours": {
       "extractionState": "manual",
       "localizations": {
@@ -1753,6 +2280,91 @@
         }
       }
     },
+    "The event could not be encoded.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The event could not be encoded."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdarzenia nie dało się zakodować."
+          }
+        }
+      }
+    },
+    "The event log at %@ could not be read: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The event log at %@ could not be read: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie da się odczytać dziennika %@: %@"
+          }
+        }
+      }
+    },
+    "The event log is empty: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The event log is empty: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dziennik jest pusty: %@"
+          }
+        }
+      }
+    },
+    "The event log is there, but could not be read. What the app did is not lost — it just cannot be shown here.\n\n%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The event log is there, but could not be read. What the app did is not lost — it just cannot be shown here.\n\n%@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dziennik jest, ale nie da się go odczytać. To, co program zrobił, nie przepadło — po prostu nie ma jak tego tutaj pokazać.\n\n%@"
+          }
+        }
+      }
+    },
+    "The firmware will start from: /dev/%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The firmware will start from: /dev/%@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firmware wystartuje z: /dev/%@"
+          }
+        }
+      }
+    },
     "The helper is waiting for your approval in System Settings → General → Login Items.": {
       "extractionState": "manual",
       "localizations": {
@@ -1766,6 +2378,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pomocnik czeka na zgodę w Ustawieniach → Ogólne → Obiekty logowania."
+          }
+        }
+      }
+    },
+    "The last event could not be saved, so this list is incomplete.\n\n%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The last event could not be saved, so this list is incomplete.\n\n%@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostatniego zdarzenia nie udało się zapisać, więc ta lista jest niepełna.\n\n%@"
           }
         }
       }
@@ -1838,6 +2467,40 @@
         }
       }
     },
+    "These did not close: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These did not close: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie zamknęły się: %@"
+          }
+        }
+      }
+    },
+    "USAGE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "USAGE"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UŻYCIE"
+          }
+        }
+      }
+    },
     "Unknown": {
       "extractionState": "manual",
       "localizations": {
@@ -1851,6 +2514,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nieznany"
+          }
+        }
+      }
+    },
+    "Unknown command: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown command: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieznane polecenie: %@"
           }
         }
       }
@@ -1991,6 +2671,23 @@
         }
       }
     },
+    "Without the helper installed, every switch asks for an administrator": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without the helper installed, every switch asks for an administrator"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bez zainstalowanego pomocnika każde przełączenie prosi o hasło"
+          }
+        }
+      }
+    },
     "Working on “%@”": {
       "extractionState": "manual",
       "localizations": {
@@ -2004,6 +2701,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trwa praca na „%@”"
+          }
+        }
+      }
+    },
+    "YOUR SYSTEMS": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YOUR SYSTEMS"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TWOJE SYSTEMY"
           }
         }
       }
@@ -2059,6 +2773,91 @@
         }
       }
     },
+    "clean start; without it the app setting decides": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "clean start; without it the app setting decides"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "czysty start; bez tego decyduje ustawienie programu"
+          }
+        }
+      }
+    },
+    "command": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "command"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "polecenie"
+          }
+        }
+      }
+    },
+    "configured systems and whether they are connected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "configured systems and whether they are connected"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "skonfigurowane systemy i ich dostępność"
+          }
+        }
+      }
+    },
+    "ejects the WHOLE disk, not just the volume": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ejects the WHOLE disk, not just the volume"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wysuwa CAŁY nośnik, nie sam wolumin"
+          }
+        }
+      }
+    },
+    "how many events to print (default 20)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "how many events to print (default 20)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ile zdarzeń wypisać (domyślnie 20)"
+          }
+        }
+      }
+    },
     "macOS %@ · %@": {
       "extractionState": "manual",
       "localizations": {
@@ -2110,6 +2909,261 @@
         }
       }
     },
+    "machine-readable output": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "machine-readable output"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wyjście do odczytu maszynowego"
+          }
+        }
+      }
+    },
+    "name|UUID": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "name|UUID"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nazwa|UUID"
+          }
+        }
+      }
+    },
+    "no command": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no command"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bez polecenia"
+          }
+        }
+      }
+    },
+    "not connected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not connected"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "niepodłączony"
+          }
+        }
+      }
+    },
+    "options": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "options"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "opcje"
+          }
+        }
+      }
+    },
+    "password in a system dialog — also when the command comes from": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "password in a system dialog — also when the command comes from"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "administratora w systemowym oknie — także wtedy, gdy polecenie"
+          }
+        }
+      }
+    },
+    "recent events": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "recent events"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ostatnie zdarzenia"
+          }
+        }
+      }
+    },
+    "restart once the startup disk is set": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "restart once the startup disk is set"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "po ustawieniu dysku uruchom ponownie"
+          }
+        }
+      }
+    },
+    "sets the startup disk": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sets the startup disk"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ustawia dysk startowy"
+          }
+        }
+      }
+    },
+    "startup system switcher": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "startup system switcher"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "przełącznik systemu startowego"
+          }
+        }
+      }
+    },
+    "the system you are running from, and the firmware target": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the system you are running from, and the firmware target"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "system, z którego pracujesz, i cel firmware'u"
+          }
+        }
+      }
+    },
+    "these did not close: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "these did not close: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nie zamknęły się: %@"
+          }
+        }
+      }
+    },
+    "this description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "this description"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ten opis"
+          }
+        }
+      }
+    },
+    "waiting for approval in System Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "waiting for approval in System Settings"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "czeka na zgodę w Ustawieniach systemowych"
+          }
+        }
+      }
+    },
+    "your systems, with a ready command next to each": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your systems, with a ready command next to each"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "twoje systemy i gotowe polecenie przy każdym"
+          }
+        }
+      }
+    },
     "“%@” is on an internal disk and cannot be ejected.": {
       "extractionState": "manual",
       "localizations": {
@@ -2140,6 +3194,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@” to system, z którego właśnie pracujesz. Najpierw przełącz się na inny."
+          }
+        }
+      }
+    },
+    "← you are here": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "← you are here"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "← tu jesteś"
           }
         }
       }
