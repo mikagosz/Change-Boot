@@ -38,6 +38,13 @@ enum HelperClient {
     static var status: SMAppService.Status { service.status }
 
     /// Czy da się na pomocniku polegać w tej chwili.
+    ///
+    /// ⚠️ To jest odpowiedź **rejestru**, nie pomiar. Zmierzone 2026-09-19:
+    /// `SMAppService` mówił `.enabled`, a launchd nie umiał demona uruchomić
+    /// i wypisywał `service inactive` co dziesięć sekund. Rejestracja wskazywała
+    /// wtedy na stary pakiet (`parent bundle version = 23` przy zainstalowanym 39).
+    /// Jedynym dowodem na działającego pomocnika jest jego odpowiedź — dlatego
+    /// `setStartupDisk` ma termin, a `BootActions` drogę zastępczą.
     static var isReady: Bool { service.status == .enabled }
 
     /// Stan opisany tak, żeby dało się go pokazać w oknie.
@@ -132,25 +139,56 @@ enum HelperClient {
         connection.resume()
         defer { connection.invalidate() }
 
+        let zamek = NSLock()
         var connectionError: String?
-        // Proxy synchroniczne: blok odpowiedzi wykonuje się przed powrotem
-        // z wywołania, więc nie ma tu ani semafora, ani pętli oczekiwania.
-        let proxy = connection.synchronousRemoteObjectProxyWithErrorHandler { error in
-            connectionError = error.localizedDescription
-        } as? HelperProtocol
-
-        guard let proxy, connectionError == nil else {
-            throw Failure.connection(connectionError ?? String(localized: "No proxy object."))
-        }
-
         var code: Int32 = -1
         var output = ""
-        proxy.setStartupDisk(mountPoint: mountPoint) { odpowiedzKod, odpowiedzTekst in
-            code = odpowiedzKod
-            output = odpowiedzTekst
+        let czekacz = DispatchSemaphore(value: 0)
+
+        // 🔴 Proxy ASYNCHRONICZNE plus semafor z terminem, a NIE
+        // `synchronousRemoteObjectProxyWithErrorHandler`.
+        //
+        // Proxy synchroniczne czeka **bez końca**, gdy launchd nie umie
+        // uruchomić demona — a umie nie umieć. Zmierzone 2026-09-19 na maszynie
+        // [U]: rejestracja wskazywała na stary pakiet (`parent bundle
+        // version = 23` przy zainstalowanym 39), więc launchd co dziesięć sekund
+        // wypisywał `service inactive: com.mikagosz.ChangeBoot.Helper` i nigdy
+        // go nie wstał. Program — okno i widok terminalowy tak samo — wisiał
+        // do ubicia procesu. 38 takich prób w jednym logu.
+        //
+        // `service.status` mówiło przy tym `.enabled`. **Rejestracja nie jest
+        // dowodem na działającego demona** — dowodem jest odpowiedź.
+        let proxy = connection.remoteObjectProxyWithErrorHandler { error in
+            zamek.lock()
+            connectionError = error.localizedDescription
+            zamek.unlock()
+            czekacz.signal()
+        } as? HelperProtocol
+
+        guard let proxy else {
+            throw Failure.connection(String(localized: "No proxy object."))
         }
 
+        proxy.setStartupDisk(mountPoint: mountPoint) { odpowiedzKod, odpowiedzTekst in
+            zamek.lock()
+            code = odpowiedzKod
+            output = odpowiedzTekst
+            zamek.unlock()
+            czekacz.signal()
+        }
+
+        // Termin jest hojny, bo `bless` na Apple Silicon bywa powolny, ale
+        // SKOŃCZONY — bo program, który wisi, jest gorszy od programu, który
+        // pyta o hasło. Po terminie `BootActions` schodzi na drogę zastępczą.
+        guard czekacz.wait(timeout: .now() + terminOdpowiedzi) == .success else {
+            throw Failure.connection(String(localized: "The helper did not answer within \(Int(terminOdpowiedzi)) s. It is registered but not starting."))
+        }
+
+        zamek.lock(); defer { zamek.unlock() }
         if let connectionError { throw Failure.connection(connectionError) }
         guard code == 0 else { throw Failure.bless(code: code, output: output) }
     }
+
+    /// Ile czekamy na odpowiedź pomocnika, zanim uznamy go za nieobecnego.
+    static let terminOdpowiedzi: TimeInterval = 15
 }

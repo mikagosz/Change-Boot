@@ -2943,6 +2943,23 @@
         }
       }
     },
+    "The helper did not answer within %lld s. It is registered but not starting.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The helper did not answer within %lld s. It is registered but not starting."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomocnik nie odpowiedział w ciągu %lld s. Jest zarejestrowany, ale się nie uruchamia."
+          }
+        }
+      }
+    },
     "The helper is waiting for your approval in System Settings → General → Login Items.": {
       "extractionState": "manual",
       "localizations": {
