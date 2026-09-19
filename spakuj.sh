@@ -10,7 +10,15 @@
 # Oba polecenia mówią „Release" i dają co innego. Dlatego pakowanie ma jedną
 # drogę, a na końcu trzy kontrole, które ją sprawdzają — nie pamięć człowieka.
 #
-# Użycie:  ./spakuj.sh            → paczka ląduje w /tmp/Change-Boot-<wersja>/
+# Użycie:  ./spakuj.sh            → zip ląduje w „My Code/App zip/Change-Boot/"
+#
+# 🔴 Zip idzie do App zip, a NIE do /tmp. Mike zbiera stamtąd paczki do instalacji
+# i na dysk z kopiami; paczka zostawiona w /tmp wypada z tego obiegu, a do tego
+# znika przy restarcie maszyny. Ścieżka jest względna wobec repozytorium, więc
+# działa tak samo na MacBooku i na Mac mini — cały „My Code" jedzie synchronizacją.
+#
+# Kolejność ma znaczenie i jest jedna: kod → commit → build → zip. Zip zrobiony
+# przed ostatnim commitem przestaje odpowiadać temu, co siedzi pod tagiem.
 
 set -e
 cd "${0:A:h}"
@@ -65,11 +73,35 @@ else
   echo "  ✗ podpis uszkodzony"; BLEDY=1
 fi
 
-echo
-if [[ $BLEDY -eq 0 ]]; then
-  echo "✅ Change-Boot $WERSJA gotowy:  $CEL/Change-Boot.app"
-  echo "   Notaryzacji NIE ma — u obcego zadziała Gatekeeper. Procedura: Podpisywanie-kodu-macOS."
-else
+if [[ $BLEDY -ne 0 ]]; then
+  echo
   echo "❌ Paczka NIE nadaje się do oddania — popraw powyższe i uruchom ponownie."
   exit 1
 fi
+
+# ── zip do App zip ───────────────────────────────────────────────────────────
+ZIPY="../../App zip/Change-Boot"
+mkdir -p "$ZIPY"
+ZIP="$ZIPY/Change-Boot $WERSJA.zip"
+rm -f "$ZIP"
+ditto -c -k --sequesterRsrc --keepParent "$CEL/Change-Boot.app" "$ZIP"
+
+# Kontrola przez rozpakowanie: `ditto` potrafi spakować bundle tak, że podpis
+# nie przeżywa drogi powrotnej. Meldujemy gotowe dopiero po sprawdzeniu kopii,
+# a nie po samym spakowaniu.
+SPRAWDZ=$(mktemp -d)
+ditto -x -k "$ZIP" "$SPRAWDZ"
+if codesign --verify --deep --strict "$SPRAWDZ/Change-Boot.app" 2>/dev/null; then
+  echo "  ✓ podpis przeżył spakowanie i rozpakowanie"
+else
+  echo "  ✗ po rozpakowaniu podpis jest uszkodzony"
+  rm -rf "$SPRAWDZ"
+  exit 1
+fi
+rm -rf "$SPRAWDZ"
+
+echo
+echo "✅ Change-Boot $WERSJA gotowy"
+echo "   zip:      $(cd "$ZIPY" && pwd)/Change-Boot $WERSJA.zip"
+echo "   rozpakowany do podmiany:  $CEL/Change-Boot.app"
+echo "   Notaryzacji NIE ma — u obcego zadziała Gatekeeper. Procedura: Podpisywanie-kodu-macOS."
