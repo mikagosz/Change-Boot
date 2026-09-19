@@ -19,6 +19,22 @@ enum HelperNames {
 
     /// Argument przełączający tę samą binarkę w tryb demona — patrz `main.swift`.
     static let daemonArgument = "--helper"
+
+    /// Czy ten wektor argumentów to wywołanie demona przez launchd.
+    ///
+    /// 🔴 Rozstrzyga **kształt całego wektora**, nie to, czy `--helper` gdzieś
+    /// w nim stoi. Do 0.2.8 było tu `arguments.contains(daemonArgument)` i rola
+    /// demona wygrywała z każdym czasownikiem: `change-boot list --helper`
+    /// wchodziło w `RunLoop.current.run()` i wisiało w nieskończoność, bez jednego
+    /// znaku na wyjściu. Zmierzone 2026-09-19, ubite dopiero SIGKILL-em po ośmiu
+    /// sekundach (P1-07 z audytu).
+    ///
+    /// launchd podaje dokładnie to, co stoi w `ProgramArguments` plistu:
+    /// `["Contents/MacOS/Change-Boot", "--helper"]`. Jeden argument, ani więcej,
+    /// ani mniej — i tylko to przepuszczamy.
+    static func czyWywolanieDemona(_ argumenty: [String]) -> Bool {
+        Array(argumenty.dropFirst()) == [daemonArgument]
+    }
 }
 
 /// Kto ma prawo rozmawiać z pomocnikiem i czyjego pomocnika słucha program.

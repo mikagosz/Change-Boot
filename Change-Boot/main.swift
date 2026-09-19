@@ -8,7 +8,16 @@ import Foundation
 // kodem wyjścia, nie oknem.
 // Rozdział musi stać tutaj, w `main.swift`, i dlatego `ChangeBootApp` nie ma
 // `@main`: atrybut `@main` i plik `main.swift` wykluczają się w jednym module.
-if CommandLine.arguments.contains(HelperNames.daemonArgument) {
+if HelperNames.czyWywolanieDemona(CommandLine.arguments) {
+    // Druga zapora, niezależna od kształtu argumentów: demon bez uprawnień roota
+    // nie ma po co wstawać. Usługa Macha jest zarejestrowana w domenie systemowej
+    // i proces użytkownika i tak nigdy nie dostanie na niej połączenia — bez tego
+    // sprawdzenia zostałaby po nim sama wisząca pętla zdarzeń.
+    guard getuid() == 0 else {
+        let tekst = CommandLineTool.t("--helper starts the privileged helper, and launchd does that for you. Install the helper in the app's Options, or type: change-boot help")
+        FileHandle.standardError.write(Data((tekst + "\n").utf8))
+        exit(CommandLineTool.Kod.zleUzycie.rawValue)
+    }
     HelperDaemon.main()
 }
 

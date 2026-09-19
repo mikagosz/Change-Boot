@@ -104,6 +104,22 @@ if let program = zbudowanyProgram() {
     pomin("zgodność wymagania podpisu z codesign", "brak zbudowanego programu w DerivedData")
 }
 
+print("\nWybór roli demona — P1-07 z audytu 2026-09-19")
+
+// 🔴 Do 0.2.8 rozstrzygało `arguments.contains("--helper")`, więc rola demona
+// wygrywała z każdym czasownikiem. `change-boot list --helper` wchodziło
+// w pętlę zdarzeń i wisiało bez końca, nie wypisując ani jednego znaku.
+sprawdz("launchd: dokładnie jeden argument --helper to wywołanie demona",
+        HelperNames.czyWywolanieDemona(["/x/Change-Boot", "--helper"]))
+sprawdz("--helper doklejone do czasownika NIE jest wywołaniem demona",
+        !HelperNames.czyWywolanieDemona(["/x/Change-Boot", "list", "--helper"]))
+sprawdz("--helper przed czasownikiem też NIE",
+        !HelperNames.czyWywolanieDemona(["/x/Change-Boot", "--helper", "list"]))
+sprawdz("samo uruchomienie bez argumentów NIE jest wywołaniem demona",
+        !HelperNames.czyWywolanieDemona(["/x/Change-Boot"]))
+sprawdz("przełącznik systemowy macOS NIE jest wywołaniem demona",
+        !HelperNames.czyWywolanieDemona(["/x/Change-Boot", "-psn_0_12345"]))
+
 print("\nNazwy mostu")
 
 sprawdz("etykieta demona zgadza się z nazwą plistu",

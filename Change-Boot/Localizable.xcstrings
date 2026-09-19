@@ -104,6 +104,23 @@
         }
       }
     },
+    "--helper starts the privileged helper, and launchd does that for you. Install the helper in the app's Options, or type: change-boot help": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "--helper starts the privileged helper, and launchd does that for you. Install the helper in the app's Options, or type: change-boot help"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "--helper uruchamia pomocnika, a robi to za Ciebie launchd. Pomocnika instaluje się w Opcjach programu albo poleceniem: change-boot help"
+          }
+        }
+      }
+    },
     "0 ok · 1 error · 2 bad usage · 3 no such volume": {
       "extractionState": "manual",
       "localizations": {
