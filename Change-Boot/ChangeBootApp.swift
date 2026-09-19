@@ -13,7 +13,7 @@ struct ChangeBootApp: App {
                 .environment(model)
         }
         .windowResizability(.contentSize)
-        .defaultSize(width: 460, height: 420)
+        .defaultSize(width: 460, height: 450)
 
         MenuBarExtra(isInserted: Binding(
                         get: { model.configuration.showsMenuBarIcon },

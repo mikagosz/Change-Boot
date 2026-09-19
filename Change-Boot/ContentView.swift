@@ -12,6 +12,11 @@ struct ContentView: View {
     @State private var pendingSwitch: BootSystem?
     @State private var adding = false
     @State private var showingHelp = false
+    @State private var language = AppLanguage.current
+    /// Język z chwili otwarcia okna. Bez tego przycisk „Uruchom ponownie" byłby
+    /// wyłączony zawsze: wybór zapisuje się od razu, więc `AppLanguage.current`
+    /// zrównuje się z wyborem, zanim ktokolwiek zdąży w niego kliknąć.
+    @State private var languageAtOpen = AppLanguage.current
 
     var body: some View {
         @Bindable var configuration = model.configuration
@@ -39,7 +44,7 @@ struct ContentView: View {
             Divider()
             footer
         }
-        .frame(minWidth: 440, minHeight: 380)
+        .frame(minWidth: 440, minHeight: 410)
         .task { model.refresh() }
         .confirmationDialog(
             pendingSwitch.map { Text("Restart from “\($0.name)”?") } ?? Text(""),
@@ -98,6 +103,27 @@ struct ContentView: View {
                    isOn: $configuration.cleanStartByDefault)
             Toggle("Show icon in the menu bar",
                    isOn: $configuration.showsMenuBarIcon)
+
+            // Język stoi tutaj, przy pozostałych ustawieniach. Siedział w Pomocy
+            // do 0.1.11 i była to zła kryjówka: nikt nie szuka ustawień w instrukcji.
+            HStack(spacing: 8) {
+                Text("Language")
+                Picker("Language", selection: $language) {
+                    ForEach(AppLanguage.allCases) { option in
+                        Text(option.label).tag(option)
+                    }
+                }
+                .labelsHidden()
+                .fixedSize()
+                .onChange(of: language) { _, new in AppLanguage.apply(new) }
+
+                if language != languageAtOpen {
+                    Button("Restart Change-Boot") { AppLanguage.relaunch() }
+                        .controlSize(.small)
+                }
+                Spacer()
+            }
+
             HStack {
                 Button {
                     adding = true

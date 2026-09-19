@@ -206,6 +206,23 @@
         }
       }
     },
+    "Change-Boot speaks Polish and English. The picker sits at the bottom of the window, next to the other settings. Changing it restarts the app, because the language is loaded once, when the app starts.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot speaks Polish and English. The picker sits at the bottom of the window, next to the other settings. Changing it restarts the app, because the language is loaded once, when the app starts."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot mówi po polsku i po angielsku. Wybór stoi na dole okna, obok pozostałych ustawień. Zmiana uruchamia program ponownie, bo język wczytuje się raz, przy starcie."
+          }
+        }
+      }
+    },
     "Changing the startup disk needs administrator rights. Install the helper once and Change-Boot stops asking for your password on every switch.": {
       "extractionState": "manual",
       "localizations": {

@@ -69,11 +69,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 struct HelpView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var language = AppLanguage.current
-    /// Język z chwili otwarcia okna. Bez tego przycisk „Uruchom ponownie" byłby
-    /// wyłączony zawsze: wybór zapisuje się od razu, więc `AppLanguage.current`
-    /// zrównuje się z wyborem, zanim ktokolwiek zdąży w niego kliknąć.
-    @State private var languageAtOpen = AppLanguage.current
     @State private var helperStatus = HelperClient.statusDescription
     @State private var helperFailure: String?
     @State private var busy = false
@@ -110,11 +105,12 @@ struct HelpView: View {
 
                     Divider()
 
-                    helperSection
+                    section("character.bubble", "Language",
+                            "Change-Boot speaks Polish and English. The picker sits at the bottom of the window, next to the other settings. Changing it restarts the app, because the language is loaded once, when the app starts.")
 
                     Divider()
 
-                    languageSection
+                    helperSection
                 }
                 .padding(16)
             }
@@ -212,35 +208,6 @@ struct HelpView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             helperStatus = HelperClient.statusDescription
             busy = false
-        }
-    }
-
-    // MARK: - Język
-
-    private var languageSection: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "character.bubble")
-                .foregroundStyle(.secondary)
-                .frame(width: 22)
-                .font(.title3)
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Language").font(.headline)
-                Picker("Language", selection: $language) {
-                    ForEach(AppLanguage.allCases) { option in
-                        Text(option.label).tag(option)
-                    }
-                }
-                .labelsHidden()
-                .pickerStyle(.segmented)
-                .onChange(of: language) { _, new in
-                    AppLanguage.apply(new)
-                }
-                Text("Change-Boot has to restart to load the other language.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                Button("Restart Change-Boot") { AppLanguage.relaunch() }
-                    .disabled(language == languageAtOpen)
-            }
         }
     }
 }
