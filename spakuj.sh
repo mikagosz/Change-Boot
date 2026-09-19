@@ -104,4 +104,4 @@ echo
 echo "✅ Change-Boot $WERSJA gotowy"
 echo "   zip:      $(cd "$ZIPY" && pwd)/Change-Boot $WERSJA.zip"
 echo "   rozpakowany do podmiany:  $CEL/Change-Boot.app"
-echo "   Notaryzacji NIE ma — u obcego zadziała Gatekeeper. Procedura: Podpisywanie-kodu-macOS."
+echo "   Podpis lokalny — u obcego Gatekeeper poprosi o pierwsze wpuszczenie ręcznie."

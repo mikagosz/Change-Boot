@@ -33,7 +33,7 @@ testowania programów bez cudzych ustawień i do nagrywania materiałów.
 | System | macOS 26 lub nowszy |
 | Procesor | **Apple Silicon — sprawdzone.** Binarka jest uniwersalna i kod kompiluje się pod Intela, ale `bless`, T2 i Startup Security na prawdziwym Intelu **nie zostały sprawdzone** |
 | Uprawnienia | administrator — raz przy instalacji pomocnika albo przy każdym przełączeniu, jeśli pomocnika nie zainstalujesz |
-| Notaryzacja | **brak.** U obcego zadziała Gatekeeper i program trzeba będzie wpuścić ręcznie |
+| Podpis | **lokalny certyfikat.** U obcego Gatekeeper poprosi o pierwsze wpuszczenie ręcznie |
 
 > [!warning] Na Apple Silicon pierwsze pobłogosławienie woluminu może wymagać
 > danych administratora — mówi to wprost `man bless`. Kolejne mogą iść same.
