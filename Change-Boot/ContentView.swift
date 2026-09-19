@@ -39,7 +39,7 @@ struct ContentView: View {
             Divider()
             footer
         }
-        .frame(minWidth: 440, minHeight: 404)
+        .frame(minWidth: 440, minHeight: 380)
         .task { model.refresh() }
         .confirmationDialog(
             pendingSwitch.map { Text("Restart from “\($0.name)”?") } ?? Text(""),
@@ -98,12 +98,6 @@ struct ContentView: View {
                    isOn: $configuration.cleanStartByDefault)
             Toggle("Show icon in the menu bar",
                    isOn: $configuration.showsMenuBarIcon)
-            Toggle("Menu bar icon without colours",
-                   isOn: $configuration.monochromeMenuBarIcon)
-                .padding(.leading, 18)
-                // Martwe ustawienie myli bardziej, niż pomaga: bez ikony w pasku
-                // nie ma czego odbarwiać.
-                .disabled(!configuration.showsMenuBarIcon)
 
             HStack {
                 Button {

@@ -124,6 +124,8 @@ struct MenuBarContent: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
+        @Bindable var configuration = model.configuration
+
         if let current = model.current {
             Text("Running from \(current.name)")
             Divider()
@@ -150,6 +152,12 @@ struct MenuBarContent: View {
             NotificationCenter.default.post(name: .changeBootShowHelp, object: nil)
         }
         LanguageMenu()
+        // Wygląd ikony paska ustawia się **w tej ikonie**, nie w oknie programu.
+        // Polecenie [U] 2026-09-19: ustawienia ikony menu bar mają siedzieć
+        // w opcjach ikony menu bar.
+        Toggle("Menu bar icon without colours",
+               isOn: $configuration.monochromeMenuBarIcon)
+        Divider()
         Button("Quit") { NSApp.terminate(nil) }
     }
 }
