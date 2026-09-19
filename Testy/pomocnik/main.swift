@@ -5,7 +5,8 @@
 //          Change-Boot/DiskUtility.swift Change-Boot/BootSystem.swift \
 //          Change-Boot/BootActions.swift Change-Boot/PrivilegedShell.swift \
 //          Change-Boot/HelperClient.swift Change-Boot/HelperProtocol.swift \
-//          Change-Boot/HelperDaemon.swift Change-Boot/AppBundle.swift && /tmp/test-pomocnik
+//          Change-Boot/HelperDaemon.swift Change-Boot/AppBundle.swift Change-Boot/Polityka.swift \
+//          && /tmp/test-pomocnik
 //
 // Nic tutaj nie restartuje maszyny ani nie instaluje demona: sprawdzane jest to,
 // co da się sprawdzić bez skutków ubocznych — kształt polecenia restartu, sito

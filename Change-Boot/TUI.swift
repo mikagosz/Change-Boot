@@ -76,6 +76,13 @@ enum TUI {
                         wysun(cel)
                     }
                 } else if let cel = wybrany, !czyBiezacy(cel) {
+                    // Odmowa z polityki pada przed pytaniem, nie po nim —
+                    // tak samo jak przy wysuwaniu systemu bieżącego.
+                    guard Polityka.czyWolnoStartowac(cel) else {
+                        stan.komunikat = (BootError.refusedByPolicy(cel.name).localizedDescription,
+                                          Paleta.ostrzezenie)
+                        break
+                    }
                     stan.potwierdzenie = .przelaczenie(cel)
                 }
             case .escape:
@@ -345,9 +352,14 @@ extension TUI {
         w.append(wierszPanelu(""))
 
         let lewo = skroc(opisNosnika(system), do: max(8, wnetrze - 24))
-        let prawo = czyBiezacy(system)
-            ? Paleta.pisak(Paleta.sukces) + "✓ " + CommandLineTool.t("CURRENT")
-            : Paleta.pisak(Paleta.drugi) + "✓ " + CommandLineTool.t("BOOTABLE")
+        let prawo: String
+        if czyBiezacy(system) {
+            prawo = Paleta.pisak(Paleta.sukces) + "✓ " + CommandLineTool.t("CURRENT")
+        } else if !Polityka.czyWolnoStartowac(system) {
+            prawo = Paleta.pisak(Paleta.ostrzezenie) + "⊘ " + CommandLineTool.t("BLOCKED")
+        } else {
+            prawo = Paleta.pisak(Paleta.drugi) + "✓ " + CommandLineTool.t("BOOTABLE")
+        }
         let luz = wnetrze - 4 - lewo.count - Paleta.szerokosc(prawo)
         w.append(wierszPanelu("   " + Paleta.pisak(Paleta.drugi) + lewo
                               + wypelnij(max(1, luz)) + prawo + " "))

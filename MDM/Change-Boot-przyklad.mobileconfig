@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+	Przykładowy profil konfiguracyjny dla Change-Boota.
+
+	🔴 To jest WZORZEC DO PRZEROBIENIA, nie plik do wgrania. Trzy rzeczy trzeba
+	zmienić przed użyciem, inaczej profil albo się nie zainstaluje, albo zablokuje
+	maszynę na złym woluminie:
+
+	  1. Oba klucze PayloadUUID i PayloadIdentifier — mają być własne i unikalne
+	     w organizacji. Wygeneruj: uuidgen
+	  2. AllowedVolumeUUIDs — UUID woluminów tej floty. Odczyt na maszynie:
+	     change-boot list --json  (pole "uuid")
+	  3. OrganizationName — nazwa, którą użytkownik zobaczy w Opcjach przy
+	     zablokowanych przełącznikach.
+
+	Rozwożenie: wgrać przez serwer MDM jako profil poziomu URZĄDZENIA. Profil
+	użytkownika też zadziała, ale reguła bezpieczeństwa założona na jednym koncie
+	nie obowiązuje na drugim.
+-->
+<plist version="1.0">
+<dict>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+	<key>PayloadIdentifier</key>
+	<string>com.example.changeboot.polityka</string>
+	<key>PayloadUUID</key>
+	<string>00000000-0000-0000-0000-000000000001</string>
+	<key>PayloadDisplayName</key>
+	<string>Change-Boot — polityka startowa</string>
+	<key>PayloadDescription</key>
+	<string>Ogranicza woluminy startowe i ustawienia Change-Boota na tej maszynie.</string>
+	<key>PayloadOrganization</key>
+	<string>Przykładowa Pracownia</string>
+	<key>PayloadScope</key>
+	<string>System</string>
+	<key>PayloadRemovalDisallowed</key>
+	<true/>
+
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadType</key>
+			<string>com.apple.ManagedClient.preferences</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>PayloadIdentifier</key>
+			<string>com.example.changeboot.polityka.preferencje</string>
+			<key>PayloadUUID</key>
+			<string>00000000-0000-0000-0000-000000000002</string>
+			<key>PayloadDisplayName</key>
+			<string>Ustawienia Change-Boota</string>
+
+			<key>PayloadContent</key>
+			<dict>
+				<key>com.mikagosz.ChangeBoot</key>
+				<dict>
+					<key>Forced</key>
+					<array>
+						<dict>
+							<key>mcx_preference_settings</key>
+							<dict>
+								<!-- Z tych woluminów wolno wystartować. Pusta tablica
+								     znaczy „bez ograniczenia", NIE „nic nie wolno" —
+								     patrz Polityka.dozwoloneUUID. -->
+								<key>AllowedVolumeUUIDs</key>
+								<array>
+									<string>DD987E99-4992-4E44-8C81-4F17AFD93EBA</string>
+									<string>EDCB296E-FC79-427F-915F-85E5F613D048</string>
+								</array>
+
+								<!-- Przełączenie ma pytać o hasło administratora,
+								     nawet gdy pomocnik jest zainstalowany. -->
+								<key>RequireAdminForSwitch</key>
+								<true/>
+
+								<!-- Widoczne w Opcjach przy zablokowanych przełącznikach. -->
+								<key>OrganizationName</key>
+								<string>Przykładowa Pracownia</string>
+
+								<!-- Ustawienia programu przejęte przez profil.
+								     Każde z nich staje się w Opcjach szare. -->
+								<key>cleanStartByDefault</key>
+								<true/>
+								<key>launchAfterSwitch</key>
+								<true/>
+								<key>showsMenuBarIcon</key>
+								<false/>
+							</dict>
+						</dict>
+					</array>
+				</dict>
+			</dict>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -11,7 +11,8 @@
 //          Change-Boot/AppVersion.swift Change-Boot/Odinstalowanie.swift \
 //          Change-Boot/CommandLineInstall.swift Change-Boot/HelpView.swift \
 //          Change-Boot/CommandLineTool.swift Change-Boot/TUI.swift \
-//          Change-Boot/TUIPaleta.swift Change-Boot/Terminal.swift && /tmp/test-konfiguracja
+//          Change-Boot/TUIPaleta.swift Change-Boot/Terminal.swift \
+//          Change-Boot/Polityka.swift && /tmp/test-konfiguracja
 //
 // Pilnuje reguł, które już raz zostały złamane — patrz komentarze przy sprawdzianach.
 
@@ -107,6 +108,63 @@ sprawdz("niepodłączony dysk nie udaje wykrytego",
         !model.detected.contains { $0.volumeUUID == widmo.volumeUUID })
 
 UserDefaults.standard.removePersistentDomain(forName: suite)
+
+print("\nPolityka — ustawienia narzucone profilem MDM")
+
+// Na tej maszynie żadnego profilu nie ma i mieć nie będzie, więc sprawdzamy to,
+// co da się sprawdzić bez niego: że brak profilu NICZEGO nie blokuje i że sito
+// woluminów działa na podanej liście, a nie na tym, co akurat jest w systemie.
+let atrapaDozwolona = BootSystem(volumeUUID: "AAAA1111-2222-3333-4444-555555555555",
+                                 name: "Dozwolony", productVersion: "27.2",
+                                 mountPoint: "/", deviceIdentifier: "disk9s1",
+                                 isInternal: true)
+sprawdz("bez profilu wolno startować z czegokolwiek",
+        Polityka.czyWolnoStartowac(atrapaDozwolona))
+sprawdz("bez profilu nie ma listy dozwolonych", Polityka.dozwoloneUUID == nil)
+sprawdz("bez profilu nie ma wymuszonego hasła", !Polityka.wymagajHasla)
+sprawdz("bez profilu maszyna nie jest zarządzana", !Polityka.czyZarzadzany)
+sprawdz("bez profilu żadne ustawienie nie jest zablokowane",
+        !Polityka.zarzadzaneUstawienia.contains { Polityka.narzucone($0) })
+
+// 🔴 Kontrola dodatnia: gdyby `narzucone` zwracało fałsz na WSZYSTKO, zera wyżej
+// nic by nie znaczyły. Sprawdzamy więc drugą stronę — klucz, który na pewno
+// istnieje w domenie programu jako ustawienie użytkownika, ma NIE być narzucony,
+// a odczyt wartości ma mimo to działać.
+sprawdz("kontrola — odczyt klucza spoza profilu nie wywraca się",
+        Polityka.bool("zupelnieNieistniejacyKlucz9z9") == nil)
+sprawdz("nazwa domeny polityki to domena programu",
+        (Polityka.domena as String) == (AppBundle.identyfikator ?? "com.mikagosz.ChangeBoot"))
+
+// Klucze profilu są umową z administratorem — literówka w którymkolwiek znaczy
+// cichą utratę reguły, nie błąd. Dlatego stoją w sprawdzianie z nazwy.
+sprawdz("klucz listy dozwolonych ma umówioną nazwę",
+        Polityka.Klucz.dozwolone == "AllowedVolumeUUIDs")
+sprawdz("klucz wymuszonego hasła ma umówioną nazwę",
+        Polityka.Klucz.hasloPrzyPrzelaczeniu == "RequireAdminForSwitch")
+sprawdz("klucz nazwy organizacji ma umówioną nazwę",
+        Polityka.Klucz.organizacja == "OrganizationName")
+sprawdz("profil może przejąć sześć ustawień programu",
+        Polityka.zarzadzaneUstawienia.count == 6)
+
+// 🔴 KONTROLA DODATNIA reguły. Wszystko wyżej to zera na maszynie bez profilu —
+// zero z sita, którego nikt nie zmusił do jedynki, znaczy „nie wiem".
+let lista = ["DD987E99-4992-4E44-8C81-4F17AFD93EBA",
+             "EDCB296E-FC79-427F-915F-85E5F613D048"]
+sprawdz("wolumin Z LISTY przechodzi",
+        Polityka.czyNaLiscie("DD987E99-4992-4E44-8C81-4F17AFD93EBA", dozwolone: lista))
+sprawdz("wolumin SPOZA listy jest odrzucony",
+        !Polityka.czyNaLiscie("11111111-2222-3333-4444-555555555555", dozwolone: lista))
+sprawdz("małe litery w profilu nie przepuszczają cudzego woluminu",
+        Polityka.czyNaLiscie("dd987e99-4992-4e44-8c81-4f17afd93eba", dozwolone: lista))
+sprawdz("małe litery po stronie listy też nie psują reguły",
+        Polityka.czyNaLiscie("DD987E99-4992-4E44-8C81-4F17AFD93EBA",
+                             dozwolone: lista.map { $0.lowercased() }))
+sprawdz("brak listy znaczy: wolno wszystko",
+        Polityka.czyNaLiscie("cokolwiek", dozwolone: nil))
+sprawdz("PUSTA lista też znaczy: wolno wszystko, a nie: nic nie wolno",
+        Polityka.czyNaLiscie("cokolwiek", dozwolone: []))
+sprawdz("pusty UUID nie prześlizguje się przez niepustą listę",
+        !Polityka.czyNaLiscie("", dozwolone: lista))
 
 print("\nSprzątanie osieroconej przegródki — P3-17 z audytu")
 

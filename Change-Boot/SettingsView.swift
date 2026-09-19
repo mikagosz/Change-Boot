@@ -97,24 +97,49 @@ struct SettingsView: View {
         }
     }
 
+    /// Zdanie tłumaczące szare przełączniki. Z nazwą organizacji, gdy profil ją
+    /// podał — „twoja organizacja" bez nazwy brzmi jak wymówka programu.
+    private func zdanieOProfilu() -> String {
+        if let kto = Polityka.organizacja {
+            return String(localized: "Some settings are managed by \(kto) and cannot be changed here.")
+        }
+        return String(localized: "Some settings are managed by a configuration profile and cannot be changed here.")
+    }
+
     var body: some View {
         @Bindable var configuration = model.configuration
 
         Form {
+            // 🔴 Zdanie o profilu stoi NA GÓRZE, przed pierwszym zablokowanym
+            // przełącznikiem, a nie pod nim. Człowiek, który widzi szary
+            // przełącznik i nie wie dlaczego, zgłasza to jako usterkę programu.
+            if Polityka.czyZarzadzany {
+                Section {
+                    Label(zdanieOProfilu(), systemImage: "building.2")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
             Section("Switching") {
                 Toggle("Clean start — do not reopen apps and windows",
                        isOn: $configuration.cleanStartByDefault)
+                    .disabled(configuration.zablokowane(Configuration.Key.cleanStart))
             }
 
             Section("Menu bar icon") {
                 Toggle("Show icon in the menu bar",
                        isOn: $configuration.showsMenuBarIcon)
+                    .disabled(configuration.zablokowane(Configuration.Key.menuBar))
                 Toggle("Menu bar icon without colours",
                        isOn: $configuration.monochromeMenuBarIcon)
-                    .disabled(!configuration.showsMenuBarIcon)
+                    .disabled(!configuration.showsMenuBarIcon
+                              || configuration.zablokowane(Configuration.Key.monoMenuBar))
                 Toggle("Hide the Dock icon when the window is closed",
                        isOn: $configuration.hidesDockIcon)
-                    .disabled(!configuration.showsMenuBarIcon)
+                    .disabled(!configuration.showsMenuBarIcon
+                              || configuration.zablokowane(Configuration.Key.hideDock))
                     .onChange(of: configuration.hidesDockIcon) { _, _ in
                         AppDelegate.aktualizujObecnoscWDocku()
                     }
@@ -142,12 +167,14 @@ struct SettingsView: View {
             Section("Opening Change-Boot") {
                 Toggle("Open Change-Boot when I come back to this system",
                        isOn: $configuration.launchAfterSwitch)
+                    .disabled(configuration.zablokowane(Configuration.Key.launchAfterSwitch))
                 Text("Switching from here sets a one-off login item on this system. Come back to it and Change-Boot is already open, ready to eject the disk you just arrived from. The item removes itself at that start.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Toggle("Open Change-Boot at every login", isOn: $configuration.launchAtLogin)
+                    .disabled(configuration.zablokowane(Configuration.Key.launchAtLogin))
                     .onChange(of: configuration.launchAtLogin) { _, wlaczony in
                         do {
                             try LoginItem.ustaw(wlaczony)

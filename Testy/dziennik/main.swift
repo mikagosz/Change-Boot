@@ -11,6 +11,7 @@
 //          Change-Boot/LoginItem.swift Change-Boot/HelpView.swift \
 //          Change-Boot/Odinstalowanie.swift Change-Boot/CommandLineInstall.swift \
 //          Change-Boot/TUI.swift Change-Boot/TUIPaleta.swift Change-Boot/Terminal.swift \
+//          Change-Boot/Polityka.swift \
 //          && /tmp/test-dziennik
 //
 // Dziennik pisze do WŁASNEGO katalogu tymczasowego, nie do Application Support

@@ -208,6 +208,10 @@ enum CommandLineTool {
         struct Wiersz: Encodable {
             let nazwa: String, uuid: String, dostepny: Bool, biezacy: Bool
             let macOS: String?, urzadzenie: String?, zewnetrzny: Bool?
+            /// Czy profil konfiguracyjny pozwala z tego woluminu wystartować.
+            /// Pole wchodzi do JSON-a zawsze, także bez profilu — skrypt ma
+            /// czytać jedną stałą strukturę, nie zgadywać po obecności klucza.
+            let dozwolony: Bool
         }
 
         let wiersze: [Wiersz] = konfiguracja.entries.map { wpis in
@@ -218,7 +222,10 @@ enum CommandLineTool {
                           biezacy: system?.volumeUUID == biezacy?.volumeUUID,
                           macOS: system?.productVersion,
                           urzadzenie: system?.deviceIdentifier,
-                          zewnetrzny: system.map { !$0.isInternal })
+                          zewnetrzny: system.map { !$0.isInternal },
+                          dozwolony: Polityka.dozwoloneUUID.map {
+                              $0.contains(wpis.volumeUUID.uppercased())
+                          } ?? true)
         }
 
         if opcje.json { return wypiszJSON(wiersze) }
@@ -228,7 +235,8 @@ enum CommandLineTool {
             return .ok
         }
         for w in wiersze {
-            let znacznik = w.biezacy ? t(" ← current") : (w.dostepny ? "" : t("  (not connected)"))
+            var znacznik = w.biezacy ? t(" ← current") : (w.dostepny ? "" : t("  (not connected)"))
+            if !w.dozwolony { znacznik += t("  (blocked by profile)") }
             let opis = w.dostepny ? "macOS \(w.macOS ?? "?") · \(w.urzadzenie ?? "?")" : w.uuid
             print("\(w.nazwa)\(znacznik)\n    \(opis)")
         }

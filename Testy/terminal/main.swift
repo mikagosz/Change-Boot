@@ -11,7 +11,8 @@
 //          Change-Boot/PrivilegedShell.swift Change-Boot/HelperClient.swift \
 //          Change-Boot/HelperProtocol.swift Change-Boot/LoginItem.swift \
 //          Change-Boot/HelpView.swift Change-Boot/Odinstalowanie.swift \
-//          Change-Boot/CommandLineInstall.swift && /tmp/test-terminal
+//          Change-Boot/CommandLineInstall.swift Change-Boot/Polityka.swift \
+//          && /tmp/test-terminal
 //
 // 🔴 Sprawdzian NIE wchodzi w tryb surowy i nie rysuje po ekranie. Bada rzeczy,
 // które da się policzyć: przeliczanie barw, liczenie szerokości i to, czy

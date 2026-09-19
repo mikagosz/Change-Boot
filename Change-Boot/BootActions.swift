@@ -8,6 +8,8 @@ enum BootError: LocalizedError {
     case ejectFailed(disk: String, message: String, blockers: [String])
     case refusedInternalDisk(String)
     case refusedRunningSystem(String)
+    /// Wolumin spoza listy dozwolonej profilem konfiguracyjnym.
+    case refusedByPolicy(String)
     case cancelled
 
     var errorDescription: String? {
@@ -27,6 +29,9 @@ enum BootError: LocalizedError {
             return String(localized: "“\(name)” is on an internal disk and cannot be ejected.")
         case .refusedRunningSystem(let name):
             return String(localized: "“\(name)” is the system you are running from. Switch to another system first.")
+        case .refusedByPolicy(let name):
+            let kto = Polityka.organizacja ?? String(localized: "your organization")
+            return String(localized: "“\(name)” is not on the list of systems allowed by \(kto). Nothing was changed.")
         case .cancelled:
             return nil
         }
@@ -43,8 +48,25 @@ enum BootActions {
     /// więc powrót na poprzedni system nie zostaje zapisany i maszyna przy
     /// kolejnym rozruchu szuka dysku, którego nie ma (`missing-boot-media`).
     static func setStartupDisk(to system: BootSystem) throws {
+        // 🔴 Polityka przed wszystkim innym, także przed sprawdzeniem, czy dysk
+        // jest podpięty: odmowa ma brzmieć tak samo niezależnie od tego, czy
+        // wolumin akurat stoi w maszynie. Inaczej komunikat błędu mówiłby
+        // administratorowi, które zakazane dyski użytkownik ma pod ręką.
+        guard Polityka.czyWolnoStartowac(system) else {
+            throw BootError.refusedByPolicy(system.name)
+        }
         guard FileManager.default.fileExists(atPath: system.mountPoint) else {
             throw BootError.volumeUnavailable(system.name)
+        }
+
+        // Profil może zażądać hasła przy każdym przełączeniu — wtedy pomijamy
+        // pomocnika, choćby stał gotowy. To jest cała treść tej reguły:
+        // przełączenie ma kosztować świadomy gest, a nie jedno kliknięcie.
+        if Polityka.wymagajHasla {
+            let quoted = system.mountPoint.replacingOccurrences(of: "'", with: "'\\''")
+            _ = try PrivilegedShell.run("/usr/sbin/bless --mount '\(quoted)' --setBoot 2>&1")
+            try sprawdzFirmware(system)
+            return
         }
 
         // Najpierw pomocnik: zarejestrowany demon robi to bez pytania o hasło.
@@ -60,7 +82,13 @@ enum BootActions {
             _ = try PrivilegedShell.run("/usr/sbin/bless --mount '\(quoted)' --setBoot 2>&1")
         }
 
-        // Sukces bless-a to za mało: sprawdzamy, na co naprawdę wskazuje firmware.
+        try sprawdzFirmware(system)
+    }
+
+    /// Sukces `bless`-a to za mało: sprawdzamy, na co naprawdę wskazuje firmware.
+    /// Wydzielone, bo obie drogi — przez pomocnika i przez okno hasła — muszą
+    /// kończyć się tym samym sprawdzeniem, a nie każda własną kopią.
+    private static func sprawdzFirmware(_ system: BootSystem) throws {
         let actual = currentStartupDevice()
         let expected = system.deviceIdentifier
         if let actual, actual != expected {

@@ -19,6 +19,23 @@
         }
       }
     },
+    "  (blocked by profile)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "  (blocked by profile)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "  (zablokowany profilem)"
+          }
+        }
+      }
+    },
     "  (not connected)": {
       "extractionState": "manual",
       "localizations": {
@@ -236,6 +253,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Otwarte programy zostaną najpierw zamknięte, więc po restarcie nic nie wróci."
+          }
+        }
+      }
+    },
+    "BLOCKED": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BLOCKED"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ZABLOKOWANY"
           }
         }
       }
@@ -2501,6 +2535,40 @@
         }
       }
     },
+    "Some settings are managed by %@ and cannot be changed here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some settings are managed by %@ and cannot be changed here."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Częścią ustawień zarządza %@ i nie da się ich tutaj zmienić."
+          }
+        }
+      }
+    },
+    "Some settings are managed by a configuration profile and cannot be changed here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some settings are managed by a configuration profile and cannot be changed here."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Częścią ustawień zarządza profil konfiguracyjny i nie da się ich tutaj zmienić."
+          }
+        }
+      }
+    },
     "Startup Disk Manager": {
       "extractionState": "manual",
       "localizations": {
@@ -3912,6 +3980,23 @@
         }
       }
     },
+    "your organization": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your organization"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoja organizacja"
+          }
+        }
+      }
+    },
     "your systems, with a ready command next to each": {
       "extractionState": "manual",
       "localizations": {
@@ -3925,6 +4010,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "twoje systemy i gotowe polecenie przy każdym"
+          }
+        }
+      }
+    },
+    "“%1$@” is not on the list of systems allowed by %2$@. Nothing was changed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” is not on the list of systems allowed by %2$@. Nothing was changed."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” nie jest na liście systemów dozwolonych przez %2$@. Nic nie zostało zmienione."
           }
         }
       }

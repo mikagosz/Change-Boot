@@ -57,25 +57,41 @@ final class Configuration {
         static let armedOnce = "loginItemArmedOnce"
     }
 
+    /// Czy tym ustawieniem rządzi profil konfiguracyjny, a nie użytkownik.
+    /// Opcje wieszają na tym wyłączenie przełącznika — patrz `Polityka`.
+    func zablokowane(_ klucz: String) -> Bool { Polityka.narzucone(klucz) }
+
+    /// Wartość z profilu, a gdy profil milczy — z ustawień użytkownika.
+    ///
+    /// 🔴 Kolejność jest tu całą treścią: profil **wygrywa**. Gdyby było
+    /// odwrotnie, dział IT rozwiózłby regułę na czterdzieści maszyn, a pierwszy
+    /// użytkownik, który kliknął ten przełącznik przed przyjściem profilu,
+    /// zostałby przy swoim ustawieniu i nikt by tego nie zauważył.
+    private static func wartosc(_ klucz: String, _ wlasna: @autoclosure () -> Bool) -> Bool {
+        Polityka.bool(klucz) ?? wlasna()
+    }
+
     init(defaults: UserDefaults = AppBundle.defaults) {
         self.defaults = defaults
         // Ikona w pasku menu domyślnie WYŁĄCZONA: program bywa używany przy
         // nagrywaniu ekranu, gdzie każdy dodatkowy element paska przeszkadza.
-        self.showsMenuBarIcon = defaults.bool(forKey: Key.menuBar)
+        self.showsMenuBarIcon = Self.wartosc(Key.menuBar, defaults.bool(forKey: Key.menuBar))
         // Domyślnie kolorowa: tak wygląda od 0.1.5 i tak została przyjęta.
-        self.monochromeMenuBarIcon = defaults.bool(forKey: Key.monoMenuBar)
+        self.monochromeMenuBarIcon = Self.wartosc(Key.monoMenuBar, defaults.bool(forKey: Key.monoMenuBar))
         // Domyślnie WYŁĄCZONE: zdjęcie programu z Docka to zmiana, której nikt się
         // nie spodziewa po instalacji. Włącza ją użytkownik świadomie.
-        self.hidesDockIcon = defaults.bool(forKey: Key.hideDock)
-        self.cleanStartByDefault = defaults.object(forKey: Key.cleanStart) as? Bool ?? true
+        self.hidesDockIcon = Self.wartosc(Key.hideDock, defaults.bool(forKey: Key.hideDock))
+        self.cleanStartByDefault = Self.wartosc(Key.cleanStart,
+                                                defaults.object(forKey: Key.cleanStart) as? Bool ?? true)
         self.setupCompleted = defaults.bool(forKey: Key.setupDone)
         // Domyślnie WYŁĄCZONY: wpis logowania to zmiana w cudzym systemie
         // i włącza ją użytkownik świadomie.
-        self.launchAtLogin = defaults.bool(forKey: Key.launchAtLogin)
+        self.launchAtLogin = Self.wartosc(Key.launchAtLogin, defaults.bool(forKey: Key.launchAtLogin))
         // Domyślnie WŁĄCZONE, odwrotnie niż autostart: jednorazowe otwarcie po
         // powrocie jest tym, po co w ogóle wraca się na drugi system, a wpis
         // zdejmuje się sam przy najbliższym starcie. Poproszone wprost przez [U].
-        self.launchAfterSwitch = defaults.object(forKey: Key.launchAfterSwitch) as? Bool ?? true
+        self.launchAfterSwitch = Self.wartosc(Key.launchAfterSwitch,
+                                              defaults.object(forKey: Key.launchAfterSwitch) as? Bool ?? true)
 
         if let data = defaults.data(forKey: Key.entries),
            let decoded = try? JSONDecoder().decode([Entry].self, from: data) {
