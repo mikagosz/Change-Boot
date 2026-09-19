@@ -49,10 +49,6 @@ final class HelperListenerDelegate: NSObject, NSXPCListenerDelegate {
 /// Czynności wykonywane z uprawnieniami roota.
 final class HelperService: NSObject, HelperProtocol {
 
-    func version(reply: @escaping (String) -> Void) {
-        reply(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?")
-    }
-
     /// Ustawia dysk startowy. Przychodzi **punkt montowania**, nie polecenie.
     ///
     /// `bless` wołany jest przez `Process` z tablicą argumentów, więc nie ma tu
@@ -96,9 +92,34 @@ final class HelperService: NSObject, HelperProtocol {
     static func isPlausibleMountPoint(_ path: String) -> Bool {
         guard path == "/" || path.hasPrefix("/Volumes/") else { return false }
         guard !path.contains("..") else { return false }
-        var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory),
-              isDirectory.boolValue else { return false }
+
+        // 🔴 Dowiązanie odrzucamy, zanim cokolwiek pójdzie za nim dalej.
+        // Zmierzone na maszynie [U] 2026-09-19: pod `/Volumes` leży
+        // `Macintosh HD -> /`, a `fileExists` nie odróżnia go od katalogu.
+        // `lstat` nie idzie za dowiązaniem, `stat` by poszedł.
+        var opis = stat()
+        guard lstat(path, &opis) == 0 else { return false }
+        guard opis.st_mode & S_IFMT == S_IFDIR else { return false }
+
+        // 🔴 Ścieżka ma **być** punktem montowania, nie leżeć pod nim.
+        // `statfs` oddaje punkt montowania woluminu, w którym ścieżka siedzi;
+        // gdy to nie jest to samo, dostaliśmy zwykły katalog na czymś innym.
+        // To zdejmuje cały pomysł „użytkownik montuje własny obraz i podaje
+        // w nim podkatalog" bez sprawdzania czegokolwiek po nazwie.
+        var system = statfs()
+        guard statfs(path, &system) == 0 else { return false }
+        let punkt = withUnsafeBytes(of: &system.f_mntonname) { bufor -> String in
+            guard let poczatek = bufor.baseAddress else { return "" }
+            return String(cString: poczatek.assumingMemoryBound(to: CChar.self))
+        }
+        guard punkt == path else { return false }
+
+        // 🔴 Tylko wolumin miejscowy. Zmierzone u [U]: pod `/Volumes` stoją dwa
+        // udziały SMB „mounted by maczek". `bless` na udziale sieciowym nie ma
+        // sensu, a najgorszy przypadek to maszyna wskazująca po restarcie
+        // na wolumin, którego nie ma.
+        guard system.f_flags & UInt32(MNT_LOCAL) != 0 else { return false }
+
         return true
     }
 }

@@ -53,13 +53,89 @@ sprawdz("nieistniejąca ścieżka odrzucona",
         !HelperService.isPlausibleMountPoint("/Volumes/Nie ma takiego dysku 4f1a"))
 sprawdz("plik zamiast katalogu odrzucony",
         !HelperService.isPlausibleMountPoint("/etc/hosts"))
+
+// 🔴 P2-11 z audytu. Sito do 0.2.12 przyjmowało wszystko pod `/Volumes`, co
+// istnieje i jest katalogiem — a `fileExists` nie odróżnia dowiązania, udziału
+// sieciowego ani podkatalogu na cudzym woluminie. Poniższe przypadki są wzięte
+// z prawdziwej maszyny, nie wymyślone: `Macintosh HD -> /` i udziały SMB
+// „mounted by maczek" stoją tam na co dzień.
+
+/// Punkty montowania widziane przez system, z podziałem na miejscowe i resztę.
+func zamontowane() -> (miejscowe: [String], sieciowe: [String]) {
+    var bufor: UnsafeMutablePointer<statfs>?
+    let ile = getmntinfo(&bufor, MNT_NOWAIT)
+    guard ile > 0, let lista = bufor else { return ([], []) }
+    var miejscowe: [String] = [], sieciowe: [String] = []
+    for i in 0..<Int(ile) {
+        var wpis = lista[i]
+        let punkt = withUnsafeBytes(of: &wpis.f_mntonname) { b -> String in
+            guard let p = b.baseAddress else { return "" }
+            return String(cString: p.assumingMemoryBound(to: CChar.self))
+        }
+        guard punkt.hasPrefix("/Volumes/") else { continue }
+        if wpis.f_flags & UInt32(MNT_LOCAL) != 0 { miejscowe.append(punkt) }
+        else { sieciowe.append(punkt) }
+    }
+    return (miejscowe, sieciowe)
+}
+
+let punkty = zamontowane()
+print("  miejscowe pod /Volumes: \(punkty.miejscowe)")
+print("  sieciowe pod /Volumes:  \(punkty.sieciowe)")
+
 // Kontrola dodatnia sita: coś, co NA PEWNO przechodzi, musi przejść — inaczej
 // wszystkie zera wyżej znaczyłyby „sito zwraca fałsz na wszystko".
-sprawdz("kontrola dodatnia — istniejący katalog w /Volumes przechodzi", {
-    let sciezki = (try? FileManager.default.contentsOfDirectory(atPath: "/Volumes")) ?? []
-    guard let pierwszy = sciezki.first else { return true }
-    return HelperService.isPlausibleMountPoint("/Volumes/\(pierwszy)")
-}())
+// 🔴 KAŻDY miejscowy punkt montowania ma przejść, nie tylko pierwszy z brzegu.
+// Zaostrzone sito, które przepuszcza `Recovery`, a odrzuca `Mac Lab`, byłoby
+// gorsze od poprzedniego — a różnicy nie widać, dopóki sprawdza się jeden wpis.
+if punkty.miejscowe.isEmpty {
+    print("  ⚠ brak podpiętego woluminu miejscowego — kontrola dodatnia POMINIĘTA")
+    pominiete += 1
+}
+for miejscowy in punkty.miejscowe {
+    sprawdz("kontrola dodatnia — miejscowy punkt montowania przechodzi (\(miejscowy))",
+            HelperService.isPlausibleMountPoint(miejscowy))
+}
+
+for udzial in punkty.sieciowe {
+    sprawdz("udział sieciowy odrzucony (\(udzial))",
+            !HelperService.isPlausibleMountPoint(udzial))
+}
+if punkty.sieciowe.isEmpty {
+    print("  ⚠ brak podpiętego udziału sieciowego — sprawdzenie POMINIĘTE")
+    pominiete += 1
+}
+
+// Dowiązanie. Jeśli akurat nie ma go pod ręką, robimy własne w katalogu
+// tymczasowym — poza `/Volumes`, więc sito i tak je odrzuci po prefiksie;
+// prawdziwy przypadek `/Volumes/Macintosh HD` sprawdzamy tylko wtedy, gdy jest.
+if let dowiazanie = (try? FileManager.default.contentsOfDirectory(atPath: "/Volumes"))?
+    .map({ "/Volumes/\($0)" })
+    .first(where: { (try? FileManager.default.destinationOfSymbolicLink(atPath: $0)) != nil }) {
+    sprawdz("dowiązanie pod /Volumes odrzucone (\(dowiazanie))",
+            !HelperService.isPlausibleMountPoint(dowiazanie))
+} else {
+    print("  ⚠ brak dowiązania pod /Volumes — sprawdzenie POMINIĘTE")
+    pominiete += 1
+}
+
+// Podkatalog na prawdziwym woluminie: istnieje, jest katalogiem, leży pod
+// `/Volumes` — i ma NIE przejść, bo nie jest punktem montowania.
+if let miejscowy = punkty.miejscowe.first,
+   let podkatalog = (try? FileManager.default.contentsOfDirectory(atPath: miejscowy))?
+       .map({ "\(miejscowy)/\($0)" })
+       .first(where: { sciezka in
+           var czyKatalog: ObjCBool = false
+           return FileManager.default.fileExists(atPath: sciezka, isDirectory: &czyKatalog)
+               && czyKatalog.boolValue
+               && (try? FileManager.default.destinationOfSymbolicLink(atPath: sciezka)) == nil
+       }) {
+    sprawdz("podkatalog na woluminie odrzucony (\(podkatalog))",
+            !HelperService.isPlausibleMountPoint(podkatalog))
+} else {
+    print("  ⚠ brak podkatalogu do sprawdzenia — POMINIĘTE")
+    pominiete += 1
+}
 
 print("\nWymaganie podpisu")
 

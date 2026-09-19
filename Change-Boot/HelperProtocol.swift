@@ -69,7 +69,7 @@ enum HelperTrust {
     /// Odpowiedź: kod wyjścia `bless` i jego wyjście tekstowe.
     func setStartupDisk(mountPoint: String, reply: @escaping (Int32, String) -> Void)
 
-    /// Wersja pomocnika. Służy do sprawdzenia, czy zarejestrowany demon nie jest
-    /// starszy od programu, który się z nim łączy.
-    func version(reply: @escaping (String) -> Void)
+    // 🔴 Nic więcej. Każda metoda tego protokołu jest czymś, co da się wywołać
+    // na demonie roota, więc nieużywana metoda z niego wychodzi. `version()`
+    // stało tu do 0.2.12 i nikt go nigdy nie zawołał (P2-14 z audytu).
 }
