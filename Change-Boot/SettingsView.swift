@@ -24,6 +24,47 @@ struct SettingsView: View {
     @State private var helperStatus = HelperClient.statusDescription
     @State private var helperFailure: String?
     @State private var busy = false
+    @State private var zdarzenia: [EventLog.Entry] = []
+
+    private var formater: DateFormatter {
+        let f = DateFormatter()
+        f.dateStyle = .short
+        f.timeStyle = .short
+        return f
+    }
+
+    private func ikona(_ skutek: EventLog.Skutek) -> String {
+        switch skutek {
+        case .udane:     return "checkmark.circle.fill"
+        case .nieudane:  return "xmark.circle.fill"
+        case .anulowane: return "minus.circle.fill"
+        }
+    }
+
+    private func kolor(_ skutek: EventLog.Skutek) -> Color {
+        switch skutek {
+        case .udane:     return .green
+        case .nieudane:  return .red
+        case .anulowane: return .secondary
+        }
+    }
+
+    /// Zdanie po ludzku, nie surowe pola zapisu.
+    private func opis(_ wpis: EventLog.Entry) -> String {
+        let zrodlo = wpis.zrodlo == .wierszPolecen ? " (wiersz poleceń)" : ""
+        switch wpis.czynnosc {
+        case .przelaczenie:
+            let cel = wpis.naSystem ?? "?"
+            let czysty = (wpis.czystyStart ?? false) ? ", czysty start" : ""
+            return "Przełączenie na „\(cel)”\(czysty)\(zrodlo)"
+        case .wysuniecie:
+            return "Wysunięcie „\(wpis.naSystem ?? "?")”\(zrodlo)"
+        case .instalacjaPomocnika:
+            return "Instalacja pomocnika\(zrodlo)"
+        case .usunieciePomocnika:
+            return "Usunięcie pomocnika\(zrodlo)"
+        }
+    }
 
     var body: some View {
         @Bindable var configuration = model.configuration
@@ -83,9 +124,9 @@ struct SettingsView: View {
                         Button("Open System Settings") { HelperClient.openLoginItemsSettings() }
                     }
                     if HelperClient.isReady {
-                        Button("Remove helper") { run(HelperClient.uninstall) }
+                        Button("Remove helper") { run(HelperClient.uninstall, czynnosc: .usunieciePomocnika) }
                     } else {
-                        Button("Install helper") { run(HelperClient.install) }
+                        Button("Install helper") { run(HelperClient.install, czynnosc: .instalacjaPomocnika) }
                     }
                 }
                 .disabled(busy)
@@ -98,8 +139,40 @@ struct SettingsView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
+
+            Section("History") {
+                if zdarzenia.isEmpty {
+                    Text("Nothing has happened yet. Switching a disk, ejecting one or installing the helper all leave a note here.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    ForEach(Array(zdarzenia.enumerated()), id: \.offset) { _, wpis in
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Image(systemName: ikona(wpis.skutek))
+                                .foregroundStyle(kolor(wpis.skutek))
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(opis(wpis))
+                                Text(formater.string(from: wpis.czas))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+
+                HStack {
+                    Spacer()
+                    Button("Show the log file") {
+                        NSWorkspace.shared.activateFileViewerSelecting([EventLog.plik])
+                    }
+                    .disabled(zdarzenia.isEmpty)
+                }
+            }
         }
         .formStyle(.grouped)
+        .task { zdarzenia = EventLog.ostatnie(6) }
         .alert("Change-Boot", isPresented: Binding(
             get: { helperFailure != nil },
             set: { if !$0 { helperFailure = nil } })) {
@@ -109,12 +182,16 @@ struct SettingsView: View {
         }
     }
 
-    private func run(_ action: @escaping () throws -> Void) {
+    private func run(_ action: @escaping () throws -> Void,
+                     czynnosc: EventLog.Czynnosc) {
         busy = true
         do {
             try action()
+            EventLog.zapisz(czynnosc, skutek: .udane, zrodlo: .okno)
         } catch {
             helperFailure = error.localizedDescription
+            EventLog.zapisz(czynnosc, skutek: .nieudane, zrodlo: .okno,
+                            szczegol: error.localizedDescription)
         }
         // Stan po rejestracji potrafi wejść z opóźnieniem — odczytujemy go z
         // `SMAppService`, a nie zakładamy, że skoro nie rzuciło, to jest włączony.

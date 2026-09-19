@@ -665,6 +665,23 @@
         }
       }
     },
+    "History": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historia"
+          }
+        }
+      }
+    },
     "How Change-Boot works": {
       "extractionState": "manual",
       "localizations": {
@@ -882,6 +899,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Niezainstalowany — macOS pyta o hasło przy każdym przełączeniu"
+          }
+        }
+      }
+    },
+    "Nothing has happened yet. Switching a disk, ejecting one or installing the helper all leave a note here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing has happened yet. Switching a disk, ejecting one or installing the helper all leave a note here."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeszcze nic się nie wydarzyło. Przełączenie dysku, wysunięcie go i instalacja pomocnika zostawiają tutaj ślad."
           }
         }
       }
@@ -1358,6 +1392,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pokaż ikonę w pasku menu"
+          }
+        }
+      }
+    },
+    "Show the log file": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the log file"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaż plik dziennika"
           }
         }
       }

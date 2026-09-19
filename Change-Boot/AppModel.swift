@@ -106,16 +106,26 @@ final class AppModel {
                 let oporne = BootActions.closeUserApps()
                 if !oporne.isEmpty {
                     failure = String(localized: "These apps did not close: \(oporne.joined(separator: ", ")).\n\nThey probably have unsaved work. Deal with them and switch again — the startup disk is already set.")
+                    EventLog.zapisz(.przelaczenie, skutek: .nieudane, z: current, na: system,
+                                    czystyStart: cleanStart, zrodlo: .okno,
+                                    szczegol: "nie zamknęły się: \(oporne.joined(separator: ", "))")
                     busy = false
                     return
                 }
             }
 
+            EventLog.zapisz(.przelaczenie, skutek: .udane, z: current, na: system,
+                            czystyStart: cleanStart, zrodlo: .okno)
             try BootActions.restart()
         } catch BootError.cancelled {
             // Użytkownik zamknął okno hasła — nic się nie stało.
+            EventLog.zapisz(.przelaczenie, skutek: .anulowane, z: current, na: system,
+                            czystyStart: cleanStart, zrodlo: .okno)
         } catch {
             failure = error.localizedDescription
+            EventLog.zapisz(.przelaczenie, skutek: .nieudane, z: current, na: system,
+                            czystyStart: cleanStart, zrodlo: .okno,
+                            szczegol: error.localizedDescription)
         }
         busy = false
     }
@@ -126,9 +136,12 @@ final class AppModel {
         failure = nil
         do {
             try BootActions.eject(system)
+            EventLog.zapisz(.wysuniecie, skutek: .udane, na: system, zrodlo: .okno)
             refresh()
         } catch {
             failure = error.localizedDescription
+            EventLog.zapisz(.wysuniecie, skutek: .nieudane, na: system, zrodlo: .okno,
+                            szczegol: error.localizedDescription)
         }
         busy = false
     }
