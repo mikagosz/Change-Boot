@@ -1,101 +1,112 @@
-# Change-Boot
+<p align="center">
+  <img src="docs/assets/changeboot-icon.png" width="160" alt="Change-Boot app icon">
+</p>
 
-Przełącznik systemu startowego dla macOS. Wybierasz, z której instalacji macOS ma
-wystartować Mac, i klikasz raz — program sam sprawdza, czy firmware faktycznie
-przyjął zmianę, i dopiero wtedy uruchamia maszynę ponownie.
+## Change-Boot
 
-Powstał pod konkretną potrzebę: drugi, czysty system na zewnętrznym dysku, do
-testowania programów bez cudzych ustawień i do nagrywania materiałów.
+**Pick the macOS you boot into, in one click.**
+A startup disk switcher for macOS that verifies the firmware actually took the
+change before it restarts the Mac.
 
-## Co robi
+[![macOS 26+](https://img.shields.io/badge/macOS-26%2B-000000?logo=apple&logoColor=white)](https://www.apple.com/macos)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-- **Przełącza system startowy** i weryfikuje wynik. Gdy `bless` melduje sukces,
-  a firmware nadal wskazuje stary dysk, restart **nie następuje** — inaczej Mac
-  wystartowałby nie z tego systemu.
-- **Czysty start**: programy i okna sprzed restartu nie wracają. Działa to na
-  dwóch rzeczach naraz i obie są konieczne — ustawieniu `TALLogoutSavesState`
-  oraz restarcie z parametrem `state saving preference`.
-- **Wysuwa cały nośnik**, nie sam wolumin. Finder zostawia zamontowany ukryty
-  wolumin danych i po wyciągnięciu wtyczki macOS zgłasza złe odmontowanie.
-- **Pamięta systemy po UUID woluminu**, nie po nazwie. Zmiana nazwy dysku niczego
-  nie psuje, a odpięty dysk zostaje na liście jako niedostępny.
-- **Wiersz poleceń** — te same czynności ze skryptu albo z harmonogramu, z ustalonymi
-  kodami wyjścia i wyjściem JSON. Samo `change-boot` otwiera widok pełnoekranowy
-  obsługiwany strzałkami; każdy czasownik idzie zwykłym tekstem i ma nietknięte
-  kody wyjścia.
-- **Dziennik zdarzeń** — co, kiedy, przez kogo i z jakim skutkiem.
-- Polski i angielski, do przełączenia w programie.
+Built for a specific need: a second, clean macOS install on an external disk, for
+testing apps without anyone else's settings and for recording material.
 
-## Czego wymaga
+> Interface language: Polish and English, switchable in the app.
+
+---
+
+## What it does
+
+- **Switches the startup disk and verifies the result.** When `bless` reports
+  success but the firmware still points at the old disk, the restart **does not
+  happen** — otherwise the Mac would come back up from the wrong system.
+- **Clean start.** Apps and windows from before the restart do not return. This
+  takes two things at once and both are required: the `TALLogoutSavesState`
+  setting, and restarting with the state saving preference.
+- **Ejects the whole device, not just the volume.** Finder leaves the hidden data
+  volume mounted, and after you pull the cable macOS reports a bad unmount.
+- **Remembers systems by volume UUID, not by name.** Renaming a disk breaks
+  nothing, and a disconnected disk stays on the list as unavailable.
+- **Command line** — the same operations from a script or a scheduler, with fixed
+  exit codes and JSON output. Plain `change-boot` opens a full-screen view driven
+  by the arrow keys; every verb works as plain text with its exit codes untouched.
+- **Event log** — what happened, when, by whom, and with what result.
+
+## Requirements
 
 | | |
 |---|---|
-| System | macOS 26 lub nowszy |
-| Procesor | **Apple Silicon — sprawdzone.** Binarka jest uniwersalna i kod kompiluje się pod Intela, ale `bless`, T2 i Startup Security na prawdziwym Intelu **nie zostały sprawdzone** |
-| Uprawnienia | administrator — raz przy instalacji pomocnika albo przy każdym przełączeniu, jeśli pomocnika nie zainstalujesz. Z okna pyta systemowe okno hasła, z terminala `sudo` w tym samym oknie |
-| Podpis | **lokalny certyfikat.** U obcego Gatekeeper poprosi o pierwsze wpuszczenie ręcznie |
+| System | macOS 26 or newer |
+| Processor | **Apple Silicon — verified.** The binary is universal and the code compiles for Intel, but `bless`, T2 and Startup Security have **not been verified** on real Intel hardware |
+| Privileges | administrator — once when installing the helper, or on every switch if you do not install it. From the window the system password prompt asks; from the terminal, `sudo` in the same shell |
+| Signature | **local certificate.** On someone else's Mac, Gatekeeper will ask to allow it the first time |
 
-> [!warning] Na Apple Silicon pierwsze pobłogosławienie woluminu może wymagać
-> danych administratora — mówi to wprost `man bless`. Kolejne mogą iść same.
-> Nie licz więc na w pełni bezobsługowe przełączanie za pierwszym razem.
+> [!warning]
+> On Apple Silicon the first blessing of a volume can require administrator
+> credentials — `man bless` says so outright. Later ones may go through on their
+> own. Do not count on fully unattended switching the first time.
 
-## Co program zakłada poza sobą
+## What it installs outside itself
 
-To jest najważniejsza sekcja tego pliku. Change-Boot instaluje **trzy rzeczy poza
-własnym pakietem** i żadnej z nich nie rusza Kosz:
+This is the most important section of this file. Change-Boot installs **three
+things outside its own bundle**, and the Trash removes none of them:
 
-| Co | Gdzie | Czyje | Kiedy powstaje |
+| What | Where | Owner | Created when |
 |---|---|---|---|
-| Pomocnik (demon) | launchd, domena systemowa | **root** | „Zainstaluj pomocnika" w Opcjach |
-| `change-boot` | `/usr/local/bin` (dowiązanie) | `root:wheel` | „Zainstaluj polecenie" w Opcjach |
-| Wpis logowania | Ustawienia → Obiekty logowania | użytkownika | autostart albo „otwórz po powrocie" |
+| Helper (daemon) | launchd, system domain | **root** | "Install helper" in Options |
+| `change-boot` | `/usr/local/bin` (symlink) | `root:wheel` | "Install command" in Options |
+| Login item | Settings → Login Items | the user | autostart, or "open after coming back" |
 
-Program **nie rusza** niczego poza tym. W szczególności nie dotyka ustawień systemu
-innych niż `TALLogoutSavesState`, nie zagląda do prywatnych magazynów `loginwindow`
-i nie wysyła niczego przez sieć — zero połączeń sieciowych, zero telemetrii,
-zero raportowania awarii.
+The app touches **nothing else**. In particular it does not change system settings
+other than `TALLogoutSavesState`, does not read the private `loginwindow` stores,
+and sends nothing over the network — no connections, no telemetry, no crash
+reporting.
 
-Ustawienia i dziennik zdarzeń leżą w:
+Settings and the event log live in:
 
 ```
 ~/Library/Preferences/com.mikagosz.ChangeBoot.plist
 ~/Library/Application Support/Change-Boot/
 ```
 
-## Jak to odinstalować
+## Uninstalling
 
-🔴 **Zrób to, zanim przeciągniesz ikonę do Kosza.** Po skasowaniu programu zostaje
-zarejestrowany demon roota wskazujący w pustkę i dowiązanie, którego nie skasujesz
-bez hasła.
+🔴 **Do this before you drag the icon to the Trash.** Deleting the app leaves a
+registered root daemon pointing at nothing, and a symlink you cannot remove
+without a password.
 
-Z okna: **Opcje → Odinstalowanie Change-Boota → „Zdejmij wszystko, co zainstalowane"**.
+From the window: **Options → Uninstall Change-Boot → "Remove everything it
+installed"**.
 
-Z terminala — działa także wtedy, gdy okna już nie otworzysz:
+From the terminal — this also works once the window no longer opens:
 
 ```bash
 change-boot uninstall
 ```
 
-Oba sposoby zdejmują pomocnika, polecenie i wpis logowania, a **ustawienia
-i dziennik zostawiają nietknięte** — to twoje dane, nie śmieci po programie.
-Skasujesz je ręcznie, jeśli chcesz; ścieżki są wypisywane po sprzątaniu.
+Both remove the helper, the command and the login item, and **leave settings and
+the log untouched** — those are your data, not leftovers. Delete them by hand if
+you want to; the paths are printed after the cleanup.
 
-Gdyby program zniknął, zanim posprzątałeś, zostaje droga ręczna:
+If the app is gone before you cleaned up, the manual route remains:
 
 ```bash
 sudo rm /usr/local/bin/change-boot
 ```
 
-Demona zdejmuje się wtedy w Ustawieniach systemowych → Ogólne → Obiekty logowania,
-w pozycji Change-Boota.
+The daemon is then removed in System Settings → General → Login Items, under the
+Change-Boot entry.
 
-## Wiersz poleceń
+## Command line
 
 ```bash
-change-boot                       # widok pełnoekranowy, do obsługi strzałkami
-change-boot --plain               # to samo zwykłym tekstem
-change-boot list                  # skonfigurowane systemy i ich dostępność
-change-boot current               # gdzie jesteś i skąd wystartuje firmware
+change-boot                       # full-screen view, driven by the arrow keys
+change-boot --plain               # the same as plain text
+change-boot list                  # configured systems and their availability
+change-boot current               # where you are and where the firmware will boot from
 change-boot switch "Mac Lab" --restart
 change-boot eject "Mac Lab"
 change-boot log --limit 50 --json
@@ -103,58 +114,64 @@ change-boot uninstall
 change-boot help
 ```
 
-Kody wyjścia są **umową ze skryptami** i nie zmieniają znaczenia:
+Exit codes are a **contract with scripts** and do not change meaning:
 
-| Kod | Znaczy |
+| Code | Means |
 |---|---|
-| 0 | zrobione |
-| 1 | błąd |
-| 2 | złe użycie |
-| 3 | nie ma takiego woluminu |
-| 4 | firmware nie przyjął celu — restartu nie było |
-| 5 | anulowane przez użytkownika |
+| 0 | done |
+| 1 | error |
+| 2 | bad usage |
+| 3 | no such volume |
+| 4 | the firmware did not take the target — no restart happened |
+| 5 | cancelled by the user |
 
-Polecenie instaluje się w Opcjach programu; bez niego działa pełna ścieżka do
-binarki we wnętrzu pakietu.
+The command is installed from the app's Options; without it, the full path to the
+binary inside the bundle works.
 
-## Budowanie i pakowanie
+## Building and packaging
 
 ```bash
 ./spakuj.sh
 ```
 
-🔴 **Nie pakuj przez zwykłe `xcodebuild … build`.** Produkt zależy od **akcji**,
-nie od konfiguracji — oba polecenia mówią „Release" i dają co innego:
+🔴 **Do not package with a plain `xcodebuild … build`.** The product depends on the
+**action**, not the configuration — both commands say "Release" and produce
+different things:
 
 | | `build` | `archive` |
 |---|---|---|
-| architektura | tylko `arm64` | `x86_64 arm64` |
-| uprawnienia | z `get-task-allow` | czyste |
+| architecture | `arm64` only | `x86_64 arm64` |
+| entitlements | with `get-task-allow` | clean |
 
-`get-task-allow` pozwala podpiąć debugger do działającego programu. W programie,
-który rozmawia z demonem roota, to jest droga do roota dla każdego procesu na
-koncie użytkownika. `spakuj.sh` używa `archive` i sprawdza po fakcie pięć rzeczy:
-architekturę, brak `get-task-allow`, obecność uprawnienia Apple Events, Hardened
-Runtime i spójność podpisu. Paczka nie wychodzi, jeśli któraś kontrola padnie.
+`get-task-allow` lets a debugger attach to the running app. In an app that talks to
+a root daemon, that is a path to root for any process on the user's account.
+`spakuj.sh` uses `archive` and checks five things afterwards: architecture, absence
+of `get-task-allow`, presence of the Apple Events entitlement, Hardened Runtime,
+and signature consistency. The package does not come out if any check fails.
 
-## Sprawdziany
+## Tests
 
-Headless, przez `swiftc`, bez frameworków testowych i bez atrap — czytają prawdziwe
-dyski tej maszyny, bo sprawdzane jest właśnie to, czy odczyt zgadza się
-z rzeczywistością. Polecenie budowania każdego stoi w nagłówku jego `main.swift`.
+Headless, through `swiftc`, with no test framework and no mocks — they read the
+real disks of this machine, because what is being checked is exactly whether the
+reading matches reality. The build command for each one sits in the header of its
+`main.swift`.
 
 ```
-Testy/wykrywanie     dyski, woluminy, odróżnianie Cryptexów od systemów
-Testy/konfiguracja   lista, kolory, trwałość wpisu odpiętego dysku
-Testy/pomocnik       kształt restartu, sito punktów montowania, zgodność podpisu
-Testy/dziennik       zapis i odczyt, równoległość, rozbiór argumentów
-Testy/terminal       przeliczanie barw, szerokości panelu, umiejscowienie klatki
+Testy/wykrywanie     disks, volumes, telling Cryptexes apart from systems
+Testy/konfiguracja   the list, colours, persistence of a disconnected disk entry
+Testy/pomocnik       shape of the restart, mount point sieve, signature match
+Testy/dziennik       writing and reading, concurrency, argument parsing
+Testy/terminal       colour conversion, panel widths, frame placement
 ```
 
-Bez podłączonego dysku zewnętrznego część sprawdzianów jest **jawnie pomijana**,
-nie zaliczana po cichu.
+Without an external disk connected, some checks are **explicitly skipped**, not
+quietly passed.
 
-## Licencja
+## Licence
 
-Jeszcze nieustalona. Do czasu wyboru program nie jest udostępniany na żadnej
-licencji otwartej.
+The **source code** is MIT — see [LICENSE](LICENSE).
+
+The **app icon is not**. `Change-Boot/change-boot icon.icon/` is Copyright (c) 2026
+mikagosz, all rights reserved, and is excluded from the MIT grant — see
+[NOTICE](NOTICE). It ships with the repository so the project builds as it is
+shipped; if you fork this project, replace it with your own icon.
