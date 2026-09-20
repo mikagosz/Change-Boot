@@ -8,6 +8,7 @@
 A startup disk switcher for macOS that verifies the firmware actually took the
 change before it restarts the Mac.
 
+[![Xcode 27+](https://img.shields.io/badge/Xcode-27%2B-147EFB?logo=xcode&logoColor=white)](https://developer.apple.com/xcode/)
 [![macOS 26+](https://img.shields.io/badge/macOS-26%2B-000000?logo=apple&logoColor=white)](https://www.apple.com/macos)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -40,6 +41,7 @@ testing apps without anyone else's settings and for recording material.
 | | |
 |---|---|
 | System | macOS 26 or newer |
+| Build | Xcode 27 (`LastUpgradeCheck = 2700` in the project) |
 | Processor | **Apple Silicon — verified.** The binary is universal and the code compiles for Intel, but `bless`, T2 and Startup Security have **not been verified** on real Intel hardware |
 | Privileges | administrator — once when installing the helper, or on every switch if you do not install it. From the window the system password prompt asks; from the terminal, `sudo` in the same shell |
 | Signature | **local certificate.** On someone else's Mac, Gatekeeper will ask to allow it the first time |
