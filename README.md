@@ -19,6 +19,18 @@ testing apps without anyone else's settings and for recording material.
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/assets/changeboot-window.png" width="820" alt="The Change-Boot window listing startup systems, with the menu bar icon's menu open">
+</p>
+
+<p align="center">
+  <img src="docs/assets/changeboot-terminal.png" width="820" alt="The full-screen view in Terminal next to the app's Options, showing the command line, uninstalling and the event log">
+</p>
+
+---
+
 ## What it does
 
 - **Switches the startup disk and verifies the result.** When `bless` reports
