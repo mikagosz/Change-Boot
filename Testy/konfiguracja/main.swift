@@ -12,7 +12,8 @@
 //          Change-Boot/CommandLineInstall.swift Change-Boot/HelpView.swift \
 //          Change-Boot/CommandLineTool.swift Change-Boot/TUI.swift \
 //          Change-Boot/TUIPaleta.swift Change-Boot/Terminal.swift \
-//          Change-Boot/Polityka.swift && /tmp/test-konfiguracja
+//          Change-Boot/Polityka.swift Change-Boot/Kondycja.swift \
+//          && /tmp/test-konfiguracja
 //
 // Pilnuje reguł, które już raz zostały złamane — patrz komentarze przy sprawdzianach.
 

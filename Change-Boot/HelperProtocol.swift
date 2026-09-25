@@ -51,10 +51,36 @@ enum HelperNames {
 /// > Zmiana certyfikatu = zmiana tej stałej. Odcisk bierze się z
 /// > `codesign -d -r- Change-Boot.app`, nie z `security find-identity -v`
 /// > (ta opcja filtruje do zaufanych i lokalnego certyfikatu nie pokazuje).
+///
+/// > [!danger] 🔴 Sam certyfikat to za mało — audyt SBW 2026-09-24, B-P1-01
+/// > Do 0.2.20 wymaganie brzmiało „ten identyfikator i ten certyfikat”. Spełniała je
+/// > każda stara paczka z `App zip/` (0.2.2 bez Hardened Runtime, z `get-task-allow`,
+/// > czyli z drzwiami do wstrzyknięcia kodu), każdy build Debug i dowolny program,
+/// > który ktoś tym certyfikatem podpisał. Dziś dochodzą dwa warunki:
+/// > - **numer builda co najmniej `minimalnyBuild`** — wycina wszystkie wcześniejsze
+/// >   wydania. Pomocnik jest tą samą binarką co program, więc aktualizacja programu
+/// >   podnosi obie strony naraz;
+/// > - **brak `get-task-allow`** — wycina buildy Debug.
+/// >
+/// > Program, który sam się podpisze certyfikatem i wpisze sobie wysoki numer, dalej
+/// > przejdzie — przed tym chroni dopiero dostęp do klucza prywatnego (do decyzji właściciela projektu).
+/// > Dlatego pomocnik sam sprawdza też politykę MDM (`HelperService.politykaPozwala`).
+///
+/// > ⚠️ `>=` w języku wymagań porównuje **liczby**, nie napisy — zmierzone 2026-09-24
+/// > `codesign -v -R` na próbnych paczkach: próg 41 odrzuca 5, 9 i 40, przepuszcza 41,
+/// > 100 i 400 (przy porównaniu napisów „9” i „5” by przeszły). `Testy/pomocnik`
+/// > sprawdza wymaganie na zbudowanym programie. Podnosząc próg, podnoś go do builda,
+/// > który ma wejść.
 enum HelperTrust {
+    /// Pierwszy build z tym wymaganiem (0.2.21). Nie podnosić bez potrzeby: każdy
+    /// wyższy próg odcina od pomocnika wszystkie wcześniejsze kopie programu.
+    static let minimalnyBuild = 41
+
     static let requirement = """
         identifier "com.mikagosz.ChangeBoot" \
-        and certificate leaf = H"85c274e1928b36d546b36b8462a879e6a97bfc22"
+        and certificate leaf = H"85c274e1928b36d546b36b8462a879e6a97bfc22" \
+        and info["CFBundleVersion"] >= "\(minimalnyBuild)" \
+        and !(entitlement["com.apple.security.get-task-allow"] exists)
         """
 }
 

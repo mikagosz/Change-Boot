@@ -61,6 +61,11 @@ final class HelperService: NSObject, HelperProtocol {
             reply(-1, "Refused mount point.")
             return
         }
+        guard Self.politykaPozwala(mountPoint) else {
+            HelperDaemon.log.error("odmowa z polityki MDM")
+            reply(-1, "Refused by policy.")
+            return
+        }
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/bless")
@@ -82,6 +87,29 @@ final class HelperService: NSObject, HelperProtocol {
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         HelperDaemon.log.notice("bless zakończony kodem \(process.terminationStatus, privacy: .public)")
         reply(process.terminationStatus, text)
+    }
+
+    /// Polityka MDM sprawdzana **także tutaj**, po stronie roota.
+    ///
+    /// Do 0.2.20 `AllowedVolumeUUIDs` i `RequireAdminForSwitch` egzekwował wyłącznie
+    /// program — starsza kopia (0.2.2–0.2.16 nie zna `Polityka`) rozmawiała z tym samym
+    /// pomocnikiem i reguły profilu znikały. Audyt SBW 2026-09-24, B-P1-01.
+    ///
+    /// Root czyta profil z poziomu urządzenia (`/Library/Managed Preferences/<domena>`),
+    /// bo tam `CFPreferencesCopyAppValue` go szuka. Profil przypisany tylko do jednego
+    /// użytkownika pomocnik **pominie** — egzekwuje go wtedy jedynie program.
+    static func politykaPozwala(_ mountPoint: String) -> Bool {
+        // Profil żąda hasła przy każdym przełączeniu — program w takim razie w ogóle
+        // nie woła pomocnika, więc wywołanie tutaj przyszło od kopii, która profilu
+        // nie zna.
+        if Polityka.wymagajHasla { return false }
+        guard let dozwolone = Polityka.dozwoloneUUID else { return true }
+        guard let uuid = try? URL(fileURLWithPath: mountPoint, isDirectory: true)
+            .resourceValues(forKeys: [.volumeUUIDStringKey]).volumeUUIDString else {
+            // Lista jest, a UUID nie da się ustalić — nie wiadomo, czy wolno.
+            return false
+        }
+        return Polityka.czyNaLiscie(uuid, dozwolone: dozwolone)
     }
 
     /// Sito na to, co wolno podać jako cel.

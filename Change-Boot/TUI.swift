@@ -172,18 +172,24 @@ enum TUI {
         // TUI nie byłoby go w ogóle widać, a człowiek patrzyłby na zamrożony
         // rysunek i zastanawiał się, co program robi.
         //
-        // 🔴 Pytamy `czyOdpowiada()`, a nie `isReady`. `isReady` to odpowiedź
-        // rejestru: na maszynie [U] mówił „jest", a pomocnik nie wstawał i i tak
-        // kończyło się hasłem — tyle że nad rysunkiem, bez wyjścia z trybu surowego.
-        let zHaslem = Polityka.wymagajHasla || !HelperClient.czyOdpowiada()
-        if zHaslem { Terminal.przywroc() }
+        // 🔴 Decyduje **faktyczna droga**, nie zgadywanie z góry. Do 0.2.20 pytaliśmy
+        // `czyOdpowiada()` przed przełączeniem: gdy pomocnik odpowiedział na dowód
+        // życia, a właściwe wywołanie padło (termin 15 s, zerwane połączenie),
+        // `setStartupDisk` schodził na `sudo` w trybie surowym, nad rysunkiem.
+        // Audyt SBW 2026-09-24, S-P3-03. Teraz tryb surowy schodzi dokładnie przed
+        // drogą z hasłem, jakkolwiek do niej doszło.
+        var zHaslem = false
         defer { if zHaslem { Terminal.wejdzWTrybSurowy() } }
 
         let konfiguracja = Configuration()
         let czysty = konfiguracja.cleanStartByDefault
         do {
             let przyjeta = BootActions.setWindowRestore(!czysty)
-            try BootActions.setStartupDisk(to: system)
+            if try BootActions.ustawBezHasla(system) == .potrzebneHaslo {
+                zHaslem = true
+                Terminal.przywroc()
+                try BootActions.ustawZHaslem(system)
+            }
             if czysty && !przyjeta {
                 let oporne = BootActions.closeUserApps()
                 if !oporne.isEmpty {

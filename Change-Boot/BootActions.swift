@@ -48,6 +48,29 @@ enum BootActions {
     /// więc powrót na poprzedni system nie zostaje zapisany i maszyna przy
     /// kolejnym rozruchu szuka dysku, którego nie ma (`missing-boot-media`).
     static func setStartupDisk(to system: BootSystem) throws {
+        switch try ustawBezHasla(system) {
+        case .ustawione: break
+        case .potrzebneHaslo: try ustawZHaslem(system)
+        }
+    }
+
+    /// Wynik części, która nie pyta człowieka o nic.
+    enum DrogaBezHasla {
+        /// Pomocnik ustawił dysk i firmware to potwierdził.
+        case ustawione
+        /// Trzeba zapytać o hasło — pomocnika nie ma, milczy albo profil tak każe.
+        case potrzebneHaslo
+    }
+
+    /// Wszystko, co da się zrobić **bez okna hasła**: polityka, obecność woluminu,
+    /// pomocnik i sprawdzenie firmware. Bez AppKit — wolno to wołać w tle.
+    ///
+    /// Rozdzielone od `ustawZHaslem` w 0.2.21: okno wołało całość na wątku głównym,
+    /// a w środku jest dowód życia pomocnika (do 2 s), czekanie na odpowiedź (do 15 s)
+    /// i `bless --info`. Okno stało, śmigło w stopce się nie kręciło.
+    /// Audyt SBW 2026-09-24, W-P2-01. Okno hasła (`NSAppleScript`) zostaje na
+    /// wątku głównym — dlatego to dwie funkcje, a nie jedna w tle.
+    static func ustawBezHasla(_ system: BootSystem) throws -> DrogaBezHasla {
         // 🔴 Polityka przed wszystkim innym, także przed sprawdzeniem, czy dysk
         // jest podpięty: odmowa ma brzmieć tak samo niezależnie od tego, czy
         // wolumin akurat stoi w maszynie. Inaczej komunikat błędu mówiłby
@@ -62,11 +85,7 @@ enum BootActions {
         // Profil może zażądać hasła przy każdym przełączeniu — wtedy pomijamy
         // pomocnika, choćby stał gotowy. To jest cała treść tej reguły:
         // przełączenie ma kosztować świadomy gest, a nie jedno kliknięcie.
-        if Polityka.wymagajHasla {
-            try PrivilegedShell.ustawDyskStartowy(mountPoint: system.mountPoint)
-            try sprawdzFirmware(system)
-            return
-        }
+        if Polityka.wymagajHasla { return .potrzebneHaslo }
 
         // Najpierw pomocnik: zarejestrowany demon robi to bez pytania o hasło.
         // Dopiero gdy go nie ma albo milczy, zostaje pytanie o hasło — w oknie
@@ -79,9 +98,17 @@ enum BootActions {
             // pytać o hasło i próbować drugi raz tego samego.
             throw BootError.blessFailed("bless (\(code))\n\(output)")
         } catch {
-            try PrivilegedShell.ustawDyskStartowy(mountPoint: system.mountPoint)
+            return .potrzebneHaslo
         }
 
+        try sprawdzFirmware(system)
+        return .ustawione
+    }
+
+    /// Droga z hasłem administratora — okno systemowe albo `sudo` w terminalu.
+    /// W oknie programu: **na wątku głównym**.
+    static func ustawZHaslem(_ system: BootSystem) throws {
+        try PrivilegedShell.ustawDyskStartowy(mountPoint: system.mountPoint)
         try sprawdzFirmware(system)
     }
 

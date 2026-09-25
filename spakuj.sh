@@ -23,20 +23,22 @@
 set -e
 cd "${0:A:h}"
 
-ARCHIWUM=/tmp/cb-pakowanie/Change-Boot.xcarchive
-rm -rf /tmp/cb-pakowanie
-mkdir -p /tmp/cb-pakowanie
+# Katalog roboczy z `mktemp -d`, nie stała ścieżka w /tmp: stały katalog mogło
+# wcześniej założyć inne konto na tym Macu, a leży w nim podpisana paczka.
+# Audyt SBW 2026-09-24, B-P3-02.
+ROBOCZY=$(mktemp -d /tmp/cb-pakowanie.XXXXXX)
+ARCHIWUM="$ROBOCZY/Change-Boot.xcarchive"
 
 echo "▸ Archiwizacja (to ona daje binarkę uniwersalną i czyste uprawnienia)"
 xcodebuild -project Change-Boot.xcodeproj -scheme Change-Boot \
-           -configuration Release -derivedDataPath /tmp/cb-pakowanie/dd \
-           archive -archivePath "$ARCHIWUM" > /tmp/cb-pakowanie/build.log 2>&1 \
-  || { echo "✗ Archiwizacja padła — log: /tmp/cb-pakowanie/build.log"; exit 1; }
+           -configuration Release -derivedDataPath "$ROBOCZY/dd" \
+           archive -archivePath "$ARCHIWUM" > "$ROBOCZY/build.log" 2>&1 \
+  || { echo "✗ Archiwizacja padła — log: $ROBOCZY/build.log"; exit 1; }
 
 APP="$ARCHIWUM/Products/Applications/Change-Boot.app"
 WERSJA=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist")
-CEL="/tmp/Change-Boot-$WERSJA"
-rm -rf "$CEL"; mkdir -p "$CEL"
+CEL="$ROBOCZY/Change-Boot-$WERSJA"
+mkdir -p "$CEL"
 cp -R "$APP" "$CEL/"
 
 echo "▸ Kontrole — każda musi przejść, inaczej paczka nie wychodzi"

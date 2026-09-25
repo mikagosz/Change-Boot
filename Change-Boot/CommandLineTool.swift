@@ -48,6 +48,10 @@ enum CommandLineTool {
 
     /// Kody wyjścia. Ustalone, bo od nich zależy `if` w cudzym skrypcie —
     /// zmiana znaczenia którejkolwiek liczby psuje automatyzację po stronie klienta.
+    /// Najwięcej wpisów, o które wolno poprosić `log --limit`. Dziennik trzyma ich
+    /// dużo mniej; granica jest tylko po to, żeby liczba nie przepełniła rachunku.
+    static let maksLimit = 100_000
+
     enum Kod: Int32 {
         case ok = 0
         case blad = 1
@@ -187,7 +191,10 @@ enum CommandLineTool {
                         bledny = bledny ?? "--limit"
                         break
                     }
-                    guard let liczba = Int(argumenty[i]), liczba > 0 else {
+                    // Górna granica: `EventLog.przeczytaj` liczy `ile * 2`, więc liczba
+                    // powyżej `Int.max / 2` zabijała proces sygnałem zamiast kodu 2.
+                    // Audyt SBW 2026-09-24, S-P3-01.
+                    guard let liczba = Int(argumenty[i]), liczba > 0, liczba <= maksLimit else {
                         bledny = bledny ?? "--limit \(argumenty[i])"
                         break
                     }
@@ -291,6 +298,17 @@ enum CommandLineTool {
         let konfiguracja = Configuration()
         let czysty = opcje.czystyStart ?? konfiguracja.cleanStartByDefault
         let skad = SystemScanner.current()
+
+        // System, z którego Mac właśnie chodzi: okno, menu paska i TUI go nie
+        // proponują, wiersz poleceń go przyjmował. `bless` na `/` przechodził, ale
+        // weryfikacja porównywała `disk3s1` z firmware z `disk3s1s1` (migawka)
+        // i kończyła się fałszywym „Mac would have booted the wrong system”, kod 4.
+        // Audyt SBW 2026-09-24, S-P3-02 — wariant „odmowa”, jak w pozostałych widokach.
+        if let skad, system.volumeUUID == skad.volumeUUID {
+            print(t("“\(system.name)” is the system you are running from — nothing to switch. Nothing was changed."))
+            print(t("The firmware will start from: /dev/\(BootActions.currentStartupDevice() ?? "?")"))
+            return .ok
+        }
 
         if opcje.proba {
             print(t("Dry run — nothing was changed."))
@@ -489,6 +507,13 @@ enum CommandLineTool {
 
     // MARK: - Pomocnicze
 
+    /// Napis jako jeden argument powłoki: w apostrofach, a każdy apostrof w środku
+    /// jako `'\''` (zamknij, apostrof dosłownie, otwórz). W apostrofach `zsh` i `bash`
+    /// nie rozwijają niczego — ani `$`, ani `;`, ani lewych apostrofów.
+    static func cytujDlaPowloki(_ tekst: String) -> String {
+        "'" + tekst.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
+
     /// Szuka po UUID, a dopiero potem po nazwie — UUID jest jednoznaczny, nazwa nie.
     private static func znajdz(_ cel: String) -> BootSystem? {
         let wykryte = SystemScanner.scan()
@@ -547,7 +572,10 @@ enum CommandLineTool {
             if system.volumeUUID == biezacy?.volumeUUID {
                 print("  ● \(wyrownana)  " + t("← you are here"))
             } else {
-                print("  ○ \(wyrownana)  change-boot switch '\(nazwa)' --restart")
+                // Nazwa w podpowiedzi idzie do powłoki tego, kto ją wklei — apostrof
+                // w nazwie dysku („Mike's SSD”, albo spreparowany) rozrywał cudzysłów.
+                // Audyt SBW 2026-09-24, B-P3-01.
+                print("  ○ \(wyrownana)  change-boot switch \(cytujDlaPowloki(nazwa)) --restart")
             }
         }
 

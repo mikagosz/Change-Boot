@@ -158,19 +158,41 @@ final class AppModel {
 
     // MARK: - Działania
 
+    /// Przełącza dysk startowy i restartuje.
+    ///
+    /// Część bez okna hasła idzie **w tle**, tak jak wysuwanie: pomocnik ma do 15 s
+    /// na odpowiedź, a do 0.2.20 całość stała na wątku głównym i okno zamierało.
+    /// Okno hasła, zamykanie programów i restart zostają na wątku głównym.
+    /// Audyt SBW 2026-09-24, W-P2-01.
     func switchTo(_ system: BootSystem, cleanStart: Bool) {
         guard !busy else { return }
         busy = true
         failure = nil
-        do {
-            // Czysty start stoi na dwóch rzeczach naraz: preferencji ustawionej tutaj
-            // i na tym, że `restart()` idzie z parametrem `state saving preference`.
-            // Samo ustawienie preferencji nic nie daje — zmierzone 2026-09-19.
-            let preferencjaPrzyjeta = BootActions.setWindowRestore(!cleanStart)
 
+        // Czysty start stoi na dwóch rzeczach naraz: preferencji ustawionej tutaj
+        // i na tym, że `restart()` idzie z parametrem `state saving preference`.
+        // Samo ustawienie preferencji nic nie daje — zmierzone 2026-09-19.
+        let preferencjaPrzyjeta = BootActions.setWindowRestore(!cleanStart)
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let droga = Result { try BootActions.ustawBezHasla(system) }
+            DispatchQueue.main.async {
+                self?.dokonczPrzelaczenie(system, cleanStart: cleanStart,
+                                          preferencjaPrzyjeta: preferencjaPrzyjeta, droga: droga)
+            }
+        }
+    }
+
+    private func dokonczPrzelaczenie(_ system: BootSystem, cleanStart: Bool,
+                                     preferencjaPrzyjeta: Bool,
+                                     droga: Result<BootActions.DrogaBezHasla, Error>) {
+        do {
             // Dysk startowy ustawiamy PRZED zamykaniem programów: gdyby bless się nie
             // udał albo użytkownik cofnął hasło, nikt nie traci otwartej pracy.
-            try BootActions.setStartupDisk(to: system)
+            switch try droga.get() {
+            case .ustawione: break
+            case .potrzebneHaslo: try BootActions.ustawZHaslem(system)
+            }
 
             // Droga awaryjna: preferencja się nie zapisała, więc zamykamy programy
             // ręcznie. Zamknięty program nie ma jak wrócić, cokolwiek loginwindow

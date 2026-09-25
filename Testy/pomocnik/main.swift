@@ -197,6 +197,33 @@ if let program = zbudowanyProgram() {
     pomin("zgodność wymagania podpisu z codesign", "brak zbudowanego programu w DerivedData")
 }
 
+/// `codesign -v -R=<wymaganie>` — czy paczka spełnia **całe** wymaganie pomocnika.
+func spelniaWymaganie(_ program: String) -> Bool {
+    let proces = Process()
+    proces.executableURL = URL(fileURLWithPath: "/usr/bin/codesign")
+    proces.arguments = ["-v", "-R=\(HelperTrust.requirement)", program]
+    proces.standardOutput = FileHandle.nullDevice
+    proces.standardError = FileHandle.nullDevice
+    guard (try? proces.run()) != nil else { return false }
+    proces.waitUntilExit()
+    return proces.terminationStatus == 0
+}
+
+print("\nWymaganie pomocnika na zbudowanych paczkach — B-P1-01 z audytu SBW 2026-09-24")
+// Build Release podaje się zmienną, bo sprawdzian nie wie, gdzie go zbudowano:
+//   CHANGEBOOT_RELEASE=<ścieżka>/Change-Boot.app /tmp/test-pomocnik
+if let wydanie = ProcessInfo.processInfo.environment["CHANGEBOOT_RELEASE"] {
+    sprawdz("Release z bieżącego kodu spełnia wymaganie pomocnika", spelniaWymaganie(wydanie))
+} else {
+    pomin("Release spełnia wymaganie pomocnika", "brak CHANGEBOOT_RELEASE")
+}
+// Kontrola ujemna: Debug niesie `get-task-allow` i ma zostać odrzucony.
+if let debug = zbudowanyProgram() {
+    sprawdz("build Debug (get-task-allow) NIE spełnia wymagania pomocnika", !spelniaWymaganie(debug))
+} else {
+    pomin("Debug odrzucony przez wymaganie", "brak zbudowanego programu w DerivedData")
+}
+
 print("\nWybór roli demona — P1-07 z audytu 2026-09-19")
 
 // 🔴 Do 0.2.8 rozstrzygało `arguments.contains("--helper")`, więc rola demona

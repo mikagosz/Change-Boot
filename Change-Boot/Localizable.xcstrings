@@ -4473,6 +4473,23 @@
         }
       }
     },
+    "“%@” is the system you are running from — nothing to switch. Nothing was changed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” is the system you are running from — nothing to switch. Nothing was changed."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” to system, z którego Mac właśnie chodzi — nie ma na co przełączać. Nic nie zostało zmienione."
+          }
+        }
+      }
+    },
     "“%@” is the system you are running from. Switch to another system first.": {
       "extractionState": "manual",
       "localizations": {
