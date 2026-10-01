@@ -21,9 +21,15 @@ enum UpdateSetting {
 /// Only the windowed role starts this. The helper daemon and the command line leave `main.swift`
 /// before `ChangeBootApp` runs, so neither of them ever asks the server.
 ///
-/// The helper is replaced together with the app: it is the same binary, launchd starts it on
-/// demand from `Contents/MacOS/Change-Boot` inside this bundle, and it exits when there is no one
-/// to talk to — so the next switch after the restart already talks to the new version.
+/// 🔴 The helper does NOT come along with the update. Its registration stays with the bundle it
+/// was made from: the old daemon process keeps serving until the Mac restarts (it never exits on
+/// its own), and after the restart launchd cannot start the new binary (`spawn failed`,
+/// `copy_bundle_path … Invalid or missing Program`). Re-registering it automatically was tried
+/// and dropped — right after unregistering macOS refuses (`Job is not allowed to bootstrap`), and
+/// later it lands in "requires approval", because without a Team ID a new binary is a new item.
+/// Measured 2026-10-02 on macOS 27.2, updating 0.2.22 (42) → 0.2.23 (43) and 0.2.24 → 0.2.25.
+/// So the update window and Options tell the user to remove and install the helper again; until
+/// then switching falls back to the password prompt (`BootActions`).
 ///
 /// Crash reporting stays off (`reportingOptIn: false`): a report carries stack paths, and a path
 /// under `/Users/<name>/` gives the account name away.
@@ -290,7 +296,7 @@ struct UpdateView: View {
             }
             .frame(maxHeight: 110)
         }
-        Text("The app downloads the new version, checks it, replaces itself and restarts. Your settings, the helper and the change-boot command stay.")
+        Text("The app downloads the new version, checks it, replaces itself and restarts. Your settings and the change-boot command stay. After the update, install the helper again: Options → Password → Remove helper, then Install helper. Until then Change-Boot asks for your password on every switch.")
             .font(.callout).foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
         state

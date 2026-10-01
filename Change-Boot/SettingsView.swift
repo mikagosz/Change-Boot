@@ -248,6 +248,10 @@ struct SettingsView: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                Text("After every update of Change-Boot, remove the helper and install it again — the old one stays tied to the previous version and stops answering after the next restart. macOS may ask you to allow it in System Settings → General → Login Items.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 HStack(spacing: 6) {
                     Image(systemName: HelperClient.isReady ? "lock.open" : "lock")

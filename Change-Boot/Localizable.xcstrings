@@ -257,6 +257,23 @@
         }
       }
     },
+    "After every update of Change-Boot, remove the helper and install it again — the old one stays tied to the previous version and stops answering after the next restart. macOS may ask you to allow it in System Settings → General → Login Items.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After every update of Change-Boot, remove the helper and install it again — the old one stays tied to the previous version and stops answering after the next restart. macOS may ask you to allow it in System Settings → General → Login Items."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Po każdej aktualizacji Change-Boot usuń pomocnika i zainstaluj go ponownie — stary zostaje przypięty do poprzedniej wersji i po najbliższym restarcie przestaje odpowiadać. macOS może poprosić o zgodę w Ustawieniach systemowych → Ogólne → Obiekty logowania."
+          }
+        }
+      }
+    },
     "Apps and windows from this session will not come back.": {
       "extractionState": "manual",
       "localizations": {
@@ -3215,19 +3232,19 @@
         }
       }
     },
-    "The app downloads the new version, checks it, replaces itself and restarts. Your settings, the helper and the change-boot command stay.": {
+    "The app downloads the new version, checks it, replaces itself and restarts. Your settings and the change-boot command stay. After the update, install the helper again: Options → Password → Remove helper, then Install helper. Until then Change-Boot asks for your password on every switch.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The app downloads the new version, checks it, replaces itself and restarts. Your settings, the helper and the change-boot command stay."
+            "value": "The app downloads the new version, checks it, replaces itself and restarts. Your settings and the change-boot command stay. After the update, install the helper again: Options → Password → Remove helper, then Install helper. Until then Change-Boot asks for your password on every switch."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Program pobierze nową wersję, sprawdzi ją, podmieni się i uruchomi ponownie. Ustawienia, pomocnik i polecenie change-boot zostają."
+            "value": "Program pobierze nową wersję, sprawdzi ją, podmieni się i uruchomi ponownie. Ustawienia i polecenie change-boot zostają. Po aktualizacji zainstaluj pomocnika ponownie: Opcje → Hasło → Usuń pomocnika, potem Zainstaluj pomocnika. Do tego czasu Change-Boot pyta o hasło przy każdym przełączeniu."
           }
         }
       }

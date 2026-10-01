@@ -86,9 +86,17 @@ Restart**, **Skip This Version** or a manual download; nothing installs until yo
 click, and not while a disk is being switched or ejected. The check runs on
 [ErrorUpdate](https://github.com/mikagosz/ErrorUpdate) 1.0.1 with crash reporting
 off; the installer checks the package's SHA-256 and requires the new app to meet
-the running one's code signature requirement. The helper is the app's own binary,
-started on demand from inside the bundle, so it is replaced together with the app.
-Switch and **Check Now** in Options → Updates.
+the running one's code signature requirement. Switch and **Check Now** in
+Options → Updates.
+
+**After every update, install the helper again:** Options → Password → *Remove
+helper*, then *Install helper*. The helper's registration stays tied to the version
+it was installed from; the old helper keeps working until the Mac restarts, and after
+that launchd can no longer start it, so Change-Boot falls back to asking for your
+password on every switch. macOS may ask you to allow the helper again in System
+Settings → General → Login Items — the app is signed without an Apple Team ID, so a
+new version counts as a new background item. Re-registering it automatically was
+tried and does not work reliably.
 
 Settings and the event log live in:
 
