@@ -38,10 +38,14 @@ struct RootView: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        if model.configuration.setupCompleted {
-            ContentView()
-        } else {
-            SetupView()
+        Group {
+            if model.configuration.setupCompleted {
+                ContentView()
+            } else {
+                SetupView()
+            }
         }
+        // Restart po aktualizacji nie może przerwać przełączania ani wysuwania.
+        .onAppear { Updates.shared.isBusy = { [model] in model.busy } }
     }
 }

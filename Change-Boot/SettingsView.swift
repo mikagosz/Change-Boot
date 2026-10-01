@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 import ServiceManagement
 
@@ -28,6 +29,8 @@ struct SettingsView: View {
     @State private var helperFailure: String?
     @State private var busy = false
     @State private var historia: EventLog.Odczyt = .pusty
+    @AppStorage(UpdateSetting.checkUpdates) private var sprawdzajAktualizacje = true
+    @ObservedObject private var aktualizacje = Updates.shared
     @State private var pytanieOOdinstalowanie = false
     @State private var wynikOdinstalowania: String?
     @State private var stanPolecenia = CommandLineInstall.opisStanu
@@ -102,6 +105,11 @@ struct SettingsView: View {
 
     /// Zdanie tłumaczące szare przełączniki. Z nazwą organizacji, gdy profil ją
     /// podał — „twoja organizacja" bez nazwy brzmi jak wymówka programu.
+    private var ostatnieSprawdzenie: String {
+        guard let data = aktualizacje.lastCheck else { return String(localized: "Not checked yet") }
+        return String(localized: "Last: \(data.formatted(date: .abbreviated, time: .shortened))")
+    }
+
     private func zdanieOProfilu() -> String {
         if let kto = Polityka.organizacja {
             return String(localized: "Some settings are managed by \(kto) and cannot be changed here.")
@@ -217,6 +225,22 @@ struct SettingsView: View {
                         Button("Restart Change-Boot") { AppLanguage.relaunch() }
                     }
                 }
+            }
+
+            Section("Updates") {
+                Toggle("Check for updates once a month", isOn: $sprawdzajAktualizacje)
+                    .onChange(of: sprawdzajAktualizacje) { _, wlaczone in aktualizacje.enabled = wlaczone }
+                HStack {
+                    Text(ostatnieSprawdzenie).foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Check Now") {
+                        Task { await aktualizacje.check(manually: true) }
+                    }
+                }
+                Text("The app asks fractal8.eu for the number of the newest version — it sends nothing else. A new version installs only when you click “Install”.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Section("Password") {

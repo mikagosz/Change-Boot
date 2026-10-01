@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B10000000000000000000E1A /* ErrorUpdate in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000E2A /* ErrorUpdate */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		B1000000000000000000003A /* Change-Boot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Change-Boot.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B10000000000000000000E1A /* ErrorUpdate in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,6 +71,7 @@
 			);
 			name = "Change-Boot";
 			packageProductDependencies = (
+				B10000000000000000000E2A /* ErrorUpdate */,
 			);
 			productName = "Change-Boot";
 			productReference = B1000000000000000000003A /* Change-Boot.app */;
@@ -96,6 +102,9 @@
 			);
 			mainGroup = B1000000000000000000005A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B10000000000000000000E3A /* XCRemoteSwiftPackageReference "ErrorUpdate" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B1000000000000000000006A /* Products */;
 			projectDirPath = "";
@@ -241,7 +250,7 @@
 				CODE_SIGN_IDENTITY = 85C274E1928B36D546B36B8462A879E6A97BFC22;
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 41;
+				CURRENT_PROJECT_VERSION = 42;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -255,7 +264,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.2.21;
+				MARKETING_VERSION = 0.2.22;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mikagosz.ChangeBoot;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -272,7 +281,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 41;
+				CURRENT_PROJECT_VERSION = 42;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -286,7 +295,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.2.21;
+				MARKETING_VERSION = 0.2.22;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mikagosz.ChangeBoot;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -316,6 +325,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B10000000000000000000E3A /* XCRemoteSwiftPackageReference "ErrorUpdate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mikagosz/ErrorUpdate.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B10000000000000000000E2A /* ErrorUpdate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B10000000000000000000E3A /* XCRemoteSwiftPackageReference "ErrorUpdate" */;
+			productName = ErrorUpdate;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B1000000000000000000001A /* Project object */;
 }

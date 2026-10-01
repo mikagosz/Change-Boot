@@ -289,6 +289,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // na zawsze: przyczyny nie ma od 0.2.3, ale plik sam nie zniknie.
         Odinstalowanie.sprzatnijOsieroconaPrzegrodke()
 
+        // Aktualizacje z wnętrza programu — tylko w roli okienkowej; demon i wiersz
+        // poleceń wychodzą z `main.swift`, zanim dojdzie tutaj.
+        Updates.shared.start()
+
         for nazwa in [NSWindow.willCloseNotification, NSWindow.didBecomeMainNotification] {
             NotificationCenter.default.addObserver(forName: nazwa, object: nil, queue: .main) { _ in
                 // `willClose` leci ZANIM okno zniknie z `NSApp.windows`, więc licząc

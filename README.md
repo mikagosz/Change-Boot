@@ -78,8 +78,17 @@ things outside its own bundle**, and the Trash removes none of them:
 
 The app touches **nothing else**. In particular it does not change system settings
 other than `TALLogoutSavesState`, does not read the private `loginwindow` stores,
-and sends nothing over the network — no connections, no telemetry, no crash
-reporting.
+and has no telemetry and no crash reporting. Its one network request is the update
+check: once a month the app (never the helper or the command line) asks
+`downloads.fractal8.eu/Change-Boot/api/error-update/version-check` for the newest
+version number and sends nothing else. A newer version offers **Install and
+Restart**, **Skip This Version** or a manual download; nothing installs until you
+click, and not while a disk is being switched or ejected. The check runs on
+[ErrorUpdate](https://github.com/mikagosz/ErrorUpdate) 1.0.1 with crash reporting
+off; the installer checks the package's SHA-256 and requires the new app to meet
+the running one's code signature requirement. The helper is the app's own binary,
+started on demand from inside the bundle, so it is replaced together with the app.
+Switch and **Check Now** in Options → Updates.
 
 Settings and the event log live in:
 

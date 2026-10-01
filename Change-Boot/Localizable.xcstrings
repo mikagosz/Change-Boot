@@ -172,6 +172,23 @@
         }
       }
     },
+    "A newer version is available": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A newer version is available"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jest nowsza wersja"
+          }
+        }
+      }
+    },
     "Add": {
       "extractionState": "manual",
       "localizations": {
@@ -495,6 +512,23 @@
         }
       }
     },
+    "Change-Boot is switching or ejecting a disk — the restart would cut that off. Click again when it finishes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot is switching or ejecting a disk — the restart would cut that off. Click again when it finishes."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot przełącza albo wysuwa dysk — restart by to przerwał. Kliknij ponownie, gdy skończy."
+          }
+        }
+      }
+    },
     "Change-Boot needs administrator rights to set the startup disk.": {
       "extractionState": "manual",
       "localizations": {
@@ -546,6 +580,23 @@
         }
       }
     },
+    "Change-Boot — Update": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot — Update"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot — Aktualizacja"
+          }
+        }
+      }
+    },
     "Changing the startup disk needs administrator rights. Install the helper once and Change-Boot stops asking for your password on every switch.": {
       "extractionState": "manual",
       "localizations": {
@@ -559,6 +610,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zmiana dysku startowego wymaga uprawnień administratora. Zainstaluj pomocnika raz, a Change-Boot przestanie pytać o hasło przy każdym przełączeniu."
+          }
+        }
+      }
+    },
+    "Check Now": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Now"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprawdź teraz"
+          }
+        }
+      }
+    },
+    "Check for updates once a month": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for updates once a month"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprawdzaj aktualizacje raz w miesiącu"
           }
         }
       }
@@ -627,6 +712,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Czysty start: tak — otwarte okna by nie wróciły."
+          }
+        }
+      }
+    },
+    "Close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknij"
           }
         }
       }
@@ -733,6 +835,23 @@
         }
       }
     },
+    "Could not check for updates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not check for updates"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się sprawdzić aktualizacji"
+          }
+        }
+      }
+    },
     "Could not create the log folder.\n\n%@": {
       "extractionState": "manual",
       "localizations": {
@@ -767,6 +886,23 @@
         }
       }
     },
+    "Could not download the new version.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not download the new version."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się pobrać nowej wersji."
+          }
+        }
+      }
+    },
     "Could not eject %@.\n\n%@%@\n\nDo NOT unplug the disk — it is still mounted.": {
       "extractionState": "manual",
       "localizations": {
@@ -780,6 +916,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nie udało się wysunąć %@.\n\n%@%@\n\nNIE WYPINAJ dysku — nadal jest zamontowany."
+          }
+        }
+      }
+    },
+    "Could not install the new version. The app keeps running the current one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not install the new version. The app keeps running the current one."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się zainstalować nowej wersji. Program działa dalej w obecnej."
           }
         }
       }
@@ -882,6 +1035,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gotowe. Możesz przenieść Change-Boota do Kosza — ustawienia i dziennik zdarzeń zostają tam, gdzie były."
+          }
+        }
+      }
+    },
+    "Download manually and replace it yourself": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download manually and replace it yourself"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pobierz ręcznie i podmień sam"
+          }
+        }
+      }
+    },
+    "Downloading and verifying the package…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading and verifying the package…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pobieram i sprawdzam paczkę…"
           }
         }
       }
@@ -1294,6 +1481,23 @@
         }
       }
     },
+    "Install and Restart": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install and Restart"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zainstaluj i uruchom ponownie"
+          }
+        }
+      }
+    },
     "Install helper": {
       "extractionState": "manual",
       "localizations": {
@@ -1362,6 +1566,23 @@
         }
       }
     },
+    "Installing — the app will restart in a moment…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installing — the app will restart in a moment…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instaluję — za chwilę program uruchomi się ponownie…"
+          }
+        }
+      }
+    },
     "Language": {
       "extractionState": "manual",
       "localizations": {
@@ -1375,6 +1596,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Język"
+          }
+        }
+      }
+    },
+    "Last: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostatnio: %@"
           }
         }
       }
@@ -1630,6 +1868,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Brak skonfigurowanych systemów"
+          }
+        }
+      }
+    },
+    "Not checked yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not checked yet"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeszcze nie sprawdzano"
           }
         }
       }
@@ -2705,6 +2960,23 @@
         }
       }
     },
+    "Skip This Version": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip This Version"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomiń tę wersję"
+          }
+        }
+      }
+    },
     "Some settings are managed by %@ and cannot be changed here.": {
       "extractionState": "manual",
       "localizations": {
@@ -2926,6 +3198,57 @@
         }
       }
     },
+    "The app asks fractal8.eu for the number of the newest version — it sends nothing else. A new version installs only when you click “Install”.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app asks fractal8.eu for the number of the newest version — it sends nothing else. A new version installs only when you click “Install”."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Program pyta stronę fractal8.eu o numer najnowszej wersji — nic więcej nie wysyła. Nowa wersja instaluje się dopiero, gdy klikniesz „Zainstaluj”."
+          }
+        }
+      }
+    },
+    "The app downloads the new version, checks it, replaces itself and restarts. Your settings, the helper and the change-boot command stay.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app downloads the new version, checks it, replaces itself and restarts. Your settings, the helper and the change-boot command stay."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Program pobierze nową wersję, sprawdzi ją, podmieni się i uruchomi ponownie. Ustawienia, pomocnik i polecenie change-boot zostają."
+          }
+        }
+      }
+    },
+    "The app sits where it cannot be overwritten (e.g. opened straight from Downloads). Move it to the Applications folder or download the new version manually.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app sits where it cannot be overwritten (e.g. opened straight from Downloads). Move it to the Applications folder or download the new version manually."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Program stoi w miejscu, którego nie da się nadpisać (np. otwarty prosto z Pobranych). Przenieś go do katalogu Aplikacje albo pobierz nową wersję ręcznie."
+          }
+        }
+      }
+    },
     "The colours": {
       "extractionState": "manual",
       "localizations": {
@@ -3143,6 +3466,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lista"
+          }
+        }
+      }
+    },
+    "The new version is installed, but the restart failed. Quit and reopen the app manually.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The new version is installed, but the restart failed. Quit and reopen the app manually."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowa wersja jest zainstalowana, ale restart się nie udał. Zamknij i otwórz program ręcznie."
+          }
+        }
+      }
+    },
+    "The package address leads outside fractal8.eu — the app will not download it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The package address leads outside fractal8.eu — the app will not download it."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adres paczki prowadzi poza serwer fractal8.eu — program jej nie pobierze."
           }
         }
       }
@@ -3402,6 +3759,40 @@
         }
       }
     },
+    "Updates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualizacje"
+          }
+        }
+      }
+    },
+    "Version %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wersja %@."
+          }
+        }
+      }
+    },
     "Volume “%@” is not available. Connect the disk and try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -3657,6 +4048,23 @@
         }
       }
     },
+    "You are up to date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are up to date"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masz najnowszą wersję"
+          }
+        }
+      }
+    },
     "You can also do this from Terminal, even after this window is gone: change-boot uninstall": {
       "extractionState": "manual",
       "localizations": {
@@ -3687,6 +4095,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Okno hasła zostało anulowane."
+          }
+        }
+      }
+    },
+    "You have %@, version %@ is available.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have %@, version %@ is available."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masz %@, dostępna jest %@."
           }
         }
       }
