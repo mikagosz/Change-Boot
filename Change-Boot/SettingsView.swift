@@ -31,6 +31,7 @@ struct SettingsView: View {
     @State private var historia: EventLog.Odczyt = .pusty
     @AppStorage(UpdateSetting.checkUpdates) private var sprawdzajAktualizacje = true
     @ObservedObject private var aktualizacje = Updates.shared
+    @ObservedObject private var poAktualizacji = HelperAfterUpdate.shared
     @State private var pytanieOOdinstalowanie = false
     @State private var wynikOdinstalowania: String?
     @State private var stanPolecenia = CommandLineInstall.opisStanu
@@ -244,6 +245,13 @@ struct SettingsView: View {
             }
 
             Section("Password") {
+                if let wersje = poAktualizacji.pending {
+                    Label("Change-Boot was updated (\(wersje)). Remove the helper and install it again — the old one stops answering after the next restart.",
+                          systemImage: "exclamationmark.triangle")
+                        .font(.callout)
+                        .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 Text("Changing the startup disk needs administrator rights. Install the helper once and Change-Boot stops asking for your password on every switch.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -480,6 +488,8 @@ struct SettingsView: View {
             helperStatus = HelperClient.statusDescription
             historia = EventLog.przeczytaj(6)
             busy = false
+            // Installed again after an update — the reminder has done its job.
+            if HelperClient.isReady { HelperAfterUpdate.shared.helperInstalled() }
             Task { await odswiezStanPomocnika() }
         }
     }

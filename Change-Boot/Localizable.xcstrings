@@ -597,6 +597,57 @@
         }
       }
     },
+    "Change-Boot was updated (%@)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot was updated (%@)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot został zaktualizowany (%@)"
+          }
+        }
+      }
+    },
+    "Change-Boot was updated (%@). Remove the helper and install it again — the old one stops answering after the next restart.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot was updated (%@). Remove the helper and install it again — the old one stops answering after the next restart."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot został zaktualizowany (%@). Usuń pomocnika i zainstaluj go ponownie — stary po najbliższym restarcie przestaje odpowiadać."
+          }
+        }
+      }
+    },
+    "Change-Boot — Helper": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot — Helper"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change-Boot — pomocnik"
+          }
+        }
+      }
+    },
     "Change-Boot — Update": {
       "extractionState": "manual",
       "localizations": {
@@ -1630,6 +1681,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ostatnio: %@"
+          }
+        }
+      }
+    },
+    "Later": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Później"
           }
         }
       }
@@ -3402,6 +3470,23 @@
         }
       }
     },
+    "The helper is installed again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The helper is installed again."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomocnik jest zainstalowany ponownie."
+          }
+        }
+      }
+    },
     "The helper is registered but does not answer. Remove it in Options and install it again.": {
       "extractionState": "manual",
       "localizations": {
@@ -3432,6 +3517,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pomocnik jest zarejestrowany, ale nie odpowiada, więc macOS i tak pyta o hasło. Usuń go tutaj i zainstaluj ponownie."
+          }
+        }
+      }
+    },
+    "The helper is still tied to the previous version and stops answering after the next restart. Remove it and install it again — until then Change-Boot asks for your password on every switch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The helper is still tied to the previous version and stops answering after the next restart. Remove it and install it again — until then Change-Boot asks for your password on every switch."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomocnik jest wciąż przypięty do poprzedniej wersji i po najbliższym restarcie przestanie odpowiadać. Usuń go i zainstaluj ponownie — do tego czasu Change-Boot pyta o hasło przy każdym przełączeniu."
           }
         }
       }
@@ -4435,6 +4537,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS %@ · %@"
+          }
+        }
+      }
+    },
+    "macOS is waiting for your approval in System Settings → General → Login Items.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is waiting for your approval in System Settings → General → Login Items."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS czeka na Twoją zgodę w Ustawieniach systemowych → Ogólne → Obiekty logowania."
           }
         }
       }

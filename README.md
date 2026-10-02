@@ -90,7 +90,9 @@ the running one's code signature requirement. Switch and **Check Now** in
 Options → Updates.
 
 **After every update, install the helper again:** Options → Password → *Remove
-helper*, then *Install helper*. The helper's registration stays tied to the version
+helper*, then *Install helper*. Since 0.2.24 the first launch of a new version
+reminds you in a small window with both buttons (only if the helper was installed),
+and Options keeps a line about it until the helper is back. The helper's registration stays tied to the version
 it was installed from; the old helper keeps working until the Mac restarts, and after
 that launchd can no longer start it, so Change-Boot falls back to asking for your
 password on every switch. macOS may ask you to allow the helper again in System
@@ -195,6 +197,7 @@ Testy/konfiguracja   the list, colours, persistence of a disconnected disk entry
 Testy/pomocnik       shape of the restart, mount point sieve, signature match
 Testy/dziennik       writing and reading, concurrency, argument parsing
 Testy/terminal       colour conversion, panel widths, frame placement
+Testy/poaktualizacji when to remind about installing the helper again after an update
 ```
 
 Without an external disk connected, some checks are **explicitly skipped**, not

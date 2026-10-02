@@ -110,6 +110,9 @@ final class Updates: ObservableObject, ErrorUpdateDelegate {
             supportEmail: "support@fractal8.eu"
         ))
         ErrorUpdateManager.shared.delegate = self
+        // First launch of a newer version (ErrorUpdate 1.0.6): the helper has to be installed again.
+        HelperAfterUpdate.shared.noteLaunch(ErrorUpdateManager.shared.completedUpdate,
+                                            helperStatus: HelperClient.status)
         schedule()
     }
 
@@ -135,9 +138,9 @@ final class Updates: ObservableObject, ErrorUpdateDelegate {
     func check(manually: Bool) async {
         if !manually && !enabled { return }
         lastError = nil
-        // Not forced for the monthly check: only then does the package honour "Skip This Version"
+        // `.automatic` for the monthly check: only then does the package honour "Skip This Version"
         // and its guard against offering an update that already installed without effect.
-        await ErrorUpdateManager.shared.checkForUpdates(force: manually)
+        await ErrorUpdateManager.shared.checkForUpdates(manually ? .user : .automatic)
         guard let info = ErrorUpdateManager.shared.availableUpdate else {
             available = nil
             install = .idle
