@@ -123,6 +123,20 @@ struct MenuBarContent: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openWindow) private var openWindow
 
+    /// Menu paska nie ma okna, do którego da się przypiąć `confirmationDialog`,
+    /// więc pytamy zwykłym `NSAlert` — te same teksty co w oknie programu.
+    static func potwierdzRestart(z nazwa: String, czystyStart: Bool) -> Bool {
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Restart from “\(nazwa)”?")
+        alert.informativeText = czystyStart
+            ? String(localized: "Apps and windows from this session will not come back.")
+            : String(localized: "macOS will reopen the apps and windows you have open now.")
+        alert.addButton(withTitle: String(localized: "Restart"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        return alert.runModal() == .alertFirstButtonReturn
+    }
+
     var body: some View {
         @Bindable var configuration = model.configuration
 
@@ -133,8 +147,14 @@ struct MenuBarContent: View {
 
         ForEach(model.rows) { row in
             if let system = row.system, !model.isCurrent(system) {
-                Button("Restart from \(system.name)") {
-                    model.switchTo(system, cleanStart: model.configuration.cleanStartByDefault)
+                // Wielokropek i pytanie jak w oknie programu i w TUI. Do 0.2.24 pozycja
+                // restartowała Maca od razu, bez pytania (audyt SBW 2026-09-24,
+                // decyzja [U] 2026-10-05: „dodaj ostrzeżenie przed zamknięciem”).
+                Button("Restart from \(system.name)…") {
+                    let czysty = model.configuration.cleanStartByDefault
+                    if MenuBarContent.potwierdzRestart(z: system.name, czystyStart: czysty) {
+                        model.switchTo(system, cleanStart: czysty)
+                    }
                 }
             }
         }

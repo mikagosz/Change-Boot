@@ -2824,6 +2824,23 @@
         }
       }
     },
+    "Restart from %@…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart from %@…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom ponownie z %@…"
+          }
+        }
+      }
+    },
     "Restart from “%@”?": {
       "extractionState": "manual",
       "localizations": {
